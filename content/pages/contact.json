@@ -1,0 +1,10 @@
+{
+  "title": "Contact",
+  "slug": "contact",
+  "draft": false,
+  "inMenu": true,
+  "order": 2,
+  "image": "",
+  "contactForm": true,
+  "body": "<p>For print sales, commissions and licensing, send a message below.</p>"
+}

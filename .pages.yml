@@ -1,0 +1,95 @@
+# Editor setup for Pages CMS (https://app.pagescms.org). Sign in there with GitHub and open this repository.
+media:
+  input: photos
+  output: /photos
+  categories: [image]
+
+content:
+  - name: galleries
+    label: Galleries
+    type: collection
+    path: content/galleries
+    format: json
+    filename: "{primary}.json"
+    view:
+      fields: [title, draft, order]
+      primary: title
+      sort: [order, title]
+    fields:
+      - { name: title, label: Gallery name, type: string, required: true }
+      - { name: draft, label: "Draft (hidden until you turn this off)", type: boolean, default: true }
+      - { name: slug, label: "Web address (e.g. landscapes). Leave blank to use the name", type: string }
+      - { name: order, label: "Menu order (1 = first)", type: number, default: 10 }
+      - { name: featured, label: Show on home page, type: boolean, default: true }
+      - name: layout
+        label: Layout
+        type: select
+        default: masonry
+        options:
+          values:
+            - { value: masonry, label: "Masonry (keeps each photo's shape)" }
+            - { value: grid, label: "Grid (even squares)" }
+            - { value: single, label: "One large photo at a time" }
+      - { name: cover, label: Cover photo, type: image }
+      - { name: description, label: Introduction, type: rich-text }
+      - name: photos
+        label: "Photos (drag to reorder)"
+        type: object
+        list: true
+        fields:
+          - { name: image, label: Photo, type: image, required: true }
+          - { name: title, label: Title, type: string }
+          - { name: caption, label: Caption, type: string }
+          - { name: alt, label: "Description for screen readers", type: string }
+          - { name: forSale, label: Sell as a limited-edition print, type: boolean, default: false }
+          - { name: editionSize, label: "Edition size (e.g. 25)", type: number }
+          - { name: editionsSold, label: Prints sold so far, type: number, default: 0 }
+          - { name: printSize, label: "Print size (e.g. 20 × 30 in)", type: string }
+          - { name: price, label: "Price (number only)", type: string }
+          - { name: buyLink, label: "Stripe payment link (leave blank to show an Enquire button)", type: string }
+
+  - name: pages
+    label: Pages
+    type: collection
+    path: content/pages
+    format: json
+    filename: "{primary}.json"
+    view:
+      fields: [title, draft, inMenu]
+      primary: title
+    fields:
+      - { name: title, label: Page title, type: string, required: true }
+      - { name: draft, label: "Draft (hidden until you turn this off)", type: boolean, default: true }
+      - { name: slug, label: "Web address (e.g. about). Leave blank to use the title", type: string }
+      - { name: inMenu, label: Show in menu, type: boolean, default: true }
+      - { name: order, label: "Menu order (1 = first)", type: number, default: 10 }
+      - { name: image, label: Side photo, type: image }
+      - { name: body, label: Text, type: rich-text }
+      - { name: contactForm, label: Show the contact form on this page, type: boolean, default: false }
+
+  - name: site
+    label: Site settings
+    type: file
+    path: content/site.json
+    format: json
+    fields:
+      - { name: title, label: Site name, type: string }
+      - { name: tagline, label: Tagline, type: string }
+      - name: homeSlides
+        label: "Home page slideshow (drag to reorder)"
+        type: object
+        list: true
+        fields:
+          - { name: image, label: Photo, type: image }
+          - { name: title, label: Title, type: string }
+      - { name: homeSlideSeconds, label: Seconds per slide, type: number }
+      - { name: homeButtonLabel, label: Home page button text, type: string }
+      - { name: galleriesMenuLabel, label: Menu name for galleries, type: string }
+      - { name: showShop, label: Show the Prints page, type: boolean }
+      - { name: shopMenuLabel, label: Menu name for prints, type: string }
+      - { name: shopIntro, label: Prints page introduction, type: rich-text }
+      - { name: currencySymbol, label: Currency symbol, type: string }
+      - { name: contactPageSlug, label: "Web address of the contact page (used by Enquire buttons)", type: string }
+      - { name: formEndpoint, label: "Contact form address (Web3Forms or Formspree)", type: string }
+      - { name: formAccessKey, label: "Web3Forms access key", type: string }
+      - { name: customDomain, label: "Custom domain (e.g. www.scotthuntphoto.com)", type: string }

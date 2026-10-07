@@ -1,0 +1,40 @@
+{
+  "title": "Portraits",
+  "slug": "portraits",
+  "draft": false,
+  "order": 2,
+  "featured": true,
+  "layout": "grid",
+  "cover": "photos/samples/sample-06.jpg",
+  "description": "",
+  "photos": [
+    {
+      "image": "photos/samples/sample-06.jpg",
+      "title": "Sample 6",
+      "caption": "",
+      "alt": "",
+      "forSale": false
+    },
+    {
+      "image": "photos/samples/sample-07.jpg",
+      "title": "Sample 7",
+      "caption": "",
+      "alt": "",
+      "forSale": false
+    },
+    {
+      "image": "photos/samples/sample-08.jpg",
+      "title": "Sample 8",
+      "caption": "",
+      "alt": "",
+      "forSale": false
+    },
+    {
+      "image": "photos/samples/sample-09.jpg",
+      "title": "Sample 9",
+      "caption": "",
+      "alt": "",
+      "forSale": false
+    }
+  ]
+}

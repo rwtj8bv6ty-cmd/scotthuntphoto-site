@@ -1,0 +1,33 @@
+{
+  "title": "New Work",
+  "slug": "new-work",
+  "draft": true,
+  "order": 3,
+  "featured": true,
+  "layout": "single",
+  "cover": "photos/samples/sample-10.jpg",
+  "description": "<p>An example draft gallery. It is hidden from the menu until you turn off Draft.</p>",
+  "photos": [
+    {
+      "image": "photos/samples/sample-10.jpg",
+      "title": "Sample 10",
+      "caption": "",
+      "alt": "",
+      "forSale": false
+    },
+    {
+      "image": "photos/samples/sample-11.jpg",
+      "title": "Sample 11",
+      "caption": "",
+      "alt": "",
+      "forSale": false
+    },
+    {
+      "image": "photos/samples/sample-12.jpg",
+      "title": "Sample 12",
+      "caption": "",
+      "alt": "",
+      "forSale": false
+    }
+  ]
+}

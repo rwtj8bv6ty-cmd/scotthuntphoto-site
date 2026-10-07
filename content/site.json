@@ -1,0 +1,33 @@
+{
+  "title": "Scott Hunt",
+  "tagline": "Fine Art Photography",
+  "homeSlides": [
+    {
+      "image": "photos/samples/sample-01.jpg",
+      "title": "Sample 1"
+    },
+    {
+      "image": "photos/samples/sample-03.jpg",
+      "title": "Sample 3"
+    },
+    {
+      "image": "photos/samples/sample-05.jpg",
+      "title": "Sample 5"
+    },
+    {
+      "image": "photos/samples/sample-07.jpg",
+      "title": "Sample 7"
+    }
+  ],
+  "homeSlideSeconds": 6,
+  "homeButtonLabel": "View the work",
+  "galleriesMenuLabel": "Galleries",
+  "showShop": true,
+  "shopMenuLabel": "Prints",
+  "shopIntro": "<p>Archival pigment prints, signed and numbered, in strictly limited editions.</p>",
+  "currencySymbol": "$",
+  "contactPageSlug": "contact",
+  "formEndpoint": "https://api.web3forms.com/submit",
+  "formAccessKey": "",
+  "customDomain": ""
+}
