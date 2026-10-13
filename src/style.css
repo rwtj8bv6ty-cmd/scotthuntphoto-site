@@ -83,8 +83,8 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
 .layout-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
 .layout-grid .photo { margin: 0; }
 .layout-grid .photo img { aspect-ratio: 1; object-fit: cover; width: 100%; }
-.layout-single { max-width: 1200px; margin: 0 auto; }
-.layout-single .photo { margin: 0 0 72px; }
+.layout-single { max-width: 1600px; margin: 0 auto; }
+.layout-single .photo { margin: 0 0 48px; }
 @media (max-width: 760px) { .gallery { padding: 0 16px 60px; } }
 .photo .open { all: unset; cursor: zoom-in; display: block; width: 100%; }
 .photo img { width: 100%; transition: opacity .4s; }

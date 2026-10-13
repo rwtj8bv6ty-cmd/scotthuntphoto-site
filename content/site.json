@@ -3,20 +3,32 @@
   "tagline": "Fine Art Photography",
   "homeSlides": [
     {
-      "image": "photos/samples/sample-01.jpg",
-      "title": "Sample 1"
+      "image": "/photos/the-space-between/alabama-hills-1.jpg",
+      "title": ""
     },
     {
-      "image": "photos/samples/sample-03.jpg",
-      "title": "Sample 3"
+      "image": "/photos/the-space-between/andes-1.jpg",
+      "title": ""
     },
     {
-      "image": "photos/samples/sample-05.jpg",
-      "title": "Sample 5"
+      "image": "/photos/the-space-between/big-sur-1.jpg",
+      "title": ""
     },
     {
-      "image": "photos/samples/sample-07.jpg",
-      "title": "Sample 7"
+      "image": "/photos/the-space-between/great-sand-dunes.jpg",
+      "title": ""
+    },
+    {
+      "image": "/photos/the-space-between/lake-louise.jpg",
+      "title": ""
+    },
+    {
+      "image": "/photos/the-space-between/zion-2.jpg",
+      "title": ""
+    },
+    {
+      "image": "/photos/the-space-between/death-valley-1.jpg",
+      "title": ""
     }
   ],
   "homeSlideSeconds": 6,
