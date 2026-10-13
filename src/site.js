@@ -31,7 +31,7 @@ if (lb) {
     at = (n + photos.length) % photos.length;
     const p = photos[at];
     lbImg.src = p.src;
-    lbImg.alt = p.title;
+    lbImg.alt = '';
     lbCap.innerHTML = (p.title ? `<strong>${p.title.replace(/</g, '&lt;')}</strong> ` : '') + (p.caption ? p.caption.replace(/</g, '&lt;') : '') + (p.edition || '');
     lbImg.style.animation = 'none'; lbImg.offsetHeight; lbImg.style.animation = '';
   };

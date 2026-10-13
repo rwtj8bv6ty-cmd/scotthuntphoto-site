@@ -41,5 +41,6 @@
   "contactPageSlug": "contact",
   "formEndpoint": "https://api.web3forms.com/submit",
   "formAccessKey": "",
-  "customDomain": ""
+  "customDomain": "",
+  "showCaptions": false
 }

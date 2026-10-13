@@ -82,6 +82,7 @@ content:
         fields:
           - { name: image, label: Photo, type: image }
           - { name: title, label: Title, type: string }
+      - { name: showCaptions, label: Show photo titles and captions to visitors, type: boolean, default: false }
       - { name: homeSlideSeconds, label: Seconds per slide, type: number }
       - { name: homeButtonLabel, label: Home page button text, type: string }
       - { name: galleriesMenuLabel, label: Menu name for galleries, type: string }

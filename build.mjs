@@ -121,10 +121,11 @@ function editionInfo(p) {
 }
 
 function photoFigure(p, i) {
-  const data = { src: img(p.image), title: p.title || '', caption: p.caption || '', edition: editionInfo(p) };
+  const show = site.showCaptions === true; // titles and captions stay hidden from visitors unless turned on in Site settings
+  const data = { src: img(p.image), title: show ? p.title || '' : '', caption: show ? p.caption || '' : '', edition: editionInfo(p) };
   return `<figure class="photo" data-index="${i}" data-photo='${esc(JSON.stringify(data))}'>
-  <button class="open" aria-label="View ${esc(p.title || 'photo')} larger"><img src="${img(p.image)}" alt="${esc(p.alt || p.title || '')}" loading="lazy"></button>
-  ${p.title || p.caption ? `<figcaption>${p.title ? `<strong>${esc(p.title)}</strong>` : ''}${p.caption ? ` <span>${esc(p.caption)}</span>` : ''}</figcaption>` : ''}
+  <button class="open" aria-label="View photo larger"><img src="${img(p.image)}" alt="${esc(p.alt || '')}" loading="lazy"></button>
+  ${show && (p.title || p.caption) ? `<figcaption>${p.title ? `<strong>${esc(p.title)}</strong>` : ''}${p.caption ? ` <span>${esc(p.caption)}</span>` : ''}</figcaption>` : ''}
   ${editionInfo(p)}
 </figure>`;
 }
