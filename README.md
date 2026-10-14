@@ -30,11 +30,13 @@ A fast, hand-built photography site hosted free on GitHub Pages, edited through 
 Every new gallery and page starts as a **Draft**. Drafts never appear in the menu or search engines.
 Preview them at `your-site/drafts/`. When it's ready, turn off **Draft** and save — that's publishing.
 
-### Selling limited-edition prints
-On any photo, turn on **Sell as a limited-edition print** and fill in edition size, print size and price.
-- The photo appears on the **Prints** page with "x remaining", and shows *Sold out* when sold = edition size.
-- For checkout, create a **Stripe Payment Link** (stripe.com → Payment links, set the quantity limit to the edition size) and paste it into *Stripe payment link*. Without a link, buyers get an **Enquire** button that opens the contact form with the photo's name filled in.
-- After a sale, raise *Prints sold so far*.
+### Selling limited-edition prints (Rock'n H)
+Prints are sold on the Rock'n H side, from **Rock'n H print collections** in the editor.
+- Each print has a photo, title, description, edition size, prints sold so far, and a list of **sizes and prices**.
+- For checkout, create a **Stripe Payment Link** per size (stripe.com → Payment links) and paste it next to that size. Sizes without a link show an **Enquire** button that opens the Rock'n H contact form with the print's name filled in.
+- When *prints sold* reaches the edition size, the print shows **Sold out**.
+- Turn on *Show on the Rock'n H home page* to feature a print.
+- The Rock'n H home page text (heading, artist statement, about, newsletter) is in **Site settings**.
 
 ### Home page
 Site settings → *Home page slideshow*: choose the photos that fade in behind your name, and drag to reorder.

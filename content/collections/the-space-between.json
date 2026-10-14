@@ -1,0 +1,122 @@
+{
+  "title": "The Space Between",
+  "slug": "the-space-between-prints",
+  "draft": false,
+  "order": 1,
+  "cover": "",
+  "description": "<p>Panoramic landscapes. Placeholder prints: set sizes, prices and Stripe links in the editor.</p>",
+  "prints": [
+    {
+      "image": "/photos/the-space-between/alabama-hills-1.jpg",
+      "title": "Alabama Hills",
+      "description": "",
+      "alt": "",
+      "featured": true,
+      "editionSize": 25,
+      "editionsSold": 0,
+      "sizes": [
+        {
+          "label": "Placeholder size",
+          "price": "",
+          "buyLink": ""
+        }
+      ]
+    },
+    {
+      "image": "/photos/the-space-between/andes-1.jpg",
+      "title": "Andes",
+      "description": "",
+      "alt": "",
+      "featured": true,
+      "editionSize": 25,
+      "editionsSold": 0,
+      "sizes": [
+        {
+          "label": "Placeholder size",
+          "price": "",
+          "buyLink": ""
+        }
+      ]
+    },
+    {
+      "image": "/photos/the-space-between/big-sur-1.jpg",
+      "title": "Big Sur",
+      "description": "",
+      "alt": "",
+      "featured": true,
+      "editionSize": 25,
+      "editionsSold": 0,
+      "sizes": [
+        {
+          "label": "Placeholder size",
+          "price": "",
+          "buyLink": ""
+        }
+      ]
+    },
+    {
+      "image": "/photos/the-space-between/great-sand-dunes.jpg",
+      "title": "Great Sand Dunes",
+      "description": "",
+      "alt": "",
+      "featured": true,
+      "editionSize": 25,
+      "editionsSold": 0,
+      "sizes": [
+        {
+          "label": "Placeholder size",
+          "price": "",
+          "buyLink": ""
+        }
+      ]
+    },
+    {
+      "image": "/photos/the-space-between/lake-louise.jpg",
+      "title": "Lake Louise",
+      "description": "",
+      "alt": "",
+      "featured": true,
+      "editionSize": 25,
+      "editionsSold": 0,
+      "sizes": [
+        {
+          "label": "Placeholder size",
+          "price": "",
+          "buyLink": ""
+        }
+      ]
+    },
+    {
+      "image": "/photos/the-space-between/zion-2.jpg",
+      "title": "Zion",
+      "description": "",
+      "alt": "",
+      "featured": true,
+      "editionSize": 25,
+      "editionsSold": 0,
+      "sizes": [
+        {
+          "label": "Placeholder size",
+          "price": "",
+          "buyLink": ""
+        }
+      ]
+    },
+    {
+      "image": "/photos/the-space-between/death-valley-1.jpg",
+      "title": "Death Valley",
+      "description": "",
+      "alt": "",
+      "featured": true,
+      "editionSize": 25,
+      "editionsSold": 0,
+      "sizes": [
+        {
+          "label": "Placeholder size",
+          "price": "",
+          "buyLink": ""
+        }
+      ]
+    }
+  ]
+}

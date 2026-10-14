@@ -41,10 +41,22 @@ const pages = readDir(path.join(ROOT, 'content/pages'))
   .sort(byOrder);
 
 const live = (x) => !x.draft;
+// Rock'n H print collections: content/collections/*.json, each with a list of prints for sale.
+const collections = readDir(path.join(ROOT, 'content/collections')).map((c) => ({ ...c, slug: c.slug || slugify(c.title) })).sort(byOrder);
+const usedPrintSlugs = new Set();
+for (const c of collections) {
+  c.prints = (c.prints || []).filter((p) => p && p.image).map((p) => {
+    const base = slugify(p.title || path.basename(p.image).replace(/\.[^.]+$/, '')) || 'print';
+    let slug = base, n = 2;
+    while (usedPrintSlugs.has(slug)) slug = `${base}-${n++}`;
+    usedPrintSlugs.add(slug);
+    return { ...p, slug, collection: c };
+  });
+}
+const liveCollections = collections.filter(live);
+const allPrints = liveCollections.flatMap((c) => c.prints);
 const photosFor = (g) => (g.photos || []).filter((p) => p && p.image);
-const forSale = galleries.filter(live).flatMap((g) => photosFor(g).filter((p) => p.forSale).map((p) => ({ ...p, gallery: g })));
-const showShop = site.showShop !== false && forSale.length > 0;
-const menuPages = (side) => pages.filter((p) => live(p) && p.inMenu !== false && p.side === side && p.slug !== 'rockn-h');
+const menuPages = (side) => pages.filter((p) => live(p) && p.inMenu !== false && p.side === side);
 
 // ---------- navigation ----------
 function photoNav(current) {
@@ -64,15 +76,16 @@ function photoNav(current) {
 
 function rockNav(current) {
   const link = (href, title) => `<li${href === current ? ' class="active"' : ''}><a href="${href}">${esc(title)}</a></li>`;
+  const sub = [`<li><a href="${url(`${ROCK_HOME}collections/`)}">All Prints</a></li>`, ...liveCollections.map((c) => `<li><a href="${url(`${ROCK_HOME}collections/${c.slug}/`)}">${esc(c.title)}</a></li>`)].join('');
   const items = [
-    ...(showShop ? [link(url('prints/'), site.shopMenuLabel || 'Prints')] : []),
+    link(url(ROCK_HOME), 'Home'),
+    ...(liveCollections.length ? [`<li class="has-sub${String(current).includes('/collections/') || String(current).includes('/prints/') ? ' active' : ''}"><a href="${url(`${ROCK_HOME}collections/`)}">${esc(site.rockPrintsMenuLabel || 'The Prints')}</a><ul>${sub}</ul></li>`] : []),
     ...menuPages('rocknh').map((p) => link(url(`${p.slug}/`), p.menuTitle || p.title)),
-    `<li><a href="${url(PHOTO_HOME)}">${esc(PHOTO_NAME)} →</a></li>`,
   ].join('');
   return `<header class="site-header">
-  <a class="brand" href="${url(ROCK_HOME)}">${esc(ROCK_NAME)}</a>
+  <a class="brand" href="${url(ROCK_HOME)}">${site.rockLogo ? `<img src="${img(site.rockLogo)}" alt="${esc(ROCK_NAME)}">` : esc(ROCK_NAME)}</a>
   <button class="menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
-  <nav><ul>${items}</ul></nav>
+  <nav><ul>${items}<li class="nav-switch"><a href="${url(PHOTO_HOME)}">${esc(PHOTO_NAME)} →</a></li></ul></nav>
 </header>`;
 }
 
@@ -165,13 +178,6 @@ function galleryBody(g) {
 <script type="application/json" class="ss-data">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>`;
 }
 
-function shopBody() {
-  return `<section class="page-head"><h1>${esc(site.shopMenuLabel || 'Prints')}</h1>${site.shopIntro ? `<div class="intro">${site.shopIntro}</div>` : ''}</section>
-<section class="shop-grid">${forSale
-    .map((p) => `<figure class="shop-item"><img src="${thumb(p.image)}" alt="${esc(p.alt || '')}" loading="lazy">${editionInfo(p)}</figure>`)
-    .join('')}</section>`;
-}
-
 function pageBody(p) {
   const form =
     p.contactForm && site.formEndpoint
@@ -192,6 +198,108 @@ function pageBody(p) {
 <article class="prose${p.image ? ' with-image' : ''}">${p.image ? `<img class="page-image" src="${img(p.image)}" alt="">` : ''}<div>${p.body || ''}${form}</div></article>`;
 }
 
+
+// ---------- Rock'n H (print shop) ----------
+const money = (v) => `${esc(site.currencySymbol || '$')}${Number(String(v).replace(/[^0-9.]/g, '')).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+const priced = (p) => (p.sizes || []).filter((z) => z && z.price !== undefined && z.price !== '');
+function fromPrice(p) {
+  const prices = priced(p).map((z) => Number(String(z.price).replace(/[^0-9.]/g, ''))).filter((n) => !isNaN(n));
+  return prices.length ? `From ${money(Math.min(...prices))}` : 'Price on request';
+}
+function remaining(p) {
+  const size = Number(p.editionSize) || 0;
+  if (!size) return null;
+  return Math.max(size - (Number(p.editionsSold) || 0), 0);
+}
+function printCard(p) {
+  const left = remaining(p);
+  return `<a class="product-card" href="${url(`${ROCK_HOME}prints/${p.slug}/`)}">
+  <span class="pc-img"><img src="${thumb(p.image)}" alt="${esc(p.alt || '')}" loading="lazy">${left === 0 ? '<span class="badge">Sold out</span>' : ''}</span>
+  <span class="pc-title">${esc(p.title || 'Untitled')}</span>
+  <span class="pc-price">${fromPrice(p)}</span>
+</a>`;
+}
+const enquireHref = (p) => `${url(`${site.rockContactSlug || 'rockn-h-contact'}/`)}?about=${encodeURIComponent(p.title || p.slug)}`;
+
+function newsletter() {
+  if (!site.rockNewsletter || !site.formEndpoint) return '';
+  return `<section class="rk-newsletter">
+  <h2>${esc(site.rockNewsletterHeading || 'Be the first to see new releases')}</h2>
+  <form class="contact newsletter" action="${esc(site.formEndpoint)}" method="POST">
+    ${site.formAccessKey ? `<input type="hidden" name="access_key" value="${esc(site.formAccessKey)}">` : ''}
+    <input type="hidden" name="subject" value="Newsletter sign-up from ${esc(ROCK_NAME)}">
+    <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off">
+    <label class="sr">Email<input name="email" type="email" required placeholder="Email" autocomplete="email"></label>
+    <button type="submit">Subscribe</button>
+    <p class="form-status" aria-live="polite"></p>
+  </form>
+</section>`;
+}
+
+function rockHomeBody() {
+  const featured = allPrints.filter((p) => p.featured).length ? allPrints.filter((p) => p.featured) : allPrints;
+  const hero = site.rockHeroImage || allPrints[0]?.image;
+  const statement = site.rockStatementText
+    ? `<section class="rk-statement"><h2>${esc(site.rockStatementHeading || '')}</h2><div>${site.rockStatementText}</div><a class="rk-btn" href="${url(`${ROCK_HOME}collections/`)}">${esc(site.rockHeroButton || 'Explore the collection')}</a></section>`
+    : '';
+  const cards = liveCollections
+    .map((c) => {
+      const cover = c.cover || c.prints[0]?.image;
+      return `<a class="card" href="${url(`${ROCK_HOME}collections/${c.slug}/`)}">${cover ? `<img src="${img(cover)}" alt="" loading="lazy">` : ''}<span>${esc(c.title)}</span></a>`;
+    })
+    .join('');
+  const artist = site.rockArtistText
+    ? `<section class="rk-artist">${site.rockArtistPhoto ? `<img src="${img(site.rockArtistPhoto)}" alt="">` : ''}<div><h2>${esc(site.rockArtistHeading || 'About the artist')}</h2>${site.rockArtistText}</div></section>`
+    : '';
+  return `<section class="rk-hero"${hero ? ` style="background-image:url('${img(hero)}')"` : ''}>
+  <div class="rk-hero-text">
+    <h1>${esc(site.rockHeroHeading || ROCK_NAME)}</h1>
+    ${site.rockHeroText ? `<p>${esc(site.rockHeroText)}</p>` : ''}
+    ${allPrints.length ? `<a class="rk-btn light" href="${url(`${ROCK_HOME}collections/`)}">${esc(site.rockHeroButton || 'Explore the collection')}</a>` : ''}
+  </div>
+</section>
+${featured.length ? `<section class="rk-section"><div class="rk-head"><h2>${esc(site.rockFeaturedHeading || 'Featured prints')}</h2><a href="${url(`${ROCK_HOME}collections/`)}">View all</a></div><div class="product-grid">${featured.slice(0, 12).map(printCard).join('')}</div></section>` : ''}
+${statement}
+${liveCollections.length > 1 ? `<section class="rk-section"><div class="rk-head"><h2>Collections</h2></div><div class="cards rk-cards">${cards}</div></section>` : ''}
+${artist}
+${newsletter()}`;
+}
+
+function collectionBody(title, prints, intro = '') {
+  return `<section class="rk-section"><div class="rk-head"><h1>${esc(title)}</h1><span class="rk-count">${prints.length} ${prints.length === 1 ? 'print' : 'prints'}</span></div>
+${intro ? `<div class="intro rk-intro">${intro}</div>` : ''}
+<div class="product-grid">${prints.map(printCard).join('')}</div></section>
+${newsletter()}`;
+}
+
+function productBody(p) {
+  const left = remaining(p);
+  const soldOut = left === 0;
+  const sizes = priced(p);
+  const options = sizes
+    .map((z, i) => `<label class="size"><input type="radio" name="size" value="${i}" data-price="${esc(money(z.price))}" data-link="${esc(z.buyLink || '')}"${i === 0 ? ' checked' : ''}><span>${esc(z.label || `Option ${i + 1}`)}</span></label>`)
+    .join('');
+  const first = sizes[0];
+  const buy = soldOut
+    ? '<span class="rk-btn disabled">Sold out</span>'
+    : `<a class="rk-btn buy-now" href="${esc(first?.buyLink || enquireHref(p))}" data-enquire="${esc(enquireHref(p))}"${first?.buyLink ? ' target="_blank" rel="noopener"' : ''}>${first?.buyLink ? 'Buy now' : 'Enquire'}</a>`;
+  const edition = [p.editionSize ? `Limited edition of ${esc(p.editionSize)}` : '', left !== null && !soldOut ? `${left} remaining` : ''].filter(Boolean).join(' · ');
+  return `<section class="product">
+  <div class="product-img"><img src="${img(p.image)}" alt="${esc(p.alt || '')}"></div>
+  <div class="product-info">
+    <p class="crumb"><a href="${url(`${ROCK_HOME}collections/${p.collection.slug}/`)}">${esc(p.collection.title)}</a></p>
+    <h1>${esc(p.title || 'Untitled')}</h1>
+    <p class="price">${first ? money(first.price) : 'Price on request'}${soldOut ? ' <span class="badge">Sold out</span>' : ''}</p>
+    ${edition ? `<p class="edition-line">${edition}</p>` : ''}
+    ${options ? `<fieldset class="sizes"><legend>Size</legend>${options}</fieldset>` : ''}
+    ${buy}
+    ${p.description ? `<div class="product-desc">${p.description}</div>` : ''}
+    ${site.rockPrintDetails ? `<details class="product-details"><summary>About the prints</summary>${site.rockPrintDetails}</details>` : ''}
+    ${site.rockShippingDetails ? `<details class="product-details"><summary>Shipping and returns</summary>${site.rockShippingDetails}</details>` : ''}
+  </div>
+</section>`;
+}
+
 // ---------- write ----------
 function write(rel, html) {
   const file = path.join(OUT, rel, 'index.html');
@@ -210,20 +318,20 @@ copyDir(path.join(ROOT, 'photos'), path.join(OUT, 'photos'));
 
 write('', layout({ body: entranceBody(), side: 'entrance', bodyClass: 'home' }));
 write(PHOTO_HOME, layout({ body: photoHomeBody(), current: url(PHOTO_HOME), bodyClass: 'photo-home' }));
-// The Rock'n H landing page is the page with the slug "rockn-h"; a placeholder is used until it exists.
-const rockHome = pages.find((p) => p.slug === 'rockn-h' && live(p));
-write(
-  ROCK_HOME,
-  layout({
-    title: rockHome?.title,
-    side: 'rocknh',
-    current: url(ROCK_HOME),
-    body: rockHome ? pageBody(rockHome) : `<section class="page-head"><h1>${esc(ROCK_NAME)}</h1><div class="intro"><p>Coming soon.</p></div></section>`,
-  }),
-);
-// Old address of the galleries list: send visitors to the photography side.
-write('galleries', `<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=${url(PHOTO_HOME)}"><link rel="canonical" href="${url(PHOTO_HOME)}">`);
-if (showShop) write('prints', layout({ title: site.shopMenuLabel || 'Prints', side: 'rocknh', body: shopBody(), current: url('prints/') }));
+write(ROCK_HOME, layout({ side: 'rocknh', current: url(ROCK_HOME), body: rockHomeBody(), bodyClass: 'rock-home' }));
+write(`${ROCK_HOME}collections`, layout({ title: 'All Prints', side: 'rocknh', current: url(`${ROCK_HOME}collections/`), body: collectionBody('All Prints', allPrints) }));
+for (const c of collections) {
+  const where = c.draft ? `drafts/collections/${c.slug}` : `${ROCK_HOME}collections/${c.slug}`;
+  write(where, layout({ title: c.title, side: 'rocknh', draft: !!c.draft, current: url(`${ROCK_HOME}collections/${c.slug}/`), body: collectionBody(c.title, c.prints, c.description) }));
+  for (const p of c.prints) {
+    const pw = c.draft ? `drafts/prints/${p.slug}` : `${ROCK_HOME}prints/${p.slug}`;
+    write(pw, layout({ title: p.title, side: 'rocknh', draft: !!c.draft, current: url(`${ROCK_HOME}prints/${p.slug}/`), body: productBody(p) }));
+  }
+}
+// Old addresses: send visitors to the right side.
+const redirect = (to) => `<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=${to}"><link rel="canonical" href="${to}">`;
+write('galleries', redirect(url(PHOTO_HOME)));
+write('prints', redirect(url(`${ROCK_HOME}collections/`)));
 
 const drafts = [];
 for (const g of galleries) {
@@ -231,8 +339,8 @@ for (const g of galleries) {
   write(where, layout({ title: g.title, body: galleryBody(g), current: url(`${g.slug}/`), draft: !!g.draft, bodyClass: 'gallery-page' }));
   if (g.draft) drafts.push({ kind: 'Gallery', title: g.title, href: url(`${where}/`) });
 }
+for (const c of collections.filter((c) => c.draft)) drafts.push({ kind: 'Print collection', title: c.title, href: url(`drafts/collections/${c.slug}/`) });
 for (const p of pages) {
-  if (p.slug === 'rockn-h' && live(p)) continue;
   const where = p.draft ? `drafts/${p.slug}` : p.slug;
   write(where, layout({ title: p.title, side: p.side, body: pageBody(p), current: url(`${p.slug}/`), draft: !!p.draft }));
   if (p.draft) drafts.push({ kind: 'Page', title: p.title, href: url(`${where}/`) });
@@ -251,4 +359,4 @@ fs.writeFileSync(path.join(OUT, 'robots.txt'), 'User-agent: *\nDisallow: /drafts
 fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
 if (site.customDomain) fs.writeFileSync(path.join(OUT, 'CNAME'), site.customDomain + '\n');
 
-console.log(`Built ${galleries.filter(live).length} galleries, ${pages.filter(live).length} pages, ${forSale.length} prints for sale, ${drafts.length} drafts.`);
+console.log(`Built ${galleries.filter(live).length} galleries, ${pages.filter(live).length} pages, ${allPrints.length} prints in ${liveCollections.length} collections, ${drafts.length} drafts.`);

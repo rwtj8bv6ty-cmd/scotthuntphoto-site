@@ -1,0 +1,11 @@
+{
+  "title": "Show Calendar",
+  "slug": "show-calendar",
+  "side": "rocknh",
+  "draft": true,
+  "inMenu": true,
+  "order": 3,
+  "image": "",
+  "contactForm": false,
+  "body": "<p>Placeholder. List upcoming art shows and exhibitions.</p>"
+}

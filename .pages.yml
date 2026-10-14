@@ -41,12 +41,6 @@ content:
           - { name: title, label: Title, type: string }
           - { name: caption, label: Caption, type: string }
           - { name: alt, label: "Description for screen readers", type: string }
-          - { name: forSale, label: Sell as a limited-edition print, type: boolean, default: false }
-          - { name: editionSize, label: "Edition size (e.g. 25)", type: number }
-          - { name: editionsSold, label: Prints sold so far, type: number, default: 0 }
-          - { name: printSize, label: "Print size (e.g. 20 × 30 in)", type: string }
-          - { name: price, label: "Price (number only)", type: string }
-          - { name: buyLink, label: "Stripe payment link (leave blank to show an Enquire button)", type: string }
 
   - name: pages
     label: Pages
@@ -75,6 +69,43 @@ content:
       - { name: body, label: Text, type: rich-text }
       - { name: contactForm, label: Show the contact form on this page, type: boolean, default: false }
 
+  - name: collections
+    label: "Rock'n H print collections"
+    type: collection
+    path: content/collections
+    format: json
+    filename: "{primary}.json"
+    view:
+      fields: [title, draft, order]
+      primary: title
+    fields:
+      - { name: title, label: Collection name, type: string, required: true }
+      - { name: draft, label: "Draft (hidden until you turn this off)", type: boolean, default: true }
+      - { name: slug, label: "Web address. Leave blank to use the name", type: string }
+      - { name: order, label: "Menu order (1 = first)", type: number, default: 10 }
+      - { name: cover, label: Cover photo, type: image }
+      - { name: description, label: Introduction, type: rich-text }
+      - name: prints
+        label: "Prints (drag to reorder)"
+        type: object
+        list: true
+        fields:
+          - { name: image, label: Photo, type: image, required: true }
+          - { name: title, label: Title, type: string }
+          - { name: featured, label: Show on the Rock'n H home page, type: boolean, default: false }
+          - { name: description, label: Description, type: rich-text }
+          - { name: alt, label: "Description for screen readers", type: string }
+          - { name: editionSize, label: "Edition size (e.g. 25)", type: number }
+          - { name: editionsSold, label: Prints sold so far, type: number, default: 0 }
+          - name: sizes
+            label: Sizes and prices
+            type: object
+            list: true
+            fields:
+              - { name: label, label: "Size (e.g. 20 × 54 in)", type: string }
+              - { name: price, label: "Price (number only)", type: string }
+              - { name: buyLink, label: "Stripe payment link (blank shows an Enquire button)", type: string }
+
   - name: site
     label: Site settings
     type: file
@@ -96,9 +127,22 @@ content:
       - { name: homeSlideSeconds, label: Seconds per slide, type: number }
       - { name: homeButtonLabel, label: Home page button text, type: string }
       - { name: galleriesMenuLabel, label: Menu name for galleries, type: string }
-      - { name: showShop, label: Show the Prints page, type: boolean }
-      - { name: shopMenuLabel, label: Menu name for prints, type: string }
-      - { name: shopIntro, label: Prints page introduction, type: rich-text }
+      - { name: rockLogo, label: "Rock'n H logo (optional, replaces the name in the header)", type: image }
+      - { name: rockHeroImage, label: "Rock'n H home: large photo", type: image }
+      - { name: rockHeroHeading, label: "Rock'n H home: heading", type: string }
+      - { name: rockHeroText, label: "Rock'n H home: tagline", type: string }
+      - { name: rockHeroButton, label: "Rock'n H home: button text", type: string }
+      - { name: rockFeaturedHeading, label: "Rock'n H home: featured prints heading", type: string }
+      - { name: rockStatementHeading, label: "Artist statement heading", type: string }
+      - { name: rockStatementText, label: "Artist statement", type: rich-text }
+      - { name: rockArtistHeading, label: "About the artist heading", type: string }
+      - { name: rockArtistPhoto, label: "About the artist photo", type: image }
+      - { name: rockArtistText, label: "About the artist", type: rich-text }
+      - { name: rockPrintDetails, label: "Print pages: About the prints", type: rich-text }
+      - { name: rockShippingDetails, label: "Print pages: Shipping and returns", type: rich-text }
+      - { name: rockNewsletter, label: Show newsletter sign-up, type: boolean }
+      - { name: rockNewsletterHeading, label: Newsletter heading, type: string }
+      - { name: rockContactSlug, label: "Web address of the Rock'n H contact page (used by Enquire buttons)", type: string }
       - { name: currencySymbol, label: Currency symbol, type: string }
       - { name: contactPageSlug, label: "Web address of the contact page (used by Enquire buttons)", type: string }
       - { name: formEndpoint, label: "Contact form address (Web3Forms or Formspree)", type: string }

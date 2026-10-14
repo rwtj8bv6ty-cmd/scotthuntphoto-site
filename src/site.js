@@ -88,11 +88,10 @@ if (ss && dataEl) {
   });
 }
 
-// Contact form: send without leaving the page, prefill from "Enquire" links
-const form = document.querySelector('form.contact');
-if (form) {
+// Forms (contact and newsletter): send without leaving the page; "Enquire" links prefill the message
+document.querySelectorAll('form.contact').forEach((form) => {
   const about = new URLSearchParams(location.search).get('about');
-  if (about) form.message.value = `I'm interested in a print of "${about}".\n\n`;
+  if (about && form.message) form.message.value = `I'm interested in a print of "${about}".\n\n`;
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const status = form.querySelector('.form-status');
@@ -101,9 +100,26 @@ if (form) {
       const res = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
       if (!res.ok) throw new Error();
       form.reset();
-      status.textContent = 'Thank you. Your message has been sent.';
+      status.textContent = form.classList.contains('newsletter') ? 'Thank you for subscribing.' : 'Thank you. Your message has been sent.';
     } catch {
-      status.textContent = 'Sorry, something went wrong. Please try again or email directly.';
+      status.textContent = 'Sorry, something went wrong. Please try again.';
+    }
+  });
+});
+
+// Print page: choosing a size updates the price and the Buy button
+const sizes = document.querySelector('.sizes');
+if (sizes) {
+  const price = document.querySelector('.product .price');
+  const buy = document.querySelector('.buy-now');
+  sizes.addEventListener('change', (e) => {
+    const opt = e.target;
+    price.firstChild.textContent = opt.dataset.price;
+    if (!buy) return;
+    if (opt.dataset.link) {
+      buy.href = opt.dataset.link; buy.target = '_blank'; buy.rel = 'noopener'; buy.textContent = 'Buy now';
+    } else {
+      buy.href = buy.dataset.enquire; buy.removeAttribute('target'); buy.textContent = 'Enquire';
     }
   });
 }

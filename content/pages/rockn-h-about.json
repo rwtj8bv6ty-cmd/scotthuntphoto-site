@@ -1,0 +1,12 @@
+{
+  "title": "About",
+  "menuTitle": "About Us",
+  "slug": "rockn-h-about",
+  "side": "rocknh",
+  "draft": false,
+  "inMenu": true,
+  "order": 1,
+  "image": "",
+  "contactForm": false,
+  "body": "<p>Placeholder. Tell the Rock'n H story here.</p>"
+}
