@@ -1,0 +1,30 @@
+name: Build Mac app
+on:
+  push:
+    paths: ['mac-app/**', '.github/workflows/mac-app.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: mac-app-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build the app and disk image
+        run: BUILD_NUMBER=${{ github.run_number }} bash mac-app/build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Scott-Hunt-Site-Manager
+          path: mac-app/build/Scott-Hunt-Site-Manager.dmg
+      # The newest build is always at .../releases/download/mac-app/Scott-Hunt-Site-Manager.dmg
+      - name: Publish the download
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete mac-app --yes --cleanup-tag || true
+          gh release create mac-app mac-app/build/Scott-Hunt-Site-Manager.dmg \
+            --target "$GITHUB_SHA" --title "Scott Hunt Site Manager (Mac app)" --latest=false \
+            --notes "Mac app for editing the website. Built from ${GITHUB_REF_NAME} at ${GITHUB_SHA::7}. Download the .dmg, open it and drag the app to Applications. The first time, right-click the app and choose Open."
