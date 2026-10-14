@@ -118,19 +118,48 @@ ${side === 'entrance' ? '' : `<footer class="site-footer"><p>© ${new Date().get
 }
 
 // ---------- page bodies ----------
-// Entrance: a stand-in until the coin intro is chosen. Two doors: photography and Rock'n H.
-function entranceBody() {
-  const slides = (site.homeSlides || []).filter((s) => s && s.image);
-  const slideHtml = slides
-    .map((s, i) => `<div class="slide${i === 0 ? ' on' : ''}" style="background-image:url('${img(s.image)}')" role="img" aria-label=""></div>`)
-    .join('');
-  return `<section class="hero" data-interval="${Number(site.homeSlideSeconds) || 6}">
-  <div class="slides">${slideHtml}</div>
-  <div class="hero-text doors">
-    <a class="door" href="${url(PHOTO_HOME)}">${esc(PHOTO_NAME)}</a>
-    <a class="door" href="${url(ROCK_HOME)}">${esc(ROCK_NAME)}</a>
-  </div>
-</section>`;
+// Entrance: the coin intro (Variation 6). When it ends, the left coin links to the photography side
+// and the right coin to Rock'n H. Within one visit, coming back here skips straight to the end.
+function entranceHtml() {
+  const links = { rolling: { href: url(PHOTO_HOME), label: PHOTO_NAME }, rocking: { href: url(ROCK_HOME), label: ROCK_NAME } };
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(site.title)}</title>
+<meta name="description" content="${esc(site.tagline || '')}">
+<style>
+  :root { color-scheme: light; }
+  html, body { margin: 0; height: 100%; background: #fff; color: #222; overflow: hidden; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+  #stage { position: fixed; inset: 0; background: #fff; }
+  #skip, #replay { position: fixed; background: none; border: none; color: #9a958d; cursor: pointer; font: inherit; font-size: 12px; letter-spacing: .28em; text-transform: uppercase; padding: 8px; }
+  #skip { right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+  #replay { left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); }
+  #skip:hover, #replay:hover { color: #222; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+</head><body>
+<h1 class="sr">${esc(site.title)}</h1>
+<div id="stage"></div>
+<nav class="sr"><a href="${links.rolling.href}">${esc(PHOTO_NAME)}</a> <a href="${links.rocking.href}">${esc(ROCK_NAME)}</a></nav>
+<button id="skip" hidden>Skip</button>
+<button id="replay" hidden>Replay</button>
+<script src="${url('assets/intro/intro.js')}"></script>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const intro = CoinIntro.mount($('stage'), {
+    rollingSrc: '${url('assets/intro/rolling-logo-black.png')}',
+    rockingSrc: '${url('assets/intro/rocking-logo-inverted.png')}',
+    ground: false, entry: true, rollTime: 4.5, turns: 1.5, panEase: 3.2,
+    links: ${JSON.stringify(links)},
+    onDone: () => { $('skip').hidden = true; $('replay').hidden = false; },
+  });
+  function play() { $('replay').hidden = true; $('skip').hidden = false; return intro.start(); }
+  $('replay').addEventListener('click', play);
+  $('skip').addEventListener('click', () => intro.skip());
+  let seen = false;
+  try { seen = sessionStorage.getItem('introSeen') === '1'; sessionStorage.setItem('introSeen', '1'); } catch (e) {}
+  if (seen) play().then(() => intro.skip()); else play();
+</script>
+</body></html>`;
 }
 
 // Photography home: one large photo at a time from the home slideshow, beside the gallery list.
@@ -316,7 +345,7 @@ fs.mkdirSync(OUT, { recursive: true });
 copyDir(path.join(ROOT, 'src'), path.join(OUT, 'assets'));
 copyDir(path.join(ROOT, 'photos'), path.join(OUT, 'photos'));
 
-write('', layout({ body: entranceBody(), side: 'entrance', bodyClass: 'home' }));
+write('', entranceHtml());
 write(PHOTO_HOME, layout({ body: photoHomeBody(), current: url(PHOTO_HOME), bodyClass: 'photo-home' }));
 write(ROCK_HOME, layout({ side: 'rocknh', current: url(ROCK_HOME), body: rockHomeBody(), bodyClass: 'rock-home' }));
 write(`${ROCK_HOME}collections`, layout({ title: 'All Prints', side: 'rocknh', current: url(`${ROCK_HOME}collections/`), body: collectionBody('All Prints', allPrints) }));

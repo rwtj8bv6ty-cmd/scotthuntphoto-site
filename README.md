@@ -3,7 +3,7 @@
 A fast, hand-built photography site hosted free on GitHub Pages, edited through a simple online editor.
 
 ## How the site is organized
-- **Entrance** (`/`): leads to the two sides. The coin intro animation will go here.
+- **Entrance** (`/`): the coin intro (Variation 6, `src/intro/`). When it ends, the left coin leads to the photography side and the right coin to Rock'n H.
 - **Scott Hunt Photography** (`/photography/`): white pages with a sidebar of galleries, About and Contact. Each gallery shows one photo at a time with arrows, plus a *show thumbnails* grid.
 - **Rock'n H** (`/rockn-h/`): the sales and marketing side, including the Prints page. In the editor, each page has a *Which side of the site* setting.
 
