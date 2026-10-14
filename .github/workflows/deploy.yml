@@ -14,8 +14,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
       - name: Make thumbnails for new photos
@@ -27,7 +27,7 @@ jobs:
           domain=$(node -p "require('./content/site.json').customDomain || ''")
           if [ -n "$domain" ]; then export SITE_BASE=/; else export SITE_BASE="${{ steps.pages.outputs.base_path }}/"; fi
           node build.mjs
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: dist
   deploy:
