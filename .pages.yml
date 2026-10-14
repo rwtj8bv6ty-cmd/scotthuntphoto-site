@@ -60,7 +60,15 @@ content:
     fields:
       - { name: title, label: Page title, type: string, required: true }
       - { name: draft, label: "Draft (hidden until you turn this off)", type: boolean, default: true }
-      - { name: slug, label: "Web address (e.g. about). Leave blank to use the title", type: string }
+      - { name: slug, label: "Web address (e.g. about). Leave blank to use the title. Use rockn-h for the Rock'n H landing page", type: string }
+      - name: side
+        label: Which side of the site
+        type: select
+        default: photography
+        options:
+          values:
+            - { value: photography, label: "Scott Hunt Photography" }
+            - { value: rocknh, label: "Rock'n H (sales and marketing)" }
       - { name: inMenu, label: Show in menu, type: boolean, default: true }
       - { name: order, label: "Menu order (1 = first)", type: number, default: 10 }
       - { name: image, label: Side photo, type: image }
@@ -74,9 +82,11 @@ content:
     format: json
     fields:
       - { name: title, label: Site name, type: string }
+      - { name: photographyTitle, label: Photography side name, type: string }
+      - { name: rocknhTitle, label: "Sales side name", type: string }
       - { name: tagline, label: Tagline, type: string }
       - name: homeSlides
-        label: "Home page slideshow (drag to reorder)"
+        label: "Featured photos for the photography home page (drag to reorder)"
         type: object
         list: true
         fields:

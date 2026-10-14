@@ -42,5 +42,7 @@
   "formEndpoint": "https://api.web3forms.com/submit",
   "formAccessKey": "",
   "customDomain": "",
-  "showCaptions": false
+  "showCaptions": false,
+  "photographyTitle": "Scott Hunt Photography",
+  "rocknhTitle": "Rock'n H"
 }

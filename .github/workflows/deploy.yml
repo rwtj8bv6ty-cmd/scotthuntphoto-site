@@ -18,6 +18,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Make thumbnails for new photos
+        run: pip install --quiet pillow && python scripts/thumbs.py
       - id: pages
         uses: actions/configure-pages@v5
       - name: Build

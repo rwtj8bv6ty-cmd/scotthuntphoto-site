@@ -1,6 +1,7 @@
 // Builds the static site from content/ into dist/. No dependencies: run with `node build.mjs`.
-// Published pages go to their normal URLs. Anything marked as a draft is built under
-// /drafts/<slug>/ (hidden from menus and search engines) so it can be previewed before publishing.
+// The site has two sides: Scott Hunt Photography (galleries, sidebar layout) and Rock'n H (sales and
+// marketing). Each page says which side it belongs to. The root page is the entrance that leads to both.
+// Anything marked as a draft is built under /drafts/<slug>/ (hidden from menus and search engines).
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -19,46 +20,68 @@ const esc = (s = '') =>
 const slugify = (s = '') => String(s).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const url = (p = '') => BASE + String(p).replace(/^\//, '');
 const img = (p = '') => (/^https?:/.test(p) ? p : url(p));
+// Small preview image made by scripts/thumbs.py (photos/<folder>/_thumbs/<name>); falls back to the full photo.
+const thumb = (p = '') => {
+  if (/^https?:/.test(p)) return p;
+  const rel = String(p).replace(/^\//, '');
+  const t = path.join(path.dirname(rel), '_thumbs', path.basename(rel));
+  return fs.existsSync(path.join(ROOT, t)) ? url(t) : url(rel);
+};
 const byOrder = (a, b) => (a.order ?? 999) - (b.order ?? 999) || String(a.title).localeCompare(String(b.title));
 
 const site = readJson(path.join(ROOT, 'content/site.json'));
+const PHOTO_NAME = site.photographyTitle || 'Scott Hunt Photography';
+const ROCK_NAME = site.rocknhTitle || "Rock'n H";
+const PHOTO_HOME = 'photography/';
+const ROCK_HOME = 'rockn-h/';
+
 const galleries = readDir(path.join(ROOT, 'content/galleries')).map((g) => ({ ...g, slug: g.slug || slugify(g.title) })).sort(byOrder);
-const pages = readDir(path.join(ROOT, 'content/pages')).map((p) => ({ ...p, slug: p.slug || slugify(p.title) })).sort(byOrder);
+const pages = readDir(path.join(ROOT, 'content/pages'))
+  .map((p) => ({ ...p, slug: p.slug || slugify(p.title), side: p.side === 'rocknh' ? 'rocknh' : 'photography' }))
+  .sort(byOrder);
 
 const live = (x) => !x.draft;
 const photosFor = (g) => (g.photos || []).filter((p) => p && p.image);
 const forSale = galleries.filter(live).flatMap((g) => photosFor(g).filter((p) => p.forSale).map((p) => ({ ...p, gallery: g })));
+const showShop = site.showShop !== false && forSale.length > 0;
+const menuPages = (side) => pages.filter((p) => live(p) && p.inMenu !== false && p.side === side && p.slug !== 'rockn-h');
 
 // ---------- navigation ----------
-function navItems() {
-  const items = [];
-  const liveGalleries = galleries.filter(live);
-  if (liveGalleries.length) items.push({ title: site.galleriesMenuLabel || 'Galleries', href: url('galleries/'), children: liveGalleries.map((g) => ({ title: g.title, href: url(`${g.slug}/`) })) });
-  if (site.showShop !== false && forSale.length) items.push({ title: site.shopMenuLabel || 'Prints', href: url('prints/') });
-  for (const p of pages.filter((p) => live(p) && p.inMenu !== false)) items.push({ title: p.menuTitle || p.title, href: url(`${p.slug}/`) });
-  return items;
+function photoNav(current) {
+  const link = (href, title) => `<li${href === current ? ' class="active"' : ''}><a href="${href}">${esc(title)}</a></li>`;
+  const gal = galleries.filter(live).map((g) => link(url(`${g.slug}/`), g.title)).join('');
+  const pg = menuPages('photography').map((p) => link(url(`${p.slug}/`), p.menuTitle || p.title)).join('');
+  return `<aside class="sidebar">
+  <a class="brand" href="${url(PHOTO_HOME)}">${esc(PHOTO_NAME)}</a>
+  <button class="menu-toggle" aria-label="Menu" aria-expanded="false">Menu</button>
+  <nav>
+    <ul class="nav-galleries">${gal}</ul>
+    <ul class="nav-pages">${pg}</ul>
+    <ul class="nav-other"><li><a href="${url(ROCK_HOME)}">${esc(ROCK_NAME)} →</a></li></ul>
+  </nav>
+</aside>`;
 }
 
-function nav(current) {
-  const li = navItems()
-    .map((i) => {
-      const active = current && (i.href === current || (i.children || []).some((c) => c.href === current)) ? ' class="active"' : '';
-      if (!i.children) return `<li${active}><a href="${i.href}">${esc(i.title)}</a></li>`;
-      return `<li class="has-sub${active ? ' active' : ''}"><a href="${i.href}">${esc(i.title)}</a><ul>${i.children
-        .map((c) => `<li><a href="${c.href}">${esc(c.title)}</a></li>`)
-        .join('')}</ul></li>`;
-    })
-    .join('');
+function rockNav(current) {
+  const link = (href, title) => `<li${href === current ? ' class="active"' : ''}><a href="${href}">${esc(title)}</a></li>`;
+  const items = [
+    ...(showShop ? [link(url('prints/'), site.shopMenuLabel || 'Prints')] : []),
+    ...menuPages('rocknh').map((p) => link(url(`${p.slug}/`), p.menuTitle || p.title)),
+    `<li><a href="${url(PHOTO_HOME)}">${esc(PHOTO_NAME)} →</a></li>`,
+  ].join('');
   return `<header class="site-header">
-  <a class="brand" href="${url()}">${esc(site.title)}</a>
+  <a class="brand" href="${url(ROCK_HOME)}">${esc(ROCK_NAME)}</a>
   <button class="menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
-  <nav><ul>${li}</ul></nav>
+  <nav><ul>${items}</ul></nav>
 </header>`;
 }
 
 // ---------- layout ----------
-function layout({ title, body, current, draft = false, bodyClass = '', description }) {
-  const fullTitle = title ? `${title} · ${site.title}` : site.title;
+function layout({ title, body, current, side = 'photography', draft = false, bodyClass = '', description }) {
+  const brand = side === 'rocknh' ? ROCK_NAME : side === 'entrance' ? site.title : PHOTO_NAME;
+  const fullTitle = title ? `${title} · ${brand}` : brand;
+  const chrome = side === 'photography' ? photoNav(current) : side === 'rocknh' ? rockNav(current) : '';
+  const sideClass = side === 'photography' ? 'side-photo' : side === 'rocknh' ? 'side-rock' : 'side-entrance';
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -71,38 +94,38 @@ ${draft ? '<meta name="robots" content="noindex, nofollow">' : ''}
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${url('assets/style.css')}">
 </head>
-<body class="${bodyClass}">
+<body class="${sideClass} ${bodyClass}">
 ${draft ? '<div class="draft-banner">Draft preview · not published · only people with this link can see it</div>' : ''}
-${nav(current)}
+${chrome}
 <main>${body}</main>
-<footer class="site-footer"><p>© ${new Date().getFullYear()} ${esc(site.title)}. All photographs are protected by copyright.</p></footer>
+${side === 'entrance' ? '' : `<footer class="site-footer"><p>© ${new Date().getFullYear()} ${esc(site.title)}. All photographs are protected by copyright.</p></footer>`}
 <script src="${url('assets/site.js')}" defer></script>
 </body>
 </html>`;
 }
 
 // ---------- page bodies ----------
-function homeBody() {
+// Entrance: a stand-in until the coin intro is chosen. Two doors: photography and Rock'n H.
+function entranceBody() {
   const slides = (site.homeSlides || []).filter((s) => s && s.image);
   const slideHtml = slides
-    .map((s, i) => `<div class="slide${i === 0 ? ' on' : ''}" style="background-image:url('${img(s.image)}')" role="img" aria-label="${esc(s.title || '')}"></div>`)
-    .join('');
-  const featured = galleries.filter(live).filter((g) => g.featured !== false);
-  const cards = featured
-    .map((g) => {
-      const cover = g.cover || photosFor(g)[0]?.image;
-      return `<a class="card" href="${url(`${g.slug}/`)}">${cover ? `<img src="${img(cover)}" alt="" loading="lazy">` : ''}<span>${esc(g.title)}</span></a>`;
-    })
+    .map((s, i) => `<div class="slide${i === 0 ? ' on' : ''}" style="background-image:url('${img(s.image)}')" role="img" aria-label=""></div>`)
     .join('');
   return `<section class="hero" data-interval="${Number(site.homeSlideSeconds) || 6}">
   <div class="slides">${slideHtml}</div>
-  <div class="hero-text">
-    <h1 class="reveal">${esc(site.title).split('').map((ch, i) => `<span style="--i:${i}">${ch === ' ' ? '&nbsp;' : ch}</span>`).join('')}</h1>
-    ${site.tagline ? `<p class="tagline">${esc(site.tagline)}</p>` : ''}
-    ${featured.length ? `<a class="hero-cta" href="#work">${esc(site.homeButtonLabel || 'View the work')}</a>` : ''}
+  <div class="hero-text doors">
+    <a class="door" href="${url(PHOTO_HOME)}">${esc(PHOTO_NAME)}</a>
+    <a class="door" href="${url(ROCK_HOME)}">${esc(ROCK_NAME)}</a>
   </div>
-</section>
-${featured.length ? `<section id="work" class="cards">${cards}</section>` : ''}`;
+</section>`;
+}
+
+// Photography home: one large photo at a time from the home slideshow, beside the gallery list.
+function photoHomeBody() {
+  const slides = (site.homeSlides || []).filter((s) => s && s.image);
+  return `<section class="feature" data-interval="${Number(site.homeSlideSeconds) || 6}">${slides
+    .map((s, i) => `<img class="feature-img${i === 0 ? ' on' : ''}" src="${img(s.image)}" alt=""${i ? ' loading="lazy"' : ''}>`)
+    .join('')}</section>`;
 }
 
 function editionInfo(p) {
@@ -120,38 +143,33 @@ function editionInfo(p) {
   return `<div class="edition${soldOut ? ' sold-out' : ''}"><span>${bits.join(' · ')}</span>${buy}</div>`;
 }
 
-function photoFigure(p, i) {
-  const show = site.showCaptions === true; // titles and captions stay hidden from visitors unless turned on in Site settings
-  const data = { src: img(p.image), title: show ? p.title || '' : '', caption: show ? p.caption || '' : '', edition: editionInfo(p) };
-  return `<figure class="photo" data-index="${i}" data-photo='${esc(JSON.stringify(data))}'>
-  <button class="open" aria-label="View photo larger"><img src="${img(p.image)}" alt="${esc(p.alt || '')}" loading="lazy"></button>
-  ${show && (p.title || p.caption) ? `<figcaption>${p.title ? `<strong>${esc(p.title)}</strong>` : ''}${p.caption ? ` <span>${esc(p.caption)}</span>` : ''}</figcaption>` : ''}
-  ${editionInfo(p)}
-</figure>`;
-}
+const showCaptions = site.showCaptions === true; // titles and captions stay hidden from visitors unless turned on in Site settings
+const captionText = (p) => (showCaptions ? [p.title, p.caption].filter(Boolean).join(' · ') : '');
 
-const lightbox = `<div class="lightbox" hidden><button class="lb-close" aria-label="Close">×</button><button class="lb-prev" aria-label="Previous">‹</button><figure><img alt=""><figcaption></figcaption></figure><button class="lb-next" aria-label="Next">›</button></div>`;
-
+// Gallery: one large photo with arrows and a counter, plus a "show thumbnails" grid.
 function galleryBody(g) {
   const photos = photosFor(g);
-  return `<section class="page-head"><h1>${esc(g.title)}</h1>${g.description ? `<div class="intro">${g.description}</div>` : ''}</section>
-<section class="gallery layout-${esc(g.layout || 'masonry')}">${photos.map(photoFigure).join('')}</section>${lightbox}`;
-}
-
-function galleriesIndexBody() {
-  return `<section class="page-head"><h1>${esc(site.galleriesMenuLabel || 'Galleries')}</h1></section>
-<section class="cards">${galleries
-    .filter(live)
-    .map((g) => {
-      const cover = g.cover || photosFor(g)[0]?.image;
-      return `<a class="card" href="${url(`${g.slug}/`)}">${cover ? `<img src="${img(cover)}" alt="" loading="lazy">` : ''}<span>${esc(g.title)}</span></a>`;
-    })
-    .join('')}</section>`;
+  const data = photos.map((p) => ({ src: img(p.image), caption: captionText(p), edition: editionInfo(p), alt: p.alt || '' }));
+  const first = data[0];
+  return `<section class="slideshow" aria-label="${esc(g.title)}">
+  ${first ? `<figure class="stage"><button class="prev" aria-label="Previous photo"></button><img src="${first.src}" alt="${esc(first.alt)}"><button class="next" aria-label="Next photo"></button></figure>` : '<p class="note">No photos in this gallery yet.</p>'}
+  <div class="ss-bar">
+    <span class="ss-caption">${esc(first?.caption || '')}</span>
+    <span class="ss-controls"><button class="ss-prev" aria-label="Previous">‹</button><span class="ss-count">1 / ${photos.length}</span><button class="ss-next" aria-label="Next">›</button><button class="ss-thumbs">show thumbnails</button></span>
+  </div>
+  <div class="ss-edition">${first?.edition || ''}</div>
+</section>
+<section class="thumbs" hidden>${photos
+    .map((p, i) => `<button class="thumb" data-index="${i}" aria-label="Photo ${i + 1}"><img src="${thumb(p.image)}" alt="" loading="lazy"></button>`)
+    .join('')}</section>
+<script type="application/json" class="ss-data">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>`;
 }
 
 function shopBody() {
   return `<section class="page-head"><h1>${esc(site.shopMenuLabel || 'Prints')}</h1>${site.shopIntro ? `<div class="intro">${site.shopIntro}</div>` : ''}</section>
-<section class="gallery layout-grid shop">${forSale.map(photoFigure).join('')}</section>${lightbox}`;
+<section class="shop-grid">${forSale
+    .map((p) => `<figure class="shop-item"><img src="${thumb(p.image)}" alt="${esc(p.alt || '')}" loading="lazy">${editionInfo(p)}</figure>`)
+    .join('')}</section>`;
 }
 
 function pageBody(p) {
@@ -190,19 +208,33 @@ fs.mkdirSync(OUT, { recursive: true });
 copyDir(path.join(ROOT, 'src'), path.join(OUT, 'assets'));
 copyDir(path.join(ROOT, 'photos'), path.join(OUT, 'photos'));
 
-write('', layout({ body: homeBody(), current: url(), bodyClass: 'home' }));
-if (galleries.some(live)) write('galleries', layout({ title: site.galleriesMenuLabel || 'Galleries', body: galleriesIndexBody(), current: url('galleries/') }));
-if (site.showShop !== false && forSale.length) write('prints', layout({ title: site.shopMenuLabel || 'Prints', body: shopBody(), current: url('prints/') }));
+write('', layout({ body: entranceBody(), side: 'entrance', bodyClass: 'home' }));
+write(PHOTO_HOME, layout({ body: photoHomeBody(), current: url(PHOTO_HOME), bodyClass: 'photo-home' }));
+// The Rock'n H landing page is the page with the slug "rockn-h"; a placeholder is used until it exists.
+const rockHome = pages.find((p) => p.slug === 'rockn-h' && live(p));
+write(
+  ROCK_HOME,
+  layout({
+    title: rockHome?.title,
+    side: 'rocknh',
+    current: url(ROCK_HOME),
+    body: rockHome ? pageBody(rockHome) : `<section class="page-head"><h1>${esc(ROCK_NAME)}</h1><div class="intro"><p>Coming soon.</p></div></section>`,
+  }),
+);
+// Old address of the galleries list: send visitors to the photography side.
+write('galleries', `<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=${url(PHOTO_HOME)}"><link rel="canonical" href="${url(PHOTO_HOME)}">`);
+if (showShop) write('prints', layout({ title: site.shopMenuLabel || 'Prints', side: 'rocknh', body: shopBody(), current: url('prints/') }));
 
 const drafts = [];
 for (const g of galleries) {
   const where = g.draft ? `drafts/${g.slug}` : g.slug;
-  write(where, layout({ title: g.title, body: galleryBody(g), current: url(`${g.slug}/`), draft: !!g.draft }));
+  write(where, layout({ title: g.title, body: galleryBody(g), current: url(`${g.slug}/`), draft: !!g.draft, bodyClass: 'gallery-page' }));
   if (g.draft) drafts.push({ kind: 'Gallery', title: g.title, href: url(`${where}/`) });
 }
 for (const p of pages) {
+  if (p.slug === 'rockn-h' && live(p)) continue;
   const where = p.draft ? `drafts/${p.slug}` : p.slug;
-  write(where, layout({ title: p.title, body: pageBody(p), current: url(`${p.slug}/`), draft: !!p.draft }));
+  write(where, layout({ title: p.title, side: p.side, body: pageBody(p), current: url(`${p.slug}/`), draft: !!p.draft }));
   if (p.draft) drafts.push({ kind: 'Page', title: p.title, href: url(`${where}/`) });
 }
 write(

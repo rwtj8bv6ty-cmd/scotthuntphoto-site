@@ -2,6 +2,11 @@
 
 A fast, hand-built photography site hosted free on GitHub Pages, edited through a simple online editor.
 
+## How the site is organized
+- **Entrance** (`/`): leads to the two sides. The coin intro animation will go here.
+- **Scott Hunt Photography** (`/photography/`): white pages with a sidebar of galleries, About and Contact. Each gallery shows one photo at a time with arrows, plus a *show thumbnails* grid.
+- **Rock'n H** (`/rockn-h/`): the sales and marketing side, including the Prints page. In the editor, each page has a *Which side of the site* setting.
+
 ## Editing the site (no code needed)
 
 1. Go to **https://app.pagescms.org** and sign in with GitHub.

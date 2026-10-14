@@ -1,55 +1,86 @@
-// Mobile menu
+// Menu toggle (sidebar on the photography side, top bar on the Rock'n H side)
 document.querySelector('.menu-toggle')?.addEventListener('click', (e) => {
   const open = document.body.classList.toggle('menu-open');
   e.currentTarget.setAttribute('aria-expanded', open);
 });
 
-// Home page slideshow: crossfade with a slow zoom
-const hero = document.querySelector('.hero');
-if (hero) {
-  const slides = [...hero.querySelectorAll('.slide')];
-  const seconds = Number(hero.dataset.interval) || 6;
+// Crossfading slideshows: entrance background and photography home feature
+function rotate(container, selector, onClass) {
+  if (!container) return;
+  const items = [...container.querySelectorAll(selector)];
+  const seconds = Number(container.dataset.interval) || 6;
   let i = 0;
-  if (slides.length > 1) {
+  if (items.length > 1) {
     setInterval(() => {
-      slides[i].classList.remove('on');
-      i = (i + 1) % slides.length;
-      slides[i].classList.add('on');
+      items[i].classList.remove(onClass);
+      i = (i + 1) % items.length;
+      items[i].classList.add(onClass);
     }, seconds * 1000);
   }
 }
+rotate(document.querySelector('.hero'), '.slide', 'on');
+rotate(document.querySelector('.feature'), '.feature-img', 'on');
 
-// Gallery lightbox with keyboard and swipe
-const lb = document.querySelector('.lightbox');
-if (lb) {
-  const figures = [...document.querySelectorAll('.photo')];
-  const photos = figures.map((f) => JSON.parse(f.dataset.photo));
-  const lbImg = lb.querySelector('img');
-  const lbCap = lb.querySelector('figcaption');
-  let at = 0;
+// Gallery slideshow: one photo at a time, arrows, keys, swipe, and a thumbnail grid
+const ss = document.querySelector('.slideshow');
+const dataEl = document.querySelector('.ss-data');
+if (ss && dataEl) {
+  const photos = JSON.parse(dataEl.textContent);
+  const stageImg = ss.querySelector('.stage img');
+  const caption = ss.querySelector('.ss-caption');
+  const count = ss.querySelector('.ss-count');
+  const edition = ss.querySelector('.ss-edition');
+  const thumbs = document.querySelector('.thumbs');
+  const thumbBtn = ss.querySelector('.ss-thumbs');
+  let at = Math.min(Math.max((parseInt(location.hash.slice(1), 10) || 1) - 1, 0), photos.length - 1);
+
+  const preload = (n) => { const p = photos[(n + photos.length) % photos.length]; if (p) new Image().src = p.src; };
   const show = (n) => {
     at = (n + photos.length) % photos.length;
     const p = photos[at];
-    lbImg.src = p.src;
-    lbImg.alt = '';
-    lbCap.innerHTML = (p.title ? `<strong>${p.title.replace(/</g, '&lt;')}</strong> ` : '') + (p.caption ? p.caption.replace(/</g, '&lt;') : '') + (p.edition || '');
-    lbImg.style.animation = 'none'; lbImg.offsetHeight; lbImg.style.animation = '';
+    stageImg.classList.add('fading');
+    const next = new Image();
+    next.onload = next.onerror = () => {
+      stageImg.src = p.src;
+      stageImg.alt = p.alt;
+      stageImg.classList.remove('fading');
+    };
+    next.src = p.src;
+    caption.textContent = p.caption;
+    count.textContent = `${at + 1} / ${photos.length}`;
+    edition.innerHTML = p.edition || '';
+    history.replaceState(null, '', `#${at + 1}`);
+    preload(at + 1);
+    preload(at - 1);
   };
-  const close = () => { lb.hidden = true; document.body.style.overflow = ''; };
-  figures.forEach((f, n) => f.querySelector('.open').addEventListener('click', () => { show(n); lb.hidden = false; document.body.style.overflow = 'hidden'; }));
-  lb.querySelector('.lb-close').addEventListener('click', close);
-  lb.querySelector('.lb-prev').addEventListener('click', () => show(at - 1));
-  lb.querySelector('.lb-next').addEventListener('click', () => show(at + 1));
-  lb.addEventListener('click', (e) => { if (e.target === lb) close(); });
+  const setThumbs = (on) => {
+    thumbs.hidden = !on;
+    ss.hidden = on;
+    thumbBtn.textContent = on ? 'show slideshow' : 'show thumbnails';
+    document.body.classList.toggle('thumbs-on', on);
+    if (on) thumbs.prepend(thumbBtn);
+    else ss.querySelector('.ss-controls').append(thumbBtn);
+    window.scrollTo(0, 0);
+  };
+
+  if (at) show(at); else preload(1);
+  ss.querySelectorAll('.prev, .ss-prev').forEach((b) => b.addEventListener('click', () => show(at - 1)));
+  ss.querySelectorAll('.next, .ss-next').forEach((b) => b.addEventListener('click', () => show(at + 1)));
+  thumbBtn.addEventListener('click', () => setThumbs(thumbs.hidden));
+  thumbs.addEventListener('click', (e) => {
+    const t = e.target.closest('.thumb');
+    if (!t) return;
+    setThumbs(false);
+    show(Number(t.dataset.index));
+  });
   document.addEventListener('keydown', (e) => {
-    if (lb.hidden) return;
-    if (e.key === 'Escape') close();
+    if (!thumbs.hidden || e.target.closest('input, textarea')) return;
     if (e.key === 'ArrowLeft') show(at - 1);
     if (e.key === 'ArrowRight') show(at + 1);
   });
   let x0 = null;
-  lb.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
-  lb.addEventListener('touchend', (e) => {
+  ss.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+  ss.addEventListener('touchend', (e) => {
     if (x0 === null) return;
     const dx = e.changedTouches[0].clientX - x0;
     if (Math.abs(dx) > 40) show(at + (dx < 0 ? 1 : -1));

@@ -1,0 +1,11 @@
+{
+  "title": "Rock'n H",
+  "slug": "rockn-h",
+  "side": "rocknh",
+  "draft": false,
+  "inMenu": false,
+  "order": 1,
+  "image": "",
+  "contactForm": false,
+  "body": "<p>The sales and marketing side of the site. Placeholder text: tell me what goes here (prints, licensing, services) and I'll build it out.</p>"
+}
