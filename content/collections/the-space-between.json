@@ -4,7 +4,7 @@
   "draft": false,
   "order": 1,
   "cover": "",
-  "description": "<p>Panoramic landscapes. Placeholder prints: set sizes, prices and Stripe links in the editor.</p>",
+  "description": "<p>Panoramic landscapes.</p>",
   "prints": [
     {
       "image": "/photos/the-space-between/alabama-hills-1.jpg",
@@ -14,13 +14,7 @@
       "featured": true,
       "editionSize": 25,
       "editionsSold": 0,
-      "sizes": [
-        {
-          "label": "Placeholder size",
-          "price": "",
-          "buyLink": ""
-        }
-      ]
+      "options": []
     },
     {
       "image": "/photos/the-space-between/andes-1.jpg",
@@ -30,13 +24,7 @@
       "featured": true,
       "editionSize": 25,
       "editionsSold": 0,
-      "sizes": [
-        {
-          "label": "Placeholder size",
-          "price": "",
-          "buyLink": ""
-        }
-      ]
+      "options": []
     },
     {
       "image": "/photos/the-space-between/big-sur-1.jpg",
@@ -46,13 +34,7 @@
       "featured": true,
       "editionSize": 25,
       "editionsSold": 0,
-      "sizes": [
-        {
-          "label": "Placeholder size",
-          "price": "",
-          "buyLink": ""
-        }
-      ]
+      "options": []
     },
     {
       "image": "/photos/the-space-between/great-sand-dunes.jpg",
@@ -62,13 +44,7 @@
       "featured": true,
       "editionSize": 25,
       "editionsSold": 0,
-      "sizes": [
-        {
-          "label": "Placeholder size",
-          "price": "",
-          "buyLink": ""
-        }
-      ]
+      "options": []
     },
     {
       "image": "/photos/the-space-between/lake-louise.jpg",
@@ -78,13 +54,7 @@
       "featured": true,
       "editionSize": 25,
       "editionsSold": 0,
-      "sizes": [
-        {
-          "label": "Placeholder size",
-          "price": "",
-          "buyLink": ""
-        }
-      ]
+      "options": []
     },
     {
       "image": "/photos/the-space-between/zion-2.jpg",
@@ -94,13 +64,7 @@
       "featured": true,
       "editionSize": 25,
       "editionsSold": 0,
-      "sizes": [
-        {
-          "label": "Placeholder size",
-          "price": "",
-          "buyLink": ""
-        }
-      ]
+      "options": []
     },
     {
       "image": "/photos/the-space-between/death-valley-1.jpg",
@@ -110,13 +74,8 @@
       "featured": true,
       "editionSize": 25,
       "editionsSold": 0,
-      "sizes": [
-        {
-          "label": "Placeholder size",
-          "price": "",
-          "buyLink": ""
-        }
-      ]
+      "options": []
     }
-  ]
+  ],
+  "options": []
 }

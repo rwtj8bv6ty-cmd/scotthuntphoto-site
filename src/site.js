@@ -123,3 +123,158 @@ if (sizes) {
     }
   });
 }
+
+// ===== Rock'n H shop: cart saved in this browser =====
+const CART_KEY = 'rocknhCart';
+const readCart = () => { try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch { return []; } };
+const writeCart = (items) => { try { localStorage.setItem(CART_KEY, JSON.stringify(items)); } catch {} updateCount(); };
+function updateCount() {
+  const n = readCart().reduce((a, i) => a + (i.qty || 0), 0);
+  document.querySelectorAll('.cart-count').forEach((el) => { el.textContent = n ? `(${n})` : ''; });
+}
+updateCount();
+const fmt = (n, symbol = '$') => `${symbol}${n.toLocaleString('en-US', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 })}`;
+
+// Print page: pick material, then size; the price follows the choice.
+const buyForm = document.querySelector('.buy-form');
+const printData = document.querySelector('.print-data');
+if (buyForm && printData) {
+  const print = JSON.parse(printData.textContent);
+  const sizeList = buyForm.querySelector('.size-list');
+  const button = buyForm.querySelector('.add-to-cart');
+  const material = () => buyForm.querySelector('input[name=material]:checked')?.value ?? print.options[0].material;
+  const chosen = () => {
+    const id = Number(buyForm.querySelector('input[name=option]:checked')?.value);
+    return print.options.find((o) => o.id === id);
+  };
+  const renderSizes = () => {
+    const m = material();
+    const keep = chosen()?.size;
+    const opts = print.options.filter((o) => o.material === m);
+    sizeList.innerHTML = opts
+      .map((o, i) => `<label class="size"><input type="radio" name="option" value="${o.id}"${(keep ? o.size === keep : i === 0) ? ' checked' : ''}><span>${o.size || 'Standard'}</span></label>`)
+      .join('');
+    if (!sizeList.querySelector(':checked')) sizeList.querySelector('input')?.click();
+    renderPrice();
+  };
+  const renderPrice = () => {
+    const o = chosen();
+    button.textContent = o ? `Add to cart · ${fmt(o.price)}` : 'Add to cart';
+  };
+  buyForm.addEventListener('change', (e) => { if (e.target.name === 'material') renderSizes(); else renderPrice(); });
+  buyForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const o = chosen();
+    if (!o) return;
+    const qty = Math.min(10, Math.max(1, parseInt(buyForm.qty.value, 10) || 1));
+    const key = `${print.slug}|${o.material}|${o.size}`;
+    const items = readCart();
+    const found = items.find((i) => i.key === key);
+    if (found) found.qty = Math.min(10, found.qty + qty);
+    else items.push({ key, slug: print.slug, material: o.material, size: o.size, qty });
+    writeCart(items);
+    buyForm.querySelector('.added').innerHTML = `Added to your cart. <a href="${document.querySelector('.nav-cart a').getAttribute('href')}">View cart</a>`;
+  });
+  renderSizes();
+}
+
+// Cart page: prices come from the site's own catalog, then PayPal takes payment.
+const cartEl = document.querySelector('.cart');
+if (cartEl) {
+  const catalog = JSON.parse(document.querySelector('.cart-catalog').textContent);
+  const cfg = JSON.parse(document.querySelector('.cart-config').textContent);
+  const money = (n) => fmt(n, cfg.symbol);
+  // Drop anything no longer sold, and re-price everything from the catalog.
+  const lines = () =>
+    readCart()
+      .map((i) => {
+        const p = catalog[i.slug];
+        const o = p && p.options.find((x) => x.material === i.material && x.size === i.size);
+        return o ? { ...i, title: p.title, image: p.image, url: p.url, price: o.price } : null;
+      })
+      .filter(Boolean);
+  const totals = (ls) => {
+    const sub = ls.reduce((a, l) => a + l.price * l.qty, 0);
+    const ship = ls.length ? cfg.shipping : 0;
+    return { sub, ship, total: sub + ship };
+  };
+  const render = () => {
+    const ls = lines();
+    writeCart(ls.map(({ key, slug, material, size, qty }) => ({ key, slug, material, size, qty })));
+    const box = cartEl.querySelector('.cart-items');
+    const summary = cartEl.querySelector('.cart-summary');
+    if (!ls.length) {
+      box.innerHTML = `<p class="note">Your cart is empty. <a href="${cfg.shop}">Browse the prints</a>.</p>`;
+      summary.hidden = true;
+      return;
+    }
+    box.innerHTML = ls
+      .map((l) => `<div class="cart-line" data-key="${l.key.replace(/"/g, '&quot;')}">
+        <a href="${l.url}"><img src="${l.image}" alt=""></a>
+        <div><a href="${l.url}" class="cl-title">${l.title}</a><p class="cl-opt">${[l.material, l.size].filter(Boolean).join(' · ')}</p>
+        <label class="qty">Qty <input type="number" min="0" max="10" value="${l.qty}"></label> <button class="cl-remove">Remove</button></div>
+        <span class="cl-price">${money(l.price * l.qty)}</span></div>`)
+      .join('');
+    const t = totals(ls);
+    cartEl.querySelector('.subtotal').textContent = money(t.sub);
+    cartEl.querySelector('.shipping').textContent = t.ship ? money(t.ship) : 'Included';
+    cartEl.querySelector('.grand').textContent = money(t.total);
+    summary.hidden = false;
+  };
+  cartEl.addEventListener('change', (e) => {
+    const line = e.target.closest('.cart-line');
+    if (!line) return;
+    const qty = Math.min(10, Math.max(0, parseInt(e.target.value, 10) || 0));
+    writeCart(readCart().map((i) => (i.key === line.dataset.key ? { ...i, qty } : i)).filter((i) => i.qty > 0));
+    render();
+  });
+  cartEl.addEventListener('click', (e) => {
+    if (!e.target.classList.contains('cl-remove')) return;
+    const key = e.target.closest('.cart-line').dataset.key;
+    writeCart(readCart().filter((i) => i.key !== key));
+    render();
+  });
+  render();
+
+  if (!cfg.clientId) {
+    cartEl.querySelector('.checkout-off').hidden = false;
+  } else {
+    const s = document.createElement('script');
+    s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(cfg.clientId)}&currency=${encodeURIComponent(cfg.currency)}&components=buttons&enable-funding=card`;
+    s.onload = () => {
+      window.paypal.Buttons({
+        style: { layout: 'vertical', color: 'black', shape: 'rect', label: 'checkout' },
+        createOrder: (data, actions) => {
+          const ls = lines();
+          const t = totals(ls);
+          const v = (n) => n.toFixed(2);
+          return actions.order.create({
+            purchase_units: [{
+              description: `${cfg.store} prints`,
+              amount: {
+                currency_code: cfg.currency, value: v(t.total),
+                breakdown: { item_total: { currency_code: cfg.currency, value: v(t.sub) }, shipping: { currency_code: cfg.currency, value: v(t.ship) } },
+              },
+              items: ls.map((l) => ({
+                name: l.title.slice(0, 120), description: [l.material, l.size].filter(Boolean).join(' · ').slice(0, 120),
+                quantity: String(l.qty), unit_amount: { currency_code: cfg.currency, value: v(l.price) }, category: 'PHYSICAL_GOODS',
+              })),
+            }],
+          });
+        },
+        onApprove: (data, actions) => actions.order.capture().then(() => {
+          writeCart([]);
+          cartEl.querySelector('.cart-items').innerHTML = '';
+          cartEl.querySelector('.cart-summary').hidden = true;
+          cartEl.querySelector('.cart-done').hidden = false;
+        }),
+        onError: () => {
+          cartEl.querySelector('.checkout-off').hidden = false;
+          cartEl.querySelector('.checkout-off').textContent = 'Sorry, the payment did not go through. Please try again, or send us a message.';
+        },
+      }).render('#paypal-buttons');
+    };
+    s.onerror = () => { cartEl.querySelector('.checkout-off').hidden = false; };
+    document.head.appendChild(s);
+  }
+}

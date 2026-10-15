@@ -32,9 +32,12 @@ Preview them at `your-site/drafts/`. When it's ready, turn off **Draft** and sav
 
 ### Selling limited-edition prints (Rock'n H)
 Prints are sold on the Rock'n H side, from **Rock'n H print collections** in the editor.
-- Each print has a photo, title, description, edition size, prints sold so far, and a list of **sizes and prices**.
-- For checkout, create a **Stripe Payment Link** per size (stripe.com → Payment links) and paste it next to that size. Sizes without a link show an **Enquire** button that opens the Rock'n H contact form with the print's name filled in.
+- Each print has a photo, title, description, edition size and prints sold so far.
+- Prices come from a **price list**: rows of *material*, *size* and *price*. Put one price list on the collection and every print in it uses it; give a print its own list only when it differs. Visitors see **Prices from $X**, pick a material and size on the print page, and add it to the cart.
+- Checkout is **PayPal** (cards accepted without a PayPal account). Paste your PayPal **Live Client ID** into *Site settings → Checkout*. Until then the cart says online checkout is being set up. Never paste the PayPal *Secret* anywhere.
+- Prints with no price list show an **Enquire** button that opens the Rock'n H contact form.
 - When *prints sold* reaches the edition size, the print shows **Sold out**.
+- The print-page drop-downs (About the Prints, Limited Editions, Dimensions and Borders, Shipping and Production Times) are edited in **Site settings**.
 - Turn on *Show on the Rock'n H home page* to feature a print.
 - The Rock'n H home page text (heading, artist statement, about, newsletter) is in **Site settings**.
 

@@ -50,7 +50,8 @@ for (const c of collections) {
     let slug = base, n = 2;
     while (usedPrintSlugs.has(slug)) slug = `${base}-${n++}`;
     usedPrintSlugs.add(slug);
-    return { ...p, slug, collection: c };
+    const options = (p.options && p.options.length ? p.options : c.options || []).filter((o) => o && o.price !== undefined && o.price !== '' && !isNaN(Number(String(o.price).replace(/[^0-9.]/g, ''))));
+    return { ...p, slug, collection: c, options };
   });
 }
 const liveCollections = collections.filter(live);
@@ -85,7 +86,7 @@ function rockNav(current) {
   return `<header class="site-header">
   <a class="brand" href="${url(ROCK_HOME)}">${site.rockLogo ? `<img src="${img(site.rockLogo)}" alt="${esc(ROCK_NAME)}">` : esc(ROCK_NAME)}</a>
   <button class="menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
-  <nav><ul>${items}<li class="nav-switch"><a href="${url(PHOTO_HOME)}">${esc(PHOTO_NAME)} →</a></li></ul></nav>
+  <nav><ul>${items}<li class="nav-cart"><a href="${url(`${ROCK_HOME}cart/`)}">Cart <span class="cart-count"></span></a></li><li class="nav-switch"><a href="${url(PHOTO_HOME)}">${esc(PHOTO_NAME)} →</a></li></ul></nav>
 </header>`;
 }
 
@@ -130,10 +131,11 @@ function entranceHtml() {
   :root { color-scheme: light; }
   html, body { margin: 0; height: 100%; background: #fff; color: #222; overflow: hidden; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
   #stage { position: fixed; inset: 0; background: #fff; }
-  #skip, #replay { position: fixed; background: none; border: none; color: #9a958d; cursor: pointer; font: inherit; font-size: 12px; letter-spacing: .28em; text-transform: uppercase; padding: 8px; }
-  #skip { right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
-  #replay { left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); }
-  #skip:hover, #replay:hover { color: #222; }
+  #skip { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: none; border: none; color: #9a958d; cursor: pointer; font: inherit; font-size: 12px; letter-spacing: .28em; text-transform: uppercase; padding: 8px; }
+  #skip:hover { color: #222; }
+  .coin-label { position: absolute; transform: translateX(-50%); text-align: center; color: #a29d96; font-size: 11px; line-height: 1.5; letter-spacing: .22em; text-transform: uppercase; text-decoration: none; opacity: 0; transition: opacity 1.2s ease, color .2s; pointer-events: none; }
+  .coin-label.on { opacity: 1; pointer-events: auto; }
+  .coin-label:hover, .coin-label.hot { color: #222; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 </style>
 </head><body>
@@ -141,7 +143,6 @@ function entranceHtml() {
 <div id="stage"></div>
 <nav class="sr"><a href="${links.rolling.href}">${esc(PHOTO_NAME)}</a> <a href="${links.rocking.href}">${esc(ROCK_NAME)}</a></nav>
 <button id="skip" hidden>Skip</button>
-<button id="replay" hidden>Replay</button>
 <script src="${url('assets/intro/intro.js')}"></script>
 <script>
   const $ = (id) => document.getElementById(id);
@@ -150,14 +151,56 @@ function entranceHtml() {
     rockingSrc: '${url('assets/intro/rocking-logo-inverted.png')}',
     ground: false, entry: true, rollTime: 4.5, turns: 1.5, panEase: 3.2,
     links: ${JSON.stringify(links)},
-    onDone: () => { $('skip').hidden = true; $('replay').hidden = false; },
+    onDone: () => { $('skip').hidden = true; requestAnimationFrame(invite); },
   });
-  function play() { $('replay').hidden = true; $('skip').hidden = false; return intro.start(); }
-  $('replay').addEventListener('click', play);
+  const LINKS = ${JSON.stringify(links)};
+  // Grey names under each coin, and a gentle one-at-a-time invert so phone users see the coins are buttons.
+  const labels = ['rolling', 'rocking'].map((k) => {
+    const el = document.createElement('a');
+    el.className = 'coin-label'; el.href = LINKS[k].href; el.textContent = LINKS[k].label; el.tabIndex = -1;
+    $('stage').appendChild(el);
+    return el;
+  });
+  const coins = () => [...$('stage').querySelectorAll('a:not(.coin-label)')];
+  function placeLabels() {
+    const c = coins();
+    if (c.length < 2) return;
+    const r = c.map((el) => ({ x: el.offsetLeft + el.offsetWidth / 2, top: el.offsetTop, d: el.offsetWidth }));
+    const gap = Math.abs(r[1].x - r[0].x);
+    labels.forEach((el, i) => {
+      el.style.left = r[i].x + 'px';
+      const small = r[i].d < 120;
+      // On phones the label sits below the coin's reflection and tightens up so it wraps to two lines at most.
+      el.style.top = (r[i].top + r[i].d * (small ? 1.55 : 1.12)) + 'px';
+      el.style.width = Math.max(small ? 104 : 80, gap - 12) + 'px';
+      el.style.fontSize = (small ? 10 : 11) + 'px';
+      el.style.letterSpacing = small ? '.12em' : '';
+    });
+  }
+  // Hovering a label inverts its coin too, and the reverse.
+  labels.forEach((el, i) => {
+    el.addEventListener('mouseenter', () => coins()[i]?.dispatchEvent(new Event('mouseenter')));
+    el.addEventListener('mouseleave', () => coins()[i]?.dispatchEvent(new Event('mouseleave')));
+  });
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  async function invite() {
+    placeLabels();
+    labels.forEach((el) => el.classList.add('on'));
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    await wait(500);
+    for (const [i, el] of coins().entries()) {
+      el.dispatchEvent(new Event('mouseenter')); labels[i].classList.add('hot');
+      await wait(520);
+      el.dispatchEvent(new Event('mouseleave')); labels[i].classList.remove('hot');
+      await wait(220);
+    }
+  }
+  window.addEventListener('resize', () => requestAnimationFrame(placeLabels));
   $('skip').addEventListener('click', () => intro.skip());
   let seen = false;
   try { seen = sessionStorage.getItem('introSeen') === '1'; sessionStorage.setItem('introSeen', '1'); } catch (e) {}
-  if (seen) play().then(() => intro.skip()); else play();
+  $('skip').hidden = seen;
+  intro.start().then(() => { if (seen) intro.skip(); });
 </script>
 </body></html>`;
 }
@@ -230,20 +273,17 @@ function pageBody(p) {
 
 // ---------- Rock'n H (print shop) ----------
 const money = (v) => `${esc(site.currencySymbol || '$')}${Number(String(v).replace(/[^0-9.]/g, '')).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
-const priced = (p) => (p.sizes || []).filter((z) => z && z.price !== undefined && z.price !== '');
+const num = (v) => Number(String(v).replace(/[^0-9.]/g, ''));
+// Purchase options: each print's own list, or its collection's list as the default. One row per material + size.
+const optsOf = (p) => p.options.map((o, i) => ({ id: i, material: o.material || '', size: o.size || '', price: num(o.price) }));
 function fromPrice(p) {
-  const prices = priced(p).map((z) => Number(String(z.price).replace(/[^0-9.]/g, ''))).filter((n) => !isNaN(n));
-  return prices.length ? `From ${money(Math.min(...prices))}` : 'Price on request';
+  const prices = optsOf(p).map((o) => o.price);
+  return prices.length ? `Prices from ${money(Math.min(...prices))}` : 'Price on request';
 }
-function remaining(p) {
-  const size = Number(p.editionSize) || 0;
-  if (!size) return null;
-  return Math.max(size - (Number(p.editionsSold) || 0), 0);
-}
+const soldOut = (p) => Number(p.editionSize) > 0 && (Number(p.editionsSold) || 0) >= Number(p.editionSize);
 function printCard(p) {
-  const left = remaining(p);
   return `<a class="product-card" href="${url(`${ROCK_HOME}prints/${p.slug}/`)}">
-  <span class="pc-img"><img src="${thumb(p.image)}" alt="${esc(p.alt || '')}" loading="lazy">${left === 0 ? '<span class="badge">Sold out</span>' : ''}</span>
+  <span class="pc-img"><img src="${thumb(p.image)}" alt="${esc(p.alt || '')}" loading="lazy">${soldOut(p) ? '<span class="badge">Sold out</span>' : ''}</span>
   <span class="pc-title">${esc(p.title || 'Untitled')}</span>
   <span class="pc-price">${fromPrice(p)}</span>
 </a>`;
@@ -301,32 +341,83 @@ ${intro ? `<div class="intro rk-intro">${intro}</div>` : ''}
 ${newsletter()}`;
 }
 
-function productBody(p) {
-  const left = remaining(p);
-  const soldOut = left === 0;
-  const sizes = priced(p);
-  const options = sizes
-    .map((z, i) => `<label class="size"><input type="radio" name="size" value="${i}" data-price="${esc(money(z.price))}" data-link="${esc(z.buyLink || '')}"${i === 0 ? ' checked' : ''}><span>${esc(z.label || `Option ${i + 1}`)}</span></label>`)
+const infoSections = () =>
+  [
+    ['About the Prints', site.rockPrintDetails],
+    ['Limited Editions', site.rockLimitedEditions],
+    ['Dimensions and Borders', site.rockDimensions],
+    ['Shipping and Production Times', site.rockShippingDetails],
+  ]
+    .filter(([, html]) => html)
+    .map(([t, html]) => `<details class="product-details"><summary>${t}</summary>${html}</details>`)
     .join('');
-  const first = sizes[0];
-  const buy = soldOut
-    ? '<span class="rk-btn disabled">Sold out</span>'
-    : `<a class="rk-btn buy-now" href="${esc(first?.buyLink || enquireHref(p))}" data-enquire="${esc(enquireHref(p))}"${first?.buyLink ? ' target="_blank" rel="noopener"' : ''}>${first?.buyLink ? 'Buy now' : 'Enquire'}</a>`;
-  const edition = [p.editionSize ? `Limited edition of ${esc(p.editionSize)}` : '', left !== null && !soldOut ? `${left} remaining` : ''].filter(Boolean).join(' · ');
+
+function productBody(p) {
+  const opts = optsOf(p);
+  const out = soldOut(p);
+  const canBuy = !out && opts.length > 0;
+  const materials = [...new Set(opts.map((o) => o.material))];
+  const data = { slug: p.slug, title: p.title || 'Untitled', image: thumb(p.image), url: url(`${ROCK_HOME}prints/${p.slug}/`), options: opts };
+  const pick = (name, values) =>
+    values.length > 1 || values[0]
+      ? `<fieldset class="choice" data-name="${name}"><legend>${name === 'material' ? 'Material' : 'Size'}</legend>${values
+          .map((v, i) => `<label class="size"><input type="radio" name="${name}" value="${esc(v)}"${i === 0 ? ' checked' : ''}><span>${esc(v || 'Standard')}</span></label>`)
+          .join('')}</fieldset>`
+      : '';
   return `<section class="product">
   <div class="product-img"><img src="${img(p.image)}" alt="${esc(p.alt || '')}"></div>
   <div class="product-info">
     <p class="crumb"><a href="${url(`${ROCK_HOME}collections/${p.collection.slug}/`)}">${esc(p.collection.title)}</a></p>
     <h1>${esc(p.title || 'Untitled')}</h1>
-    <p class="price">${first ? money(first.price) : 'Price on request'}${soldOut ? ' <span class="badge">Sold out</span>' : ''}</p>
-    ${edition ? `<p class="edition-line">${edition}</p>` : ''}
-    ${options ? `<fieldset class="sizes"><legend>Size</legend>${options}</fieldset>` : ''}
-    ${buy}
+    <p class="price">${out ? 'Sold out' : fromPrice(p)}</p>
+    ${
+      canBuy
+        ? `<form class="buy-form">
+      ${pick('material', materials)}
+      <fieldset class="choice" data-name="size"><legend>Size</legend><div class="size-list"></div></fieldset>
+      <label class="qty">Quantity <input type="number" name="qty" min="1" max="10" value="1"></label>
+      <button type="submit" class="rk-btn add-to-cart">Add to cart</button>
+      <p class="added" aria-live="polite"></p>
+    </form>
+    <script type="application/json" class="print-data">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>`
+        : out
+          ? ''
+          : `<a class="rk-btn" href="${enquireHref(p)}">Enquire</a>`
+    }
     ${p.description ? `<div class="product-desc">${p.description}</div>` : ''}
-    ${site.rockPrintDetails ? `<details class="product-details"><summary>About the prints</summary>${site.rockPrintDetails}</details>` : ''}
-    ${site.rockShippingDetails ? `<details class="product-details"><summary>Shipping and returns</summary>${site.rockShippingDetails}</details>` : ''}
+    ${infoSections()}
   </div>
 </section>`;
+}
+
+// Cart: drawn in the browser from the visitor's saved cart. Prices are always re-read from this catalog,
+// never from what the browser saved. Checkout uses PayPal (cards accepted without a PayPal account).
+function cartBody() {
+  const catalog = Object.fromEntries(allPrints.filter((p) => !soldOut(p)).map((p) => [p.slug, { title: p.title || 'Untitled', image: thumb(p.image), url: url(`${ROCK_HOME}prints/${p.slug}/`), options: optsOf(p) }]));
+  const cfg = {
+    clientId: site.rockPaypalClientId || '',
+    currency: site.rockCurrency || 'USD',
+    symbol: site.currencySymbol || '$',
+    shipping: num(site.rockShippingCost || 0) || 0,
+    store: ROCK_NAME,
+    shop: url(`${ROCK_HOME}collections/`),
+    contact: url(`${site.rockContactSlug || 'rockn-h-contact'}/`),
+  };
+  return `<section class="rk-section cart">
+  <div class="rk-head"><h1>Your cart</h1></div>
+  <div class="cart-items"></div>
+  <div class="cart-summary" hidden>
+    <p class="row"><span>Subtotal</span><span class="subtotal"></span></p>
+    <p class="row"><span>Shipping</span><span class="shipping"></span></p>
+    <p class="row total"><span>Total</span><span class="grand"></span></p>
+    ${site.rockShippingNote ? `<div class="cart-note">${site.rockShippingNote}</div>` : ''}
+    <div id="paypal-buttons"></div>
+    <p class="checkout-off" hidden>Online checkout is being set up. To order now, <a href="${cfg.contact}?about=my%20cart">send us a message</a>.</p>
+  </div>
+  <div class="cart-done" hidden><h2>Thank you for your order</h2><p>A receipt is on its way to your email. We'll be in touch about production and shipping.</p></div>
+</section>
+<script type="application/json" class="cart-catalog">${JSON.stringify(catalog).replace(/</g, '\\u003c')}</script>
+<script type="application/json" class="cart-config">${JSON.stringify(cfg).replace(/</g, '\\u003c')}</script>`;
 }
 
 // ---------- write ----------
@@ -348,6 +439,7 @@ copyDir(path.join(ROOT, 'photos'), path.join(OUT, 'photos'));
 write('', entranceHtml());
 write(PHOTO_HOME, layout({ body: photoHomeBody(), current: url(PHOTO_HOME), bodyClass: 'photo-home' }));
 write(ROCK_HOME, layout({ side: 'rocknh', current: url(ROCK_HOME), body: rockHomeBody(), bodyClass: 'rock-home' }));
+write(`${ROCK_HOME}cart`, layout({ title: 'Cart', side: 'rocknh', current: url(`${ROCK_HOME}cart/`), body: cartBody() }));
 write(`${ROCK_HOME}collections`, layout({ title: 'All Prints', side: 'rocknh', current: url(`${ROCK_HOME}collections/`), body: collectionBody('All Prints', allPrints) }));
 for (const c of collections) {
   const where = c.draft ? `drafts/collections/${c.slug}` : `${ROCK_HOME}collections/${c.slug}`;
