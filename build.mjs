@@ -467,6 +467,7 @@ for (const c of collections) {
 const redirect = (to) => `<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=${to}"><link rel="canonical" href="${to}">`;
 write('galleries', redirect(url(PHOTO_HOME)));
 write('prints', redirect(url(`${ROCK_HOME}collections/`)));
+if (!galleries.some((g) => g.slug === 'pocket-pictures')) write('pocket-pictures', redirect(url('anthologies/'))); // renamed 2026-10-15
 
 const drafts = [];
 for (const g of galleries) {

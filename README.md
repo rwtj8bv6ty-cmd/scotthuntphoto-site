@@ -31,7 +31,7 @@ Every new gallery and page starts as a **Draft**. Drafts never appear in the men
 Preview them at `your-site/drafts/`. When it's ready, turn off **Draft** and save — that's publishing.
 
 ### Sub-menus of galleries
-To put a gallery in a sub-menu (for example under Pocket Pictures), type the main gallery's web address, such as `pocket-pictures`, in *Show in a sub-menu under another gallery*. The main gallery's page then shows a grid of its sub-galleries.
+To put a gallery in a sub-menu (for example under Anthologies), type the main gallery's web address, such as `anthologies`, in *Show in a sub-menu under another gallery*. The main gallery's page then shows a grid of its sub-galleries.
 
 ### Selling limited-edition prints (Rock'n H)
 Prints are sold on the Rock'n H side, from **Rock'n H print collections** in the editor.
