@@ -24,6 +24,9 @@ const basename = (p) => p.slice(p.lastIndexOf('/') + 1);
 const dirname = (p) => p.slice(0, Math.max(0, p.lastIndexOf('/')));
 const serialize = (data) => JSON.stringify(data, null, 2);
 const cleanLabel = (s) => String(s || '').replace(/\s*\((drag to reorder|e\.g\.[^)]*)\)\s*/gi, ' ').trim();
+// Labels inside a group view don't need the group's name in front ("Checkout: currency code" -> "Currency code").
+const shortLabel = (s) => { const t = cleanLabel(s).replace(/^(print pages|checkout):\s*/i, ''); return t.charAt(0).toUpperCase() + t.slice(1); };
+const columnLabel = (s) => cleanLabel(s).replace(/\s*\([^)]*\)\s*/g, ' ').trim();
 
 let toastTimer;
 function toast(text, action) {
@@ -88,8 +91,18 @@ function entrySide(entry) {
   if (entry.type === 'file' && entry.name === 'site') return 'fields';
   return 'photography';
 }
+// Groups of site.json fields, each its own page in the sidebar.
+const GROUPS = {
+  photography: { side: 'photography', title: 'Home page' },
+  rocknh: { side: 'rocknh', title: 'Home page & artist' },
+  'rocknh-print': { side: 'rocknh', title: 'Print pages' },
+  'rocknh-checkout': { side: 'rocknh', title: 'Checkout' },
+  settings: { side: 'settings', title: 'Site settings' },
+};
 function fieldGroup(entry, f) {
   if (entry.side !== 'fields') return entry.side;
+  if (/^checkout:/i.test(f.label || '') || /^rock(Paypal|Currency|ShippingCost|ShippingNote|Checkout)/.test(f.name)) return 'rocknh-checkout';
+  if (/^print pages:/i.test(f.label || '') || /^rock(PrintDetails|LimitedEditions|Dimensions|ShippingDetails)/.test(f.name)) return 'rocknh-print';
   if (/^rock/i.test(f.name)) return 'rocknh';
   if (PHOTO_SIDE_FIELDS.has(f.name)) return 'photography';
   return 'settings';
@@ -414,9 +427,12 @@ function renderSidebar() {
         nav.append(list);
       } else if (entry.type === 'file') {
         const groups = new Set(entry.fields.map((f) => fieldGroup(entry, f)));
-        if (groups.has(side)) {
-          const label = entry.side === 'fields' ? (side === 'photography' ? 'Home page' : 'Home page & artist') : cleanLabel(entry.label).replace(/^rock'?n'? ?h\s*/i, '');
-          nav.append(item(label, { type: 'file', path: entry.path, group: side }, { cls: 'group-head' }));
+        if (entry.side !== 'fields') {
+          if (groups.has(side)) nav.append(item(cleanLabel(entry.label).replace(/^rock'?n'? ?h\s*/i, ''), { type: 'file', path: entry.path, group: side }, { cls: 'group-head' }));
+        } else {
+          for (const [key, g] of Object.entries(GROUPS)) {
+            if (g.side === side && groups.has(key)) nav.append(item(g.title, { type: 'file', path: entry.path, group: key }, { cls: 'group-head' }));
+          }
         }
       }
     }
@@ -506,7 +522,7 @@ function homeView() {
       tip('Add photos', 'Open a gallery and drag photos from Finder onto it, or click Add photos.'),
       tip('Rearrange', 'Drag photos into a new order. Drag galleries in the sidebar to change the menu order.'),
       tip('Move between galleries', 'Select photos and drag them onto another gallery in the sidebar. Hold Option to copy instead.'),
-      tip('Sell a print', "Select photos in a gallery and choose Copy to… a Rock'n H print collection, then add edition and sizes."),
+      tip('Sell a print', "Select photos in a gallery and choose Copy to… a Rock'n H print collection. Set the collection's price list once; a print can have its own."),
       tip('Drafts', 'New galleries and pages start as drafts. Switch them to Published when they are ready.'),
       tip('Undo', 'Undo steps back through your changes. Discard throws away everything not yet published.')),
     galleries ? h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => go({ type: 'collection', entry: galleries, side: 'photography' }) }, `See all ${cleanLabel(galleries.label).toLowerCase()}`)) : null);
@@ -631,12 +647,26 @@ function fileView(doc, group) {
   const entry = doc.entry;
   const fields = entry.fields.filter((f) => fieldGroup(entry, f) === group && !f.hidden);
   const lists = fields.filter(isImageList);
-  const titles = { photography: 'Home page', rocknh: 'Home page & artist', settings: cleanLabel(entry.label) };
+  const g = GROUPS[group];
+  const title = entry.side !== 'fields' ? cleanLabel(entry.label) : group === 'settings' ? cleanLabel(entry.label) : g.title;
   return h('div', { class: 'page' },
-    h('div', { class: 'page-head' }, h('div', {}, h('div', { class: 'eyebrow' }, SIDES[group] || 'Settings'),
-      h('h1', {}, entry.side === 'fields' ? titles[group] : cleanLabel(entry.label)))),
+    h('div', { class: 'page-head' }, h('div', {}, h('div', { class: 'eyebrow' }, SIDES[g ? g.side : group] || 'Settings'),
+      h('h1', {}, title))),
+    group === 'rocknh-print' ? h('p', { class: 'muted' }, 'These are the drop-down sections on every print page.') : null,
+    group === 'rocknh-checkout' ? checkoutHelp(doc.data) : null,
     lists.map((f) => h('div', { class: 'block' }, h('h3', {}, cleanLabel(f.label)), photoGrid(doc, f))),
     h('div', { class: 'form' }, fields.filter((f) => !isImageList(f)).map((f) => fieldRow(doc.data, f, doc))));
+}
+
+function checkoutHelp(site) {
+  const ready = String(site.rockPaypalClientId || '').trim();
+  return h('div', { class: ready ? 'tip' : 'note' },
+    ready ? h('p', {}, 'PayPal checkout is switched on. Buyers can pay by card or with a PayPal account.')
+      : h('p', {}, h('b', {}, 'Checkout is not switched on yet. '), 'Until a PayPal Client ID is filled in, the cart tells visitors online checkout is being set up.'),
+    h('ol', { class: 'steps' },
+      h('li', {}, h('button', { class: 'link', onclick: () => Native.open('https://developer.paypal.com/dashboard/applications/live') }, 'Open PayPal’s developer dashboard'), ' and sign in with your PayPal business account.'),
+      h('li', {}, 'Make sure the switch at the top says ', h('b', {}, 'Live'), ', then click ', h('b', {}, 'Create App'), ' (any name, e.g. “Rock’n H shop”).'),
+      h('li', {}, 'Copy the ', h('b', {}, 'Client ID'), ' and paste it below. Never paste the ', h('b', {}, 'Secret'), ' anywhere.')));
 }
 
 function accountView() {
@@ -652,7 +682,7 @@ function accountView() {
 
 // ---------- fields ----------
 function fieldRow(obj, f, doc) {
-  const label = cleanLabel(f.label || f.name);
+  const label = shortLabel(f.label || f.name);
   const input = fieldInput(obj, f, doc);
   if (f.type === 'boolean') return h('label', { class: 'field check' }, input, h('span', {}, label));
   if (f.type === 'object' && f.list) return h('div', { class: 'field wide' }, h('span', { class: 'field-label' }, label), input);
@@ -763,20 +793,110 @@ function richText(obj, f) {
   return h('div', { class: 'rich-wrap', onclick: (e) => e.target === e.currentTarget && ed.focus() }, tools, ed);
 }
 
-// A list of small records (for example a print's sizes and prices).
+// A list of small records, e.g. a price list (material, size, price) or a print's own prices.
+const SIMPLE_TYPES = new Set(['string', 'number', 'select', undefined]);
+const money = (n) => `${(siteDoc() && siteDoc().data.currencySymbol) || '$'}${Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+const priceOf = (o) => { const v = parseFloat(String(o && o.price != null ? o.price : '').replace(/[^0-9.]/g, '')); return Number.isFinite(v) ? v : null; };
+function lowestPrice(list) {
+  const prices = (list || []).map(priceOf).filter((v) => v != null);
+  return prices.length ? Math.min(...prices) : null;
+}
+// Every value already used for this column anywhere, offered as suggestions while typing.
+function knownValues(listName, key) {
+  const out = new Set();
+  const walk = (v) => {
+    if (Array.isArray(v)) v.forEach(walk);
+    else if (v && typeof v === 'object') {
+      for (const [k, x] of Object.entries(v)) {
+        if (k === listName && Array.isArray(x)) x.forEach((o) => { if (o && o[key]) out.add(String(o[key])); });
+        else walk(x);
+      }
+    }
+  };
+  for (const d of S.docs.values()) if (!d.deleted) walk(d.data);
+  return [...out].sort();
+}
+let datalistId = 0;
+
 function itemList(obj, f, doc) {
   if (!Array.isArray(obj[f.name])) obj[f.name] = [];
   const arr = obj[f.name];
+  const sub = f.fields || [];
   const box = h('div', { class: 'item-list' });
-  const draw = () => {
-    box.replaceChildren(...arr.map((it, i) => h('div', { class: 'item' },
-      h('div', { class: 'form compact' }, (f.fields || []).map((s) => fieldRow(it, s, doc))),
-      h('div', { class: 'item-tools' },
-        h('button', { title: 'Move up', disabled: i === 0, onclick: (e) => { e.preventDefault(); checkpoint(); arr.splice(i - 1, 0, arr.splice(i, 1)[0]); changed(); draw(); } }, '↑'),
-        h('button', { title: 'Move down', disabled: i === arr.length - 1, onclick: (e) => { e.preventDefault(); checkpoint(); arr.splice(i + 1, 0, arr.splice(i, 1)[0]); changed(); draw(); } }, '↓'),
-        h('button', { title: 'Remove', class: 'danger-quiet', onclick: (e) => { e.preventDefault(); checkpoint(); arr.splice(i, 1); changed(); draw(); } }, '✕')))),
-    h('button', { onclick: (e) => { e.preventDefault(); checkpoint(); arr.push(defaultsFor(f.fields || [])); changed(); draw(); } }, `+ Add ${cleanLabel(f.label).toLowerCase().replace(/s$/, '').replace(/ and prices?$/, '')}`));
-  };
+  const isPrice = sub.some((x) => x.name === 'price');
+  // A print with no prices of its own uses its collection's list of the same name.
+  const parentList = obj !== doc.data && Array.isArray(doc.data[f.name]) ? doc.data[f.name] : null;
+  const move = (i, to) => { checkpoint(); arr.splice(to, 0, arr.splice(i, 1)[0]); changed(); draw(); };
+  const tools = (i) => h('div', { class: 'item-tools' },
+    h('button', { title: 'Duplicate', onclick: (e) => { e.preventDefault(); checkpoint(); arr.splice(i + 1, 0, JSON.parse(JSON.stringify(arr[i]))); changed(); draw(); } }, '⧉'),
+    h('button', { title: 'Move up', disabled: i === 0, onclick: (e) => { e.preventDefault(); move(i, i - 1); } }, '↑'),
+    h('button', { title: 'Move down', disabled: i === arr.length - 1, onclick: (e) => { e.preventDefault(); move(i, i + 1); } }, '↓'),
+    h('button', { title: 'Remove', class: 'danger-quiet', onclick: (e) => { e.preventDefault(); checkpoint(); arr.splice(i, 1); changed(); draw(); } }, '✕'));
+  const add = h('button', { onclick: (e) => { e.preventDefault(); checkpoint(); arr.push(defaultsFor(sub)); changed(); draw(); } },
+    isPrice ? '+ Add a price' : `+ Add ${columnLabel(f.label).toLowerCase().replace(/s$/, '')}`);
+
+  function tableView() {
+    const lists = {};
+    const head = h('tr', {}, sub.map((x) => h('th', {}, columnLabel(x.label || x.name))), h('th', {}));
+    const rows = arr.map((it, i) => h('tr', {}, sub.map((x) => {
+      let input;
+      if (x.type === 'select') input = fieldInput(it, x, doc);
+      else {
+        if (x.type !== 'number' && x.name !== 'price' && !lists[x.name]) {
+          const id = 'dl' + ++datalistId;
+          lists[x.name] = h('datalist', { id }, knownValues(f.name, x.name).map((v) => h('option', { value: v })));
+        }
+        input = h('input', { type: x.type === 'number' ? 'number' : 'text', value: it[x.name] ?? '', list: lists[x.name] ? lists[x.name].id : null,
+          placeholder: (String(x.label || '').match(/e\.g\. ([^)]*)/) || [])[1] || '' });
+        input.addEventListener('focus', checkpoint);
+        const check = () => input.classList.toggle('bad', x.name === 'price' && input.value.trim() !== '' && priceOf({ price: input.value }) == null);
+        input.addEventListener('input', () => {
+          if (x.type === 'number') { if (input.value === '') delete it[x.name]; else it[x.name] = Number(input.value); }
+          else it[x.name] = input.value;
+          check();
+          summary.textContent = summaryText();
+          changed();
+        });
+        // "$2,400" is tidied to "2400" when the field is left, as the website expects a plain number.
+        input.addEventListener('change', () => {
+          if (x.name === 'price' && priceOf({ price: input.value }) != null) { input.value = it[x.name] = String(priceOf({ price: input.value })); changed(); }
+          if (isPrice) refreshPriceTags(doc);
+        });
+        check();
+      }
+      return h('td', {}, input);
+    }), h('td', {}, tools(i))));
+    return h('div', {}, h('table', { class: 'grid-table' }, h('thead', {}, head), h('tbody', {}, rows)), Object.values(lists));
+  }
+  function summaryText() {
+    if (!isPrice) return '';
+    const low = lowestPrice(arr);
+    return low == null ? '' : `Shown on the website as “Prices from ${money(low)}”.`;
+  }
+  const summary = h('p', { class: 'muted small' });
+  function draw() {
+    const simple = sub.every((x) => SIMPLE_TYPES.has(x.type));
+    const parts = [];
+    if (!arr.length && parentList) {
+      const low = lowestPrice(parentList);
+      parts.push(h('div', { class: 'inherit' },
+        h('p', {}, parentList.length
+          ? `Uses the collection's price list (${plural(parentList.length, 'price')}${low != null ? `, from ${money(low)}` : ''}).`
+          : "The collection has no price list yet, so this print shows an Enquire button."),
+        h('div', { class: 'row' },
+          parentList.length ? h('button', { onclick: (e) => { e.preventDefault(); checkpoint(); arr.push(...JSON.parse(JSON.stringify(parentList))); changed(); draw(); } }, 'Give this print its own prices') : null,
+          h('button', { onclick: (e) => { e.preventDefault(); checkpoint(); arr.push(defaultsFor(sub)); changed(); draw(); } }, 'Start an empty list'))));
+    } else if (simple) {
+      if (arr.length) parts.push(tableView());
+      parts.push(h('div', { class: 'row' }, add,
+        parentList && arr.length ? h('button', { class: 'link', onclick: (e) => { e.preventDefault(); checkpoint(); arr.splice(0); changed(); draw(); } }, "Use the collection's price list instead") : null));
+    } else {
+      parts.push(...arr.map((it, i) => h('div', { class: 'item' }, h('div', { class: 'form compact' }, sub.map((x) => fieldRow(it, x, doc))), tools(i))), add);
+    }
+    summary.textContent = summaryText();
+    box.replaceChildren(...parts, summary);
+    if (isPrice) refreshPriceTags(doc);
+  }
   draw();
   return box;
 }
@@ -820,6 +940,18 @@ function transferPhotos(drag, toDoc, toField, copy) {
   render();
   const skipped = items.length - added;
   toast(`${copy ? 'Copied' : 'Moved'} ${plural(added, 'photo')} to ${docTitle(toDoc)}${skipped ? ` (${skipped} already there)` : ''}.`, { label: 'Undo', run: undo });
+}
+
+function refreshPriceTags(doc) {
+  document.querySelectorAll('.photos').forEach((w) => { if (w.doc === doc && w.redraw) w.redraw(); });
+}
+// On prints: "Sold out" or the lowest price, so the grid shows what visitors will see.
+function printTag(it, f, doc) {
+  if (!f.fields.some((x) => x.name === 'options' || x.name === 'editionSize')) return null;
+  if (Number(it.editionSize) > 0 && Number(it.editionsSold) >= Number(it.editionSize)) return h('span', { class: 'tag price sold' }, 'Sold out');
+  const own = Array.isArray(it.options) && it.options.length ? it.options : null;
+  const low = lowestPrice(own || doc.data.options);
+  return h('span', { class: 'tag price' }, low == null ? 'No price' : `from ${money(low)}`);
 }
 
 function photoGrid(doc, f, holder) {
@@ -866,7 +998,8 @@ function photoGrid(doc, f, holder) {
         h('img', { src: imgSrc(v), loading: 'lazy', alt: '', draggable: 'false' }),
         h('span', { class: 'num' }, i + 1),
         doc.data.cover && doc.data.cover === v && coverField ? h('span', { class: 'tag' }, 'Cover') : null,
-        it.featured ? h('span', { class: 'tag star' }, '★') : null);
+        it.featured ? h('span', { class: 'tag star' }, '★') : null,
+        printTag(it, f, doc));
       t.addEventListener('click', (e) => clickTile(e, i));
       t.addEventListener('dblclick', () => openDetail(i));
       t.addEventListener('dragstart', (e) => {
@@ -1011,6 +1144,8 @@ function photoGrid(doc, f, holder) {
     if (DRAG && DRAG.type === 'photos' && DRAG.arr === arr) reorder(DRAG.idx, arr.length);
   });
   draw();
+  wrap.doc = doc;
+  wrap.redraw = draw;
   wrap.append(bar, grid);
   return wrap;
 }

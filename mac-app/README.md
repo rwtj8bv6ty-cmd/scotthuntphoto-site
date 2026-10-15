@@ -17,8 +17,10 @@ A Mac app for editing everything on the website, on both sides: Scott Hunt Photo
   a new order, and move or copy them to another gallery (select them and drag onto a gallery in the sidebar;
   hold Option to copy). Create, rename, reorder (drag in the sidebar), draft or delete galleries.
 - **Pages** on either side, including About me: text with simple formatting, side photo, contact form on/off.
-- **Rock'n H:** print collections with each print's edition size, prints sold, featured flag, sizes, prices and
-  Stripe payment links; the Rock'n H home page, artist statement and biography.
+- **Rock'n H:** print collections, each with a price list of materials, sizes and prices that every print uses
+  unless it has its own; edition size and prints sold (for *Sold out*); featured prints; the print-page sections
+  (About the Prints, Limited Editions, Dimensions and Borders, Shipping and Production Times); PayPal checkout
+  settings; the Rock'n H home page, artist statement and biography.
 - **Home page** photos, site settings and drafts.
 - Nothing changes on the website until you press **Publish**. Undo steps back; Discard throws away
   everything not yet published. The website updates about a minute after publishing.
@@ -30,7 +32,8 @@ A photo file is deleted from the website only when nothing uses it any more.
 - `web/` is the editor (plain HTML/JS, no dependencies). It reads the site's `.pages.yml` to know every content
   type and field, so new content types added to the site appear here without changing the app. Collections whose
   label starts with "Rock'n H" go under the Rock'n H side; pages are split by their `side` field; in
-  `content/site.json`, fields starting with `rock` belong to Rock'n H.
+  `content/site.json`, fields starting with `rock` belong to Rock'n H (split into Home page & artist, Print pages
+  and Checkout).
 - `Sources/main.swift` is the native window (WebKit). It stores the access key in
   `~/Library/Application Support/Scott Hunt Site Manager/config.json` (readable only by the user), makes the
   GitHub requests, and caches photos in `~/Library/Caches/Scott Hunt Site Manager`.

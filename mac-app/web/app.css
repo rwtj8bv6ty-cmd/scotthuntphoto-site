@@ -191,3 +191,20 @@ details summary { cursor: default; color: var(--muted); }
 #toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #1d1c1a; color: #fff; padding: 9px 16px; border-radius: 9px; box-shadow: 0 6px 24px rgba(0,0,0,.3); z-index: 60; display: flex; gap: 12px; align-items: center; }
 #toast .link { color: #8db8ff; }
 #toast[hidden] { display: none; }
+.grid-table { border-collapse: collapse; width: 100%; max-width: 760px; }
+.grid-table th { text-align: left; font-size: 12px; font-weight: 500; color: var(--muted); padding: 0 6px 4px 0; }
+.grid-table td { padding: 2px 6px 2px 0; vertical-align: middle; }
+.grid-table td:last-child { width: 1%; white-space: nowrap; }
+.grid-table .item-tools { flex-direction: row; }
+input.bad { outline: 2px solid var(--danger); outline-offset: -1px; }
+.inherit { border: 1px dashed var(--line); border-radius: 8px; padding: 8px 12px; }
+.inherit p { margin: 4px 0; }
+.inherit .row { margin: 6px 0 2px; }
+.tile .tag.price { left: auto; right: 5px; top: auto; bottom: 4px; }
+.tile .tag.price.sold { background: var(--danger); }
+.steps { margin: 6px 0 2px; padding-left: 20px; }
+.steps li { margin: 3px 0; }
+.detail { grid-template-columns: minmax(0, 1fr) minmax(440px, 1fr); }
+.grid-table .item-tools { gap: 2px; }
+.grid-table .item-tools button { padding: 2px 6px; }
+.grid-table input { min-width: 70px; }
