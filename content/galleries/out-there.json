@@ -5,7 +5,110 @@
   "order": 2,
   "featured": true,
   "layout": "masonry",
-  "cover": "",
+  "cover": "/photos/out-there/airstream.jpg",
   "description": "",
-  "photos": []
+  "photos": [
+    {
+      "image": "/photos/out-there/airstream.jpg",
+      "title": "Airstream",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/brite.jpg",
+      "title": "Brite",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/car.jpg",
+      "title": "Car",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/chairs.jpg",
+      "title": "Chairs",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/cows.jpg",
+      "title": "Cows",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/grass.jpg",
+      "title": "Grass",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/grocery.jpg",
+      "title": "Grocery",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/lines.jpg",
+      "title": "Lines",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/plateau.jpg",
+      "title": "Plateau",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/post.jpg",
+      "title": "Post",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/reflection.jpg",
+      "title": "Reflection",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/road.jpg",
+      "title": "Road",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/stop-sign.jpg",
+      "title": "Stop Sign",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/sunset.jpg",
+      "title": "Sunset",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/texas.jpg",
+      "title": "Texas",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/water-tower.jpg",
+      "title": "Water Tower",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/yucca.jpg",
+      "title": "Yucca",
+      "caption": "",
+      "alt": ""
+    }
+  ]
 }
