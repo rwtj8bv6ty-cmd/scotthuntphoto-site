@@ -35,7 +35,11 @@ const ROCK_NAME = site.rocknhTitle || "Rock'n H";
 const PHOTO_HOME = 'photography/';
 const ROCK_HOME = 'rockn-h/';
 
-const galleries = readDir(path.join(ROOT, 'content/galleries')).map((g) => ({ ...g, slug: g.slug || slugify(g.title) })).sort(byOrder);
+const galleries = readDir(path.join(ROOT, 'content/galleries')).map((g) => ({ ...g, slug: g.slug || slugify(g.title), parent: slugify(g.parent || '') })).sort(byOrder);
+// A gallery with a parent sits in a sub-menu under it, at /<parent>/<slug>/. Unknown parents are ignored.
+for (const g of galleries) if (g.parent && (g.parent === g.slug || !galleries.some((x) => x.slug === g.parent && !x.parent))) g.parent = '';
+const galleryPath = (g) => (g.parent ? `${g.parent}/${g.slug}` : g.slug);
+const subGalleries = (g) => galleries.filter((x) => live(x) && x.parent === g.slug);
 const pages = readDir(path.join(ROOT, 'content/pages'))
   .map((p) => ({ ...p, slug: p.slug || slugify(p.title), side: p.side === 'rocknh' ? 'rocknh' : 'photography' }))
   .sort(byOrder);
@@ -62,7 +66,15 @@ const menuPages = (side) => pages.filter((p) => live(p) && p.inMenu !== false &&
 // ---------- navigation ----------
 function photoNav(current) {
   const link = (href, title) => `<li${href === current ? ' class="active"' : ''}><a href="${href}">${esc(title)}</a></li>`;
-  const gal = galleries.filter(live).map((g) => link(url(`${g.slug}/`), g.title)).join('');
+  const gal = galleries
+    .filter((g) => live(g) && !g.parent)
+    .map((g) => {
+      const subs = subGalleries(g);
+      if (!subs.length) return link(url(`${g.slug}/`), g.title);
+      const inside = String(current).startsWith(url(`${g.slug}/`));
+      return `<li class="nav-parent${inside ? ' open' : ''}${url(`${g.slug}/`) === current ? ' active' : ''}"><a href="${url(`${g.slug}/`)}">${esc(g.title)}</a><ul class="nav-sub">${subs.map((x) => link(url(`${galleryPath(x)}/`), x.title)).join('')}</ul></li>`;
+    })
+    .join('');
   const pg = menuPages('photography').map((p) => link(url(`${p.slug}/`), p.menuTitle || p.title)).join('');
   return `<aside class="sidebar">
   <a class="brand" href="${url(PHOTO_HOME)}">${esc(PHOTO_NAME)}</a>
@@ -226,6 +238,16 @@ const captionText = (p) => (showCaptions ? [p.title, p.caption].filter(Boolean).
 // Gallery: one large photo with arrows and a counter, plus a "show thumbnails" grid.
 function galleryBody(g) {
   const photos = photosFor(g);
+  const subs = subGalleries(g);
+  // A gallery with sub-galleries and no photos of its own shows its sub-galleries as a grid of covers.
+  if (subs.length && !photos.length) {
+    return `<section class="sub-index">${subs
+      .map((x) => {
+        const cover = x.cover || photosFor(x)[0]?.image;
+        return `<a class="sub-card" href="${url(`${galleryPath(x)}/`)}">${cover ? `<img src="${thumb(cover)}" alt="" loading="lazy">` : '<span class="sub-blank"></span>'}<span>${esc(x.title)}</span></a>`;
+      })
+      .join('')}</section>`;
+  }
   const data = photos.map((p) => ({ src: img(p.image), caption: captionText(p), edition: editionInfo(p), alt: p.alt || '' }));
   const first = data[0];
   return `<section class="slideshow" aria-label="${esc(g.title)}">
@@ -448,8 +470,8 @@ write('prints', redirect(url(`${ROCK_HOME}collections/`)));
 
 const drafts = [];
 for (const g of galleries) {
-  const where = g.draft ? `drafts/${g.slug}` : g.slug;
-  write(where, layout({ title: g.title, body: galleryBody(g), current: url(`${g.slug}/`), draft: !!g.draft, bodyClass: 'gallery-page' }));
+  const where = g.draft ? `drafts/${galleryPath(g)}` : galleryPath(g);
+  write(where, layout({ title: g.title, body: galleryBody(g), current: url(`${galleryPath(g)}/`), draft: !!g.draft, bodyClass: 'gallery-page' }));
   if (g.draft) drafts.push({ kind: 'Gallery', title: g.title, href: url(`${where}/`) });
 }
 for (const c of collections.filter((c) => c.draft)) drafts.push({ kind: 'Print collection', title: c.title, href: url(`drafts/collections/${c.slug}/`) });

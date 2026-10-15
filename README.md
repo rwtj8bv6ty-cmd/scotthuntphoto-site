@@ -30,6 +30,9 @@ A fast, hand-built photography site hosted free on GitHub Pages, edited through 
 Every new gallery and page starts as a **Draft**. Drafts never appear in the menu or search engines.
 Preview them at `your-site/drafts/`. When it's ready, turn off **Draft** and save — that's publishing.
 
+### Sub-menus of galleries
+To put a gallery in a sub-menu (for example under Pocket Pictures), type the main gallery's web address, such as `pocket-pictures`, in *Show in a sub-menu under another gallery*. The main gallery's page then shows a grid of its sub-galleries.
+
 ### Selling limited-edition prints (Rock'n H)
 Prints are sold on the Rock'n H side, from **Rock'n H print collections** in the editor.
 - Each print has a photo, title, description, edition size and prints sold so far.
