@@ -279,30 +279,27 @@ if (cartEl) {
   }
 }
 
-// Rock'n H print page: enlarge the photo in a lightbox; close with the X, Esc, or a click anywhere.
+// Rock'n H print page: click the photo to see it full page; click again, the X, or Esc to go back.
 (() => {
-  const zoom = document.querySelector('.product-img .zoom');
-  if (!zoom) return;
-  const src = zoom.querySelector('img');
-  const lb = document.createElement('div');
-  lb.className = 'rk-lb';
-  lb.setAttribute('role', 'dialog');
-  lb.setAttribute('aria-modal', 'true');
-  lb.setAttribute('aria-label', 'Larger view');
-  lb.innerHTML = '<button class="lb-close" type="button" aria-label="Close">\u00d7</button><img alt="">';
-  lb.querySelector('img').src = src.currentSrc || src.src;
-  lb.querySelector('img').alt = src.alt;
-  document.body.appendChild(lb);
-  const close = () => {
-    lb.classList.remove('open');
-    document.documentElement.classList.remove('lb-lock');
-    zoom.focus({ preventScroll: true });
+  const photo = document.querySelector('.product-img img.zoom');
+  if (!photo) return;
+  const full = document.createElement('div');
+  full.className = 'rk-full';
+  full.innerHTML = '<button class="full-close" type="button" aria-label="Close">\u00d7</button><img alt="">';
+  const big = full.querySelector('img');
+  big.alt = photo.alt;
+  document.body.appendChild(full);
+  const open = () => {
+    big.src = photo.currentSrc || photo.src;
+    document.documentElement.classList.add('full-lock');
+    full.classList.add('open');
   };
-  zoom.addEventListener('click', () => {
-    document.documentElement.classList.add('lb-lock');
-    requestAnimationFrame(() => lb.classList.add('open'));
-    lb.querySelector('.lb-close').focus({ preventScroll: true });
-  });
-  lb.addEventListener('click', close);
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && lb.classList.contains('open')) close(); });
+  const close = () => {
+    full.classList.remove('open');
+    document.documentElement.classList.remove('full-lock');
+  };
+  photo.addEventListener('click', open);
+  photo.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+  full.addEventListener('click', close);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 })();

@@ -4,8 +4,11 @@
 // Anything marked as a draft is built under /drafts/<slug>/ (hidden from menus and search engines).
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 
 const ROOT = path.dirname(new URL(import.meta.url).pathname);
+// Version stamp on the stylesheet and script so browsers fetch new copies after each publish.
+const ASSET_V = crypto.createHash('md5').update(fs.readFileSync(path.join(ROOT, 'src/style.css'))).update(fs.readFileSync(path.join(ROOT, 'src/site.js'))).digest('hex').slice(0, 8);
 const OUT = path.join(ROOT, 'dist');
 const BASE = (process.env.SITE_BASE || '/').replace(/\/?$/, '/'); // e.g. "/repo-name/" on a project Pages URL
 
@@ -118,14 +121,14 @@ function layout({ title, body, current, side = 'photography', draft = false, bod
 ${draft ? '<meta name="robots" content="noindex, nofollow">' : ''}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="${url('assets/style.css')}">
+<link rel="stylesheet" href="${url('assets/style.css')}?v=${ASSET_V}">
 </head>
 <body class="${sideClass} ${bodyClass}">
 ${draft ? '<div class="draft-banner">Draft preview · not published · only people with this link can see it</div>' : ''}
 ${chrome}
 <main>${body}</main>
 ${side === 'entrance' ? '' : `<footer class="site-footer"><p>© ${new Date().getFullYear()} ${esc(site.title)}. All photographs are protected by copyright.</p></footer>`}
-<script src="${url('assets/site.js')}" defer></script>
+<script src="${url('assets/site.js')}?v=${ASSET_V}" defer></script>
 </body>
 </html>`;
 }
@@ -248,6 +251,7 @@ function galleryBody(g) {
       })
       .join('')}</section>`;
   }
+  if (!photos.length) return `<section class="slideshow" aria-label="${esc(g.title)}"><p class="note">Photographs coming soon.</p></section>`;
   const data = photos.map((p) => ({ src: img(p.image), caption: captionText(p), edition: editionInfo(p), alt: p.alt || '' }));
   const first = data[0];
   return `<section class="slideshow" aria-label="${esc(g.title)}">
@@ -379,7 +383,7 @@ function productBody(p) {
           .join('')}</fieldset>`
       : '';
   return `<section class="product">
-  <div class="product-img"><button class="zoom" type="button" aria-label="View larger"><img src="${img(p.image)}" alt="${esc(p.alt || '')}"></button></div>
+  <div class="product-img"><img class="zoom" src="${img(p.image)}" alt="${esc(p.alt || '')}" tabindex="0" role="button" aria-label="View larger"></div>
   <div class="product-info">
     <p class="crumb"><a href="${url(`${ROCK_HOME}collections/${p.collection.slug}/`)}">${esc(p.collection.title)}</a></p>
     <h1>${esc(p.title || 'Untitled')}</h1>
@@ -467,7 +471,7 @@ for (const c of collections) {
 const redirect = (to) => `<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=${to}"><link rel="canonical" href="${to}">`;
 write('galleries', redirect(url(PHOTO_HOME)));
 write('prints', redirect(url(`${ROCK_HOME}collections/`)));
-if (!galleries.some((g) => g.slug === 'pocket-pictures')) write('pocket-pictures', redirect(url('anthologies/'))); // renamed 2026-10-15
+if (!galleries.some((g) => g.slug === 'pocket-pictures' && !g.parent)) write('pocket-pictures', redirect(url(galleries.some((g) => g.slug === 'pocket-pictures' && g.parent === 'anthologies') ? 'anthologies/pocket-pictures/' : 'anthologies/'))); // renamed 2026-10-15
 
 const drafts = [];
 for (const g of galleries) {

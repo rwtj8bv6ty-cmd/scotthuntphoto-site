@@ -1,0 +1,12 @@
+{
+  "title": "Pocket Pictures",
+  "slug": "pocket-pictures",
+  "parent": "anthologies",
+  "draft": false,
+  "order": 7,
+  "featured": true,
+  "layout": "masonry",
+  "cover": "",
+  "description": "",
+  "photos": []
+}
