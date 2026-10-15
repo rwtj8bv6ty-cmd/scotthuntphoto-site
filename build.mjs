@@ -135,7 +135,7 @@ function entranceHtml() {
   #skip:hover { color: #222; }
   .coin-label { position: absolute; transform: translateX(-50%); text-align: center; color: #a29d96; font-size: 11px; line-height: 1.5; letter-spacing: .22em; text-transform: uppercase; text-decoration: none; opacity: 0; transition: opacity 1.2s ease, color .2s; pointer-events: none; }
   .coin-label.on { opacity: 1; pointer-events: auto; }
-  .coin-label:hover, .coin-label.hot { color: #222; }
+  .coin-label:hover { color: #222; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 </style>
 </head><body>
@@ -182,18 +182,10 @@ function entranceHtml() {
     el.addEventListener('mouseenter', () => coins()[i]?.dispatchEvent(new Event('mouseenter')));
     el.addEventListener('mouseleave', () => coins()[i]?.dispatchEvent(new Event('mouseleave')));
   });
-  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-  async function invite() {
+  // When the coins settle, the site titles fade in under them.
+  function invite() {
     placeLabels();
     labels.forEach((el) => el.classList.add('on'));
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    await wait(500);
-    for (const [i, el] of coins().entries()) {
-      el.dispatchEvent(new Event('mouseenter')); labels[i].classList.add('hot');
-      await wait(520);
-      el.dispatchEvent(new Event('mouseleave')); labels[i].classList.remove('hot');
-      await wait(220);
-    }
   }
   window.addEventListener('resize', () => requestAnimationFrame(placeLabels));
   $('skip').addEventListener('click', () => intro.skip());
