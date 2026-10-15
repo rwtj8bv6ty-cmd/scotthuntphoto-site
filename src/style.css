@@ -189,7 +189,9 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
 .shop-item { margin: 0; }
 [hidden] { display: none !important; }
 .stage { height: auto; min-height: 0; }
-.stage img { max-height: calc(100vh - 150px); }
+/* Every photo fills the same display area, so small files show at the same size as large ones. */
+.stage img { height: calc(100vh - 150px); width: auto; max-width: 100%; max-height: none; object-fit: contain; object-position: left center; }
+@media (max-width: 760px) { .stage img { width: 100%; height: auto; max-height: 75vh; object-position: center; } }
 
 /* ===== Rock'n H: light fine-art print shop ===== */
 .side-rock { --bg: #faf8f4; --fg: #1d1b18; --muted: #75706a; --line: #e4dfd6; --accent: #1d1b18; background: var(--bg); color: var(--fg); }
