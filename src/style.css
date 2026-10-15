@@ -302,3 +302,15 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
 .sub-card:hover { color: var(--fg); }
 .sub-card:hover img { opacity: .85; }
 @media (max-width: 760px) { .sub-index { grid-template-columns: 1fr 1fr; gap: 16px; } .side-photo .sidebar nav .nav-sub a { font-size: .9rem; } }
+
+/* Rock'n H print page: click the photo to see it larger. Only opacity and transform animate, so the motion stays smooth. */
+.product-img .zoom { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.product-img .zoom img { display: block; width: 100%; height: auto; }
+.rk-lb { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 56px 24px 24px; background: #faf8f4; opacity: 0; visibility: hidden; transition: opacity .45s ease, visibility 0s linear .45s; cursor: zoom-out; }
+.rk-lb.open { opacity: 1; visibility: visible; transition: opacity .45s ease; }
+.rk-lb img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; transform: scale(.97); transition: transform .55s cubic-bezier(.22, .61, .36, 1); will-change: transform; box-shadow: 0 10px 40px rgba(0, 0, 0, .08); }
+.rk-lb.open img { transform: none; }
+.rk-lb .lb-close { position: absolute; top: 12px; right: 16px; width: 44px; height: 44px; border: 0; background: none; color: #222; font: 300 34px/1 sans-serif; cursor: pointer; opacity: .6; transition: opacity .2s; }
+.rk-lb .lb-close:hover, .rk-lb .lb-close:focus-visible { opacity: 1; }
+html.lb-lock { overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .rk-lb, .rk-lb.open, .rk-lb img { transition: none; } }

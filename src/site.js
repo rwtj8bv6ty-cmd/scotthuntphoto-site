@@ -278,3 +278,31 @@ if (cartEl) {
     document.head.appendChild(s);
   }
 }
+
+// Rock'n H print page: enlarge the photo in a lightbox; close with the X, Esc, or a click anywhere.
+(() => {
+  const zoom = document.querySelector('.product-img .zoom');
+  if (!zoom) return;
+  const src = zoom.querySelector('img');
+  const lb = document.createElement('div');
+  lb.className = 'rk-lb';
+  lb.setAttribute('role', 'dialog');
+  lb.setAttribute('aria-modal', 'true');
+  lb.setAttribute('aria-label', 'Larger view');
+  lb.innerHTML = '<button class="lb-close" type="button" aria-label="Close">\u00d7</button><img alt="">';
+  lb.querySelector('img').src = src.currentSrc || src.src;
+  lb.querySelector('img').alt = src.alt;
+  document.body.appendChild(lb);
+  const close = () => {
+    lb.classList.remove('open');
+    document.documentElement.classList.remove('lb-lock');
+    zoom.focus({ preventScroll: true });
+  };
+  zoom.addEventListener('click', () => {
+    document.documentElement.classList.add('lb-lock');
+    requestAnimationFrame(() => lb.classList.add('open'));
+    lb.querySelector('.lb-close').focus({ preventScroll: true });
+  });
+  lb.addEventListener('click', close);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && lb.classList.contains('open')) close(); });
+})();

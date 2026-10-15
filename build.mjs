@@ -379,7 +379,7 @@ function productBody(p) {
           .join('')}</fieldset>`
       : '';
   return `<section class="product">
-  <div class="product-img"><img src="${img(p.image)}" alt="${esc(p.alt || '')}"></div>
+  <div class="product-img"><button class="zoom" type="button" aria-label="View larger"><img src="${img(p.image)}" alt="${esc(p.alt || '')}"></button></div>
   <div class="product-info">
     <p class="crumb"><a href="${url(`${ROCK_HOME}collections/${p.collection.slug}/`)}">${esc(p.collection.title)}</a></p>
     <h1>${esc(p.title || 'Untitled')}</h1>
