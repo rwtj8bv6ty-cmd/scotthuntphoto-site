@@ -212,8 +212,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNaviga
                  initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping ([URL]?) -> Void) {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = parameters.allowsMultipleSelection
-        panel.canChooseDirectories = false
-        panel.canChooseFiles = true
+        // "Add folders from Mac…" asks for folders; everything else asks for photos.
+        panel.canChooseDirectories = parameters.allowsDirectories
+        panel.canChooseFiles = !parameters.allowsDirectories
         panel.beginSheetModal(for: window) { r in completionHandler(r == .OK ? panel.urls : nil) }
     }
 

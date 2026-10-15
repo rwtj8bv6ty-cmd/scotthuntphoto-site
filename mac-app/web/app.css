@@ -208,3 +208,9 @@ input.bad { outline: 2px solid var(--danger); outline-offset: -1px; }
 .grid-table .item-tools { gap: 2px; }
 .grid-table .item-tools button { padding: 2px 6px; }
 .grid-table input { min-width: 70px; }
+.nav-docs .nav-item.sub { padding-left: 34px; font-size: 13px; }
+.cards.small { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; margin-top: 8px; }
+.block.subs { border: 1px dashed var(--line); border-radius: 10px; padding: 10px 14px 14px; margin: 10px 0 18px; }
+.block.subs .row { margin: 4px 0; }
+.block.subs h3 { margin: 0 8px 0 0; }
+.eyebrow .link { padding: 0; font-size: 12px; }

@@ -31,7 +31,7 @@ const columnLabel = (s) => cleanLabel(s).replace(/\s*\([^)]*\)\s*/g, ' ').trim()
 let toastTimer;
 function toast(text, action) {
   const el = $('#toast');
-  el.replaceChildren(h('span', {}, text), action ? h('button', { class: 'link', onclick: () => { el.hidden = true; action.run(); } }, action.label) : null);
+  el.replaceChildren(...[h('span', {}, text), action ? h('button', { class: 'link', onclick: () => { el.hidden = true; action.run(); } }, action.label) : null].filter(Boolean));
   el.hidden = false;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { el.hidden = true; }, action ? 7000 : 3500);
@@ -124,6 +124,20 @@ function sortedDocs(entry, side) {
     .sort((a, b) => (num(a.data.order) - num(b.data.order)) || docTitle(a).localeCompare(docTitle(b)));
 }
 const num = (v) => (typeof v === 'number' ? v : v === '' || v == null ? 9999 : Number(v) || 9999);
+
+// Sub-galleries: a gallery whose `parent` is another (main) gallery's web address sits in a sub-menu under it.
+// Same rule as the site's build.mjs: slug = its own slug, else the title made web-safe.
+const siteSlug = (s) => String(s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const hasParents = (entry) => entry.fields.some((f) => f.name === 'parent');
+const docSlug = (d) => d.data.slug || siteSlug(d.data[d.entry.primary] || d.data.title);
+function parentOf(d) {
+  if (!hasParents(d.entry) || !d.data.parent) return null;
+  const want = siteSlug(d.data.parent);
+  return liveDocs(d.entry).find((x) => x !== d && !x.data.parent && docSlug(x) === want) || null;
+}
+const childrenOf = (d) => (hasParents(d.entry) ? sortedDocs(d.entry).filter((x) => parentOf(x) === d) : []);
+const siblingsOf = (d, side) => sortedDocs(d.entry, side).filter((x) => parentOf(x) === parentOf(d));
+const fullTitle = (d) => (parentOf(d) ? `${docTitle(parentOf(d))} › ${docTitle(d)}` : docTitle(d));
 const isDirty = (d) => (d.deleted ? !d.isNew : d.isNew || serialize(d.data) !== d.canon);
 
 // ---------- photos ----------
@@ -216,8 +230,12 @@ async function prepareUploads(files, folder) {
   else if (values.length) toast(`Added ${plural(values.length, 'photo')}. Publish when you're ready.`);
   return values;
 }
-const uploadFolder = (doc) => doc && doc.entry.type === 'collection'
-  ? `${inDir()}/${slugify(doc.data.slug || docTitle(doc)) || 'photos'}` : `${inDir()}/site`;
+function uploadFolder(doc) {
+  if (!doc || doc.entry.type !== 'collection') return `${inDir()}/site`;
+  const own = slugify(doc.data.slug || docTitle(doc)) || 'photos';
+  const parent = parentOf(doc);
+  return parent ? `${inDir()}/${slugify(docSlug(parent))}/${own}` : `${inDir()}/${own}`;
+}
 
 function chooseFiles(multiple = true) {
   return new Promise((resolve) => {
@@ -417,12 +435,17 @@ function renderSidebar() {
           item(label.charAt(0).toUpperCase() + label.slice(1), cview, { cls: 'group-head' }),
           h('button', { class: 'add', title: `New ${kindName(entry)}`, onclick: (e) => { e.stopPropagation(); newDoc(entry, side); } }, '+')));
         const list = h('div', { class: 'nav-docs' });
-        for (const d of sortedDocs(entry, side)) {
+        const addDoc = (d, sub) => {
           const pf = photoListField(entry);
           const count = pf ? (d.data[pf.name] || []).length : null;
-          const a = item(docTitle(d), { type: 'doc', path: d.path }, { badge: count, cls: 'doc' + (d.data.draft ? ' is-draft' : ''), attrs: { 'data-path': d.path } });
+          const a = item(docTitle(d), { type: 'doc', path: d.path }, { badge: count || (childrenOf(d).length ? null : count), cls: 'doc' + (sub ? ' sub' : '') + (d.data.draft ? ' is-draft' : ''), attrs: { 'data-path': d.path } });
           docDragTarget(a, d, entry, side);
           list.append(a);
+        };
+        for (const d of sortedDocs(entry, side)) {
+          if (parentOf(d)) continue;
+          addDoc(d, false);
+          childrenOf(d).forEach((c) => addDoc(c, true));
         }
         nav.append(list);
       } else if (entry.type === 'file') {
@@ -466,7 +489,7 @@ function docDragTarget(a, doc, entry, side) {
   a.addEventListener('dragstart', (e) => { DRAG = { type: 'doc', doc, entry, side }; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', docTitle(doc)); });
   a.addEventListener('dragend', () => { DRAG = null; clearDropMarks(); });
   a.addEventListener('dragover', (e) => {
-    if (DRAG && DRAG.type === 'doc' && DRAG.entry === entry && DRAG.doc !== doc) {
+    if (DRAG && DRAG.type === 'doc' && DRAG.entry === entry && DRAG.doc !== doc && parentOf(DRAG.doc) === parentOf(doc)) {
       e.preventDefault();
       const after = e.offsetY > a.offsetHeight / 2;
       clearDropMarks();
@@ -485,7 +508,8 @@ function docDragTarget(a, doc, entry, side) {
     clearDropMarks();
     if (!d) return;
     if (d.type === 'doc') {
-      const list = sortedDocs(entry, side).filter((x) => x !== d.doc);
+      if (parentOf(d.doc) !== parentOf(doc)) return;
+      const list = siblingsOf(doc, side).filter((x) => x !== d.doc);
       let at = list.indexOf(doc) + (e.offsetY > a.offsetHeight / 2 ? 1 : 0);
       list.splice(at, 0, d.doc);
       reorderDocs(list);
@@ -529,19 +553,26 @@ function homeView() {
 }
 const tip = (t, d) => h('div', { class: 'tip' }, h('h3', {}, t), h('p', {}, d));
 
+function coverOf(d) {
+  const pf = photoListField(d.entry);
+  const list = pf ? d.data[pf.name] || [] : [];
+  return d.data.cover || d.data.image || (list[0] && list[0][imageKey(pf)]) || (childrenOf(d)[0] && coverOf(childrenOf(d)[0])) || '';
+}
+
 function collectionView(entry, side) {
-  const docs = sortedDocs(entry, side);
+  const docs = sortedDocs(entry, side).filter((d) => !parentOf(d));
   const pf = photoListField(entry);
   const label = cleanLabel(entry.label).replace(/^rock'?n'? ?h\s*/i, '');
   const grid = h('div', { class: 'cards' });
   const canOrder = entry.fields.some((f) => f.name === 'order');
   docs.forEach((d) => {
     const list = pf ? d.data[pf.name] || [] : [];
-    const cover = d.data.cover || d.data.image || (list[0] && list[0][imageKey(pf)]);
+    const cover = coverOf(d);
     const card = h('div', { class: 'card', draggable: canOrder ? 'true' : null, onclick: () => go({ type: 'doc', path: d.path }) },
       h('div', { class: 'card-img' }, cover ? h('img', { src: imgSrc(cover), loading: 'lazy', alt: '' }) : h('span', { class: 'muted' }, 'No photo')),
       h('div', { class: 'card-text' }, h('b', {}, docTitle(d)),
-        h('span', { class: 'muted' }, [pf ? plural(list.length, 'photo') : null, d.data.draft ? 'Draft' : null].filter(Boolean).join(' · '))));
+        h('span', { class: 'muted' }, [childrenOf(d).length ? plural(childrenOf(d).length, 'sub-gallery', 'sub-galleries') : null,
+          pf && (list.length || !childrenOf(d).length) ? plural(list.length, 'photo') : null, d.data.draft ? 'Draft' : null].filter(Boolean).join(' · '))));
     if (canOrder) {
       card.addEventListener('dragstart', () => { DRAG = { type: 'card', doc: d }; card.classList.add('dragging'); });
       card.addEventListener('dragend', () => { DRAG = null; card.classList.remove('dragging'); clearDropMarks(); });
@@ -569,22 +600,30 @@ function collectionView(entry, side) {
     docs.length ? grid : h('p', { class: 'muted' }, `No ${label.toLowerCase()} yet.`));
 }
 
-async function newDoc(entry, side) {
-  const kind = kindName(entry);
-  const name = await askText(`New ${kind}`, 'Name', '', 'Create');
+async function newDoc(entry, side, parent) {
+  const kind = parent ? 'sub-gallery' : kindName(entry);
+  const name = await askText(parent ? `New sub-gallery in ${docTitle(parent)}` : `New ${kind}`, 'Name', '', 'Create');
   if (!name) return;
+  checkpoint();
+  const doc = createDoc(entry, name, side, parent);
+  go({ type: 'doc', path: doc.path });
+}
+function createDoc(entry, name, side, parent) {
+  const kind = kindName(entry);
   let slug = slugify(name) || kind.replace(/\s+/g, '-');
   let path = `${entry.path}/${slug}.json`;
   for (let n = 2; S.docs.has(path) || S.snap.files.has(path); n++) path = `${entry.path}/${slug}-${n}.json`;
-  checkpoint();
   const data = defaultsFor(entry.fields);
   data[entry.primary] = name;
   if (entry.side === 'split' && side) data.side = side;
+  if (parent) data.parent = docSlug(parent);
   if ('order' in data || entry.fields.some((f) => f.name === 'order')) {
-    data.order = Math.max(0, ...sortedDocs(entry, side).map((d) => (typeof d.data.order === 'number' ? d.data.order : 0))) + 1;
+    const sibs = sortedDocs(entry, side).filter((d) => parentOf(d) === (parent || null));
+    data.order = Math.max(0, ...sibs.map((d) => (typeof d.data.order === 'number' ? d.data.order : 0))) + 1;
   }
-  S.docs.set(path, { path, entry, data, canon: '', isNew: true, deleted: false });
-  go({ type: 'doc', path });
+  const doc = { path, entry, data, canon: '', isNew: true, deleted: false };
+  S.docs.set(path, doc);
+  return doc;
 }
 function defaultsFor(fields) {
   const o = {};
@@ -604,9 +643,11 @@ async function deleteDoc(doc) {
   const pf = photoListField(doc.entry);
   const n = pf ? (doc.data[pf.name] || []).length : 0;
   const ok = await confirmBox(`Delete the ${kind} “${docTitle(doc)}”?`,
-    n ? `Its ${plural(n, 'photo')} will also be removed from the website, except any used elsewhere. You can Undo until you publish.` : 'You can Undo until you publish.', 'Delete');
+    (n ? `Its ${plural(n, 'photo')} will also be removed from the website, except any used elsewhere. ` : '') +
+    (childrenOf(doc).length ? `Its ${plural(childrenOf(doc).length, 'sub-gallery', 'sub-galleries')} will become main galleries. ` : '') + 'You can Undo until you publish.', 'Delete');
   if (!ok) return;
   checkpoint();
+  childrenOf(doc).forEach((c) => { c.data.parent = ''; });
   if (doc.isNew) S.docs.delete(doc.path);
   else doc.deleted = true;
   go(doc.entry.type === 'collection' ? { type: 'collection', entry: doc.entry, side: docSide(doc) } : { type: 'home' });
@@ -620,7 +661,13 @@ function docView(doc) {
   const primary = entry.fields.find((f) => f.name === entry.primary);
   const title = h('input', { class: 'title-input', value: doc.data[entry.primary] || '', placeholder: primary ? cleanLabel(primary.label) : 'Name' });
   title.addEventListener('focus', checkpoint);
-  title.addEventListener('input', () => { doc.data[entry.primary] = title.value; changed(); });
+  title.addEventListener('input', () => {
+    const kids = childrenOf(doc), before = docSlug(doc);
+    doc.data[entry.primary] = title.value;
+    // Without its own web address, a renamed gallery's address changes, so its sub-galleries follow it.
+    if (docSlug(doc) !== before) kids.forEach((k) => { k.data.parent = docSlug(doc); });
+    changed();
+  });
   const hasDraft = entry.fields.some((f) => f.name === 'draft');
   const status = hasDraft ? h('div', { class: 'segmented' },
     h('button', { class: doc.data.draft ? 'on' : '', onclick: () => setDraft(true) }, 'Draft'),
@@ -634,11 +681,16 @@ function docView(doc) {
   }
   return h('div', { class: 'page' },
     h('div', { class: 'page-head' },
-      h('div', { class: 'grow' }, h('div', { class: 'eyebrow' }, `${SIDES[docSide(doc)] || ''} · ${kindName(entry)}`), title),
+      h('div', { class: 'grow' }, h('div', { class: 'eyebrow' }, parentOf(doc)
+        ? [`${SIDES[docSide(doc)] || ''} · sub-gallery of `, h('button', { class: 'link', onclick: () => go({ type: 'doc', path: parentOf(doc).path }) }, docTitle(parentOf(doc)))]
+        : `${SIDES[docSide(doc)] || ''} · ${kindName(entry)}`), title),
       status,
       h('button', { class: 'danger-quiet', title: `Delete this ${kindName(entry)}`, onclick: () => deleteDoc(doc) }, 'Delete')),
     hasDraft && doc.data.draft ? h('p', { class: 'note' }, `Drafts are hidden from visitors. After publishing you can preview it at ${siteURL()}drafts/`) : null,
-    pf ? photoGrid(doc, pf) : null,
+    hasParents(entry) && !parentOf(doc) ? subGalleries(doc) : null,
+    pf ? (childrenOf(doc).length && !(doc.data[pf.name] || []).length
+      ? h('details', { class: 'more' }, h('summary', {}, 'Photos of its own (optional; visitors see the sub-galleries instead while this is empty)'), photoGrid(doc, pf))
+      : photoGrid(doc, pf)) : null,
     main.length ? h('div', { class: 'form' }, main) : null,
     more.length ? h('details', { class: 'more' }, h('summary', {}, 'More options'), h('div', { class: 'form' }, more)) : null);
 }
@@ -682,7 +734,7 @@ function accountView() {
 
 // ---------- fields ----------
 function fieldRow(obj, f, doc) {
-  const label = shortLabel(f.label || f.name);
+  const label = f.name === 'parent' && doc && obj === doc.data && hasParents(doc.entry) ? 'Place in the menu' : shortLabel(f.label || f.name);
   const input = fieldInput(obj, f, doc);
   if (f.type === 'boolean') return h('label', { class: 'field check' }, input, h('span', {}, label));
   if (f.type === 'object' && f.list) return h('div', { class: 'field wide' }, h('span', { class: 'field-label' }, label), input);
@@ -694,6 +746,7 @@ function fieldRow(obj, f, doc) {
 function fieldInput(obj, f, doc) {
   const set = (v) => { if (v === undefined) delete obj[f.name]; else obj[f.name] = v; changed(); };
   const val = obj[f.name];
+  if (f.name === 'parent' && doc && obj === doc.data && hasParents(doc.entry)) return parentPicker(doc);
   switch (f.type) {
     case 'boolean': {
       const el = h('input', { type: 'checkbox', checked: !!val });
@@ -736,6 +789,128 @@ function fieldInput(obj, f, doc) {
       return el;
     }
   }
+}
+
+function parentPicker(doc) {
+  if (childrenOf(doc).length) return h('p', { class: 'muted' }, `This is a main gallery with ${plural(childrenOf(doc).length, 'sub-gallery', 'sub-galleries')}.`);
+  const mains = sortedDocs(doc.entry).filter((x) => x !== doc && !parentOf(x) && !x.data.parent);
+  const el = h('select', {}, h('option', { value: '' }, 'None (a main gallery)'),
+    mains.map((m) => h('option', { value: docSlug(m) }, `Under ${docTitle(m)}`)));
+  el.value = parentOf(doc) ? docSlug(parentOf(doc)) : '';
+  el.addEventListener('change', () => {
+    checkpoint();
+    doc.data.parent = el.value;
+    const sibs = sortedDocs(doc.entry).filter((x) => x !== doc && parentOf(x) === parentOf(doc));
+    doc.data.order = Math.max(0, ...sibs.map((x) => (typeof x.data.order === 'number' ? x.data.order : 0))) + 1;
+    render();
+  });
+  return el;
+}
+
+// A main gallery's sub-galleries: reorder them, add one, or add whole folders from the Mac.
+function subGalleries(doc) {
+  const kids = childrenOf(doc);
+  const cards = h('div', { class: 'cards small' }, kids.map((k) => {
+    const pf = photoListField(k.entry);
+    const cover = coverOf(k);
+    const card = h('div', { class: 'card', draggable: 'true', onclick: () => go({ type: 'doc', path: k.path }) },
+      h('div', { class: 'card-img' }, cover ? h('img', { src: imgSrc(cover), loading: 'lazy', alt: '' }) : h('span', { class: 'muted' }, 'No photo')),
+      h('div', { class: 'card-text' }, h('b', {}, docTitle(k)),
+        h('span', { class: 'muted' }, [pf ? plural((k.data[pf.name] || []).length, 'photo') : null, k.data.draft ? 'Draft' : null].filter(Boolean).join(' · '))));
+    card.addEventListener('dragstart', () => { DRAG = { type: 'card', doc: k }; card.classList.add('dragging'); });
+    card.addEventListener('dragend', () => { DRAG = null; card.classList.remove('dragging'); clearDropMarks(); });
+    card.addEventListener('dragover', (e) => {
+      if (!DRAG || DRAG.type !== 'card' || DRAG.doc === k || parentOf(DRAG.doc) !== doc) return;
+      e.preventDefault();
+      clearDropMarks();
+      card.classList.add(e.offsetX > card.offsetWidth / 2 ? 'drop-after' : 'drop-before');
+    });
+    card.addEventListener('drop', (e) => {
+      e.preventDefault();
+      if (!DRAG || DRAG.type !== 'card' || parentOf(DRAG.doc) !== doc) return;
+      const list = kids.filter((x) => x !== DRAG.doc);
+      list.splice(list.indexOf(k) + (e.offsetX > card.offsetWidth / 2 ? 1 : 0), 0, DRAG.doc);
+      reorderDocs(list);
+    });
+    return card;
+  }));
+  const drafts = kids.filter((k) => k.data.draft);
+  const box = h('div', { class: 'block subs' },
+    h('div', { class: 'row' }, h('h3', {}, 'Sub-galleries'),
+      h('button', { onclick: () => newDoc(doc.entry, null, doc) }, '+ New sub-gallery'),
+      h('button', { onclick: () => chooseFolders().then((groups) => addFolderGalleries(doc, groups)) }, 'Add folders from Mac…'),
+      drafts.length ? h('button', { class: 'link', onclick: () => { checkpoint(); drafts.forEach((k) => { k.data.draft = false; }); render(); } }, `Publish all ${drafts.length} drafts`) : null),
+    kids.length ? h('p', { class: 'muted small' }, 'Drag to reorder. Drop folders from Finder here to add each as a sub-gallery.') : h('p', { class: 'muted small' }, 'None yet. Drop folders from Finder here, or click Add folders: each folder becomes a sub-gallery with its photos.'),
+    kids.length ? cards : null);
+  box.addEventListener('dragover', (e) => { if (e.dataTransfer.types.includes('Files')) { e.preventDefault(); box.classList.add('drop-into'); } });
+  box.addEventListener('dragleave', (e) => { if (!box.contains(e.relatedTarget)) box.classList.remove('drop-into'); });
+  box.addEventListener('drop', async (e) => {
+    if (!e.dataTransfer.types.includes('Files')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    box.classList.remove('drop-into');
+    addFolderGalleries(doc, await droppedFolders(e.dataTransfer));
+  });
+  return box;
+}
+
+// Folders -> Map(folder name -> [image files]). Every folder that holds photos becomes one sub-gallery.
+function groupByFolder(pairs) {
+  const groups = new Map();
+  for (const [rel, file] of pairs) {
+    if (!looksLikeImage(file) || basename(rel).startsWith('.')) continue;
+    const dir = dirname(rel);
+    if (!dir) continue;
+    if (!groups.has(dir)) groups.set(dir, []);
+    groups.get(dir).push([basename(rel), file]);
+  }
+  const byName = (a, b) => a[0].localeCompare(b[0], undefined, { numeric: true });
+  return [...groups].sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true }))
+    .map(([dir, files]) => ({ name: basename(dir), files: files.sort(byName).map((x) => x[1]) }));
+}
+function chooseFolders() {
+  return new Promise((resolve) => {
+    const input = h('input', { type: 'file', webkitdirectory: true, multiple: true, style: 'display:none' });
+    input.addEventListener('change', () => { resolve(groupByFolder([...input.files].map((f) => [f.webkitRelativePath || f.name, f]))); input.remove(); });
+    document.body.append(input);
+    input.click();
+  });
+}
+async function droppedFolders(dt) {
+  const pairs = [];
+  const readAll = (reader) => new Promise((res) => { const out = []; const next = () => reader.readEntries((ents) => { if (!ents.length) return res(out); out.push(...ents); next(); }, () => res(out)); next(); });
+  const fileOf = (entry) => new Promise((res) => entry.file(res, () => res(null)));
+  async function walk(entry, prefix) {
+    if (entry.isFile) { const f = await fileOf(entry); if (f && prefix) pairs.push([`${prefix}/${f.name}`, f]); }
+    else if (entry.isDirectory) for (const c of await readAll(entry.createReader())) await walk(c, prefix ? `${prefix}/${entry.name}` : entry.name);
+  }
+  const entries = [...dt.items].map((i) => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean);
+  for (const e of entries) await walk(e, '');
+  return groupByFolder(pairs);
+}
+async function addFolderGalleries(parent, groups) {
+  if (!groups || !groups.length) return toast('No folders with photos found. Drop folders (not single photos) here.');
+  const total = groups.reduce((n, g) => n + g.files.length, 0);
+  const ok = await modal(`Add ${plural(groups.length, 'sub-gallery', 'sub-galleries')} to ${docTitle(parent)}?`,
+    h('div', {}, h('ul', { class: 'changes' }, groups.slice(0, 12).map((g) => h('li', {}, `${g.name}: ${plural(g.files.length, 'photo')}`)),
+      groups.length > 12 ? h('li', {}, `and ${groups.length - 12} more`) : null),
+      h('p', { class: 'muted' }, `${plural(total, 'photo')} will be resized and kept ready to publish. New sub-galleries start as drafts.`)),
+    [{ label: 'Cancel', value: false }, { label: 'Add', primary: true, value: true }]);
+  if (!ok) return;
+  checkpoint();
+  const titleOf = (n) => n.replace(/[_]+/g, ' ').trim();
+  for (const g of groups) {
+    const existing = childrenOf(parent).find((k) => docTitle(k).toLowerCase() === titleOf(g.name).toLowerCase());
+    const doc = existing || createDoc(parent.entry, titleOf(g.name), null, parent);
+    const pf = photoListField(doc.entry);
+    const vals = await prepareUploads(g.files, uploadFolder(doc));
+    const key = imageKey(pf);
+    const list = doc.data[pf.name] || (doc.data[pf.name] = []);
+    list.push(...vals.map((v) => ({ ...defaultsFor(pf.fields), [key]: v })));
+    if (!doc.data.cover && list[0]) doc.data.cover = list[0][key];
+    render();
+  }
+  toast(`Added ${plural(groups.length, 'sub-gallery', 'sub-galleries')} to ${docTitle(parent)}. Publish when you're ready.`);
 }
 
 function imageInput(obj, f, doc) {
@@ -912,7 +1087,7 @@ function listTargets(exceptDoc, exceptField) {
     const f = photoListField(d.entry);
     if (f && !(d === exceptDoc && f === exceptField)) out.push({ doc: d, field: f });
   }
-  return out.sort((a, b) => (a.doc.entry === b.doc.entry ? 0 : a.doc.entry.side === 'rocknh' ? 1 : -1) || docTitle(a.doc).localeCompare(docTitle(b.doc)));
+  return out.sort((a, b) => (a.doc.entry === b.doc.entry ? 0 : a.doc.entry.side === 'rocknh' ? 1 : -1) || fullTitle(a.doc).localeCompare(fullTitle(b.doc)));
 }
 
 // Copy what fits from one kind of photo entry to another (e.g. gallery photo -> print).
@@ -1103,7 +1278,7 @@ function photoGrid(doc, f, holder) {
   async function moveDialog(copy) {
     const targets = listTargets(doc, f);
     if (!targets.length) return toast('There is nowhere else to put photos yet.');
-    const select = h('select', {}, targets.map((t, i) => h('option', { value: i }, `${docTitle(t.doc)} — ${SIDES[docSide(t.doc)]} ${kindName(t.doc.entry)}`)));
+    const select = h('select', {}, targets.map((t, i) => h('option', { value: i }, `${fullTitle(t.doc)} — ${SIDES[docSide(t.doc)]} ${kindName(t.doc.entry)}`)));
     const r = await modal(`${copy ? 'Copy' : 'Move'} ${plural(sel.size, 'photo')} to…`, h('label', { class: 'field' }, h('span', {}, 'Destination'), select),
       [{ label: 'Cancel', value: null }, { label: copy ? 'Copy' : 'Move', primary: true, value: 'ok' }]);
     if (r !== 'ok') return;
