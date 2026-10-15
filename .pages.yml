@@ -20,6 +20,7 @@ content:
       - { name: draft, label: "Draft (hidden until you turn this off)", type: boolean, default: true }
       - { name: slug, label: "Web address (e.g. landscapes). Leave blank to use the name", type: string }
       - { name: order, label: "Menu order (1 = first)", type: number, default: 10 }
+      - { name: parent, label: "Show in a sub-menu under another gallery (its web address, e.g. pocket-pictures). Leave blank for a main gallery", type: string }
       - { name: featured, label: Show on home page, type: boolean, default: true }
       - name: layout
         label: Layout

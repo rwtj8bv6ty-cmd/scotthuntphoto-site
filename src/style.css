@@ -290,3 +290,13 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
 .cart-done { padding: 40px 0; }
 .cart-done h2 { font: 400 1.9rem var(--serif); }
 @media (max-width: 600px) { .cart-line { grid-template-columns: 72px 1fr; } .cart-line img { width: 72px; height: 72px; } .cl-price { grid-column: 2; } }
+
+/* Photography side: sub-menus (e.g. Pocket Pictures) and their cover grid */
+.side-photo .sidebar nav ul.nav-sub { margin: 2px 0 8px 12px; }
+.side-photo .sidebar nav .nav-sub a { font-size: .76rem; padding: 2px 0; }
+.sub-index { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 28px; padding: 8px 0 40px; }
+.sub-card { display: block; color: var(--muted); text-decoration: none; font-size: .82rem; letter-spacing: .02em; }
+.sub-card img, .sub-card .sub-blank { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: #f1f0ee; margin-bottom: 10px; transition: opacity .3s; }
+.sub-card:hover { color: var(--fg); }
+.sub-card:hover img { opacity: .85; }
+@media (max-width: 760px) { .sub-index { grid-template-columns: 1fr 1fr; gap: 16px; } .side-photo .sidebar nav .nav-sub a { font-size: .9rem; } }
