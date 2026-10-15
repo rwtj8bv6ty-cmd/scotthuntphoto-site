@@ -303,3 +303,12 @@ if (cartEl) {
   full.addEventListener('click', close);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 })();
+
+// Photography menu: clicking a gallery that has sub-menus (e.g. Anthologies) folds them open or closed.
+document.querySelectorAll('.nav-parent > a').forEach((a) => {
+  a.addEventListener('click', (e) => {
+    e.preventDefault();
+    const open = a.parentElement.classList.toggle('open');
+    a.setAttribute('aria-expanded', String(open));
+  });
+});

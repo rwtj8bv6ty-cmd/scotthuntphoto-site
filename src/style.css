@@ -294,7 +294,13 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
 @media (max-width: 600px) { .cart-line { grid-template-columns: 72px 1fr; } .cart-line img { width: 72px; height: 72px; } .cl-price { grid-column: 2; } }
 
 /* Photography side: sub-menus (e.g. Pocket Pictures) and their cover grid */
-.side-photo .sidebar nav ul.nav-sub { margin: 2px 0 8px 12px; }
+/* Sub-menus stay folded until the parent is clicked (open on the parent's own pages). */
+.nav-sub-wrap { display: grid; grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows .45s cubic-bezier(.22, .61, .36, 1), opacity .35s ease, visibility 0s linear .45s; }
+.nav-parent.open > .nav-sub-wrap { grid-template-rows: 1fr; opacity: 1; visibility: visible; transition: grid-template-rows .45s cubic-bezier(.22, .61, .36, 1), opacity .35s ease .05s; }
+.nav-sub-wrap > ul { min-height: 0; overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .nav-sub-wrap, .nav-parent.open > .nav-sub-wrap { transition: none; } }
+.side-photo .sidebar nav ul.nav-sub { margin: 0 0 0 12px; padding: 0; }
+.side-photo .sidebar nav .nav-sub li:first-child { padding-top: 2px; } .side-photo .sidebar nav .nav-sub li:last-child { padding-bottom: 8px; }
 .side-photo .sidebar nav .nav-sub a { font-size: .76rem; padding: 2px 0; }
 .sub-index { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 28px; padding: 8px 0 40px; }
 .sub-card { display: block; color: var(--muted); text-decoration: none; font-size: .82rem; letter-spacing: .02em; }

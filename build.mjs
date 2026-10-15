@@ -75,7 +75,7 @@ function photoNav(current) {
       const subs = subGalleries(g);
       if (!subs.length) return link(url(`${g.slug}/`), g.title);
       const inside = String(current).startsWith(url(`${g.slug}/`));
-      return `<li class="nav-parent${inside ? ' open' : ''}${url(`${g.slug}/`) === current ? ' active' : ''}"><a href="${url(`${g.slug}/`)}">${esc(g.title)}</a><ul class="nav-sub">${subs.map((x) => link(url(`${galleryPath(x)}/`), x.title)).join('')}</ul></li>`;
+      return `<li class="nav-parent${inside ? ' open' : ''}${url(`${g.slug}/`) === current ? ' active' : ''}"><a href="${url(`${g.slug}/`)}" aria-expanded="${inside}">${esc(g.title)}</a><div class="nav-sub-wrap"><ul class="nav-sub">${subs.map((x) => link(url(`${galleryPath(x)}/`), x.title)).join('')}</ul></div></li>`;
     })
     .join('');
   const pg = menuPages('photography').map((p) => link(url(`${p.slug}/`), p.menuTitle || p.title)).join('');
