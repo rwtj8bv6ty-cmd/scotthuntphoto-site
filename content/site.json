@@ -56,7 +56,13 @@
   "rockArtistPhoto": "",
   "rockArtistText": "<p>Placeholder biography.</p>",
   "rockPrintDetails": "<p>Placeholder: paper, printing process, and how each print is signed and numbered.</p>",
-  "rockShippingDetails": "<p>Placeholder: production time, shipping method, and return policy.</p>",
+  "rockShippingDetails": "<p>Placeholder: how long each print takes to make, how it ships, and delivery times.</p>",
   "rockNewsletter": true,
-  "rockNewsletterHeading": "Be the first to see new releases"
+  "rockNewsletterHeading": "Be the first to see new releases",
+  "rockLimitedEditions": "<p>Placeholder: edition sizes and how each print is signed and numbered.</p>",
+  "rockDimensions": "<p>Placeholder: image and paper dimensions for each size, and the white border used for signing and framing.</p>",
+  "rockPaypalClientId": "",
+  "rockCurrency": "USD",
+  "rockShippingCost": 0,
+  "rockShippingNote": ""
 }

@@ -85,6 +85,14 @@ content:
       - { name: order, label: "Menu order (1 = first)", type: number, default: 10 }
       - { name: cover, label: Cover photo, type: image }
       - { name: description, label: Introduction, type: rich-text }
+      - name: options
+        label: "Price list: materials, sizes and prices (used by every print without its own)"
+        type: object
+        list: true
+        fields:
+          - { name: material, label: "Material (e.g. Fine art paper)", type: string }
+          - { name: size, label: "Size (e.g. 20 × 54 in)", type: string }
+          - { name: price, label: "Price (number only)", type: string }
       - name: prints
         label: "Prints (drag to reorder)"
         type: object
@@ -96,15 +104,15 @@ content:
           - { name: description, label: Description, type: rich-text }
           - { name: alt, label: "Description for screen readers", type: string }
           - { name: editionSize, label: "Edition size (e.g. 25)", type: number }
-          - { name: editionsSold, label: Prints sold so far, type: number, default: 0 }
-          - name: sizes
-            label: Sizes and prices
+          - { name: editionsSold, label: "Prints sold so far (shows Sold out when it reaches the edition size)", type: number, default: 0 }
+          - name: options
+            label: "Materials, sizes and prices for this print (leave empty to use the collection's price list)"
             type: object
             list: true
             fields:
-              - { name: label, label: "Size (e.g. 20 × 54 in)", type: string }
+              - { name: material, label: "Material (e.g. Fine art paper)", type: string }
+              - { name: size, label: "Size (e.g. 20 × 54 in)", type: string }
               - { name: price, label: "Price (number only)", type: string }
-              - { name: buyLink, label: "Stripe payment link (blank shows an Enquire button)", type: string }
 
   - name: site
     label: Site settings
@@ -138,8 +146,14 @@ content:
       - { name: rockArtistHeading, label: "About the artist heading", type: string }
       - { name: rockArtistPhoto, label: "About the artist photo", type: image }
       - { name: rockArtistText, label: "About the artist", type: rich-text }
-      - { name: rockPrintDetails, label: "Print pages: About the prints", type: rich-text }
-      - { name: rockShippingDetails, label: "Print pages: Shipping and returns", type: rich-text }
+      - { name: rockPrintDetails, label: "Print pages: About the Prints", type: rich-text }
+      - { name: rockLimitedEditions, label: "Print pages: Limited Editions", type: rich-text }
+      - { name: rockDimensions, label: "Print pages: Dimensions and Borders", type: rich-text }
+      - { name: rockShippingDetails, label: "Print pages: Shipping and Production Times", type: rich-text }
+      - { name: rockPaypalClientId, label: "Checkout: PayPal Client ID (Live)", type: string }
+      - { name: rockCurrency, label: "Checkout: currency code (e.g. USD)", type: string }
+      - { name: rockShippingCost, label: "Checkout: shipping charge per order (0 = included)", type: number }
+      - { name: rockShippingNote, label: "Checkout: note shown in the cart", type: rich-text }
       - { name: rockNewsletter, label: Show newsletter sign-up, type: boolean }
       - { name: rockNewsletterHeading, label: Newsletter heading, type: string }
       - { name: rockContactSlug, label: "Web address of the Rock'n H contact page (used by Enquire buttons)", type: string }

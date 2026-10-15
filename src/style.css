@@ -264,3 +264,29 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
 .product-details p { color: var(--muted); font-size: .92rem; }
 @media (max-width: 860px) { .product { grid-template-columns: 1fr; gap: 28px; padding: 24px 16px 60px; } .product-img { position: static; } }
 .side-rock .page-head { padding-top: 64px; }
+
+/* Rock'n H: purchase choices and cart */
+.choice { border: 0; padding: 0; margin: 0 0 20px; display: flex; flex-wrap: wrap; gap: 8px; }
+.choice legend { font-size: .8rem; color: var(--muted); margin-bottom: 8px; }
+.size-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.qty { display: inline-flex; align-items: center; gap: 10px; font-size: .85rem; color: var(--muted); margin: 0 0 20px; }
+.qty input { width: 64px; padding: 8px; font: inherit; color: var(--fg); background: #fff; border: 1px solid var(--line); }
+.buy-form .rk-btn { width: 100%; cursor: pointer; font-family: inherit; }
+.added { font-size: .9rem; color: var(--muted); min-height: 1.4em; }
+.nav-cart .cart-count { font-size: .75em; }
+.cart { max-width: 900px; }
+.cart-line { display: grid; grid-template-columns: 96px 1fr auto; gap: 20px; align-items: start; padding: 20px 0; border-bottom: 1px solid var(--line); }
+.cart-line img { width: 96px; height: 96px; object-fit: contain; background: #efebe4; }
+.cl-title { text-decoration: none; font-size: 1rem; }
+.cl-opt { margin: 4px 0 10px; color: var(--muted); font-size: .85rem; }
+.cart-line .qty { margin: 0; }
+.cl-remove { background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; font: inherit; font-size: .8rem; margin-left: 12px; }
+.cart-summary { margin: 28px 0 0 auto; max-width: 380px; }
+.cart-summary .row { display: flex; justify-content: space-between; margin: 0 0 8px; }
+.cart-summary .total { font-size: 1.15rem; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 4px; }
+.cart-note { color: var(--muted); font-size: .85rem; }
+#paypal-buttons { margin-top: 20px; }
+.checkout-off { color: var(--muted); font-size: .9rem; }
+.cart-done { padding: 40px 0; }
+.cart-done h2 { font: 400 1.9rem var(--serif); }
+@media (max-width: 600px) { .cart-line { grid-template-columns: 72px 1fr; } .cart-line img { width: 72px; height: 72px; } .cl-price { grid-column: 2; } }
