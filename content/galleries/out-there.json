@@ -9,6 +9,12 @@
   "description": "",
   "photos": [
     {
+      "image": "/photos/out-there/road.jpg",
+      "title": "Road",
+      "caption": "",
+      "alt": ""
+    },
+    {
       "image": "/photos/out-there/airstream.jpg",
       "title": "Airstream",
       "caption": "",
@@ -59,12 +65,6 @@
     {
       "image": "/photos/out-there/reflection.jpg",
       "title": "Reflection",
-      "caption": "",
-      "alt": ""
-    },
-    {
-      "image": "/photos/out-there/road.jpg",
-      "title": "Road",
       "caption": "",
       "alt": ""
     },
