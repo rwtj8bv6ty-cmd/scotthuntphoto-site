@@ -235,6 +235,30 @@
       "title": "M113",
       "caption": "",
       "alt": ""
+    },
+    {
+      "image": "/photos/out-there/bike.jpg",
+      "title": "Bike",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/fire-station.jpg",
+      "title": "Fire Station",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/gallery.jpg",
+      "title": "Gallery",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/truck.jpg",
+      "title": "Truck",
+      "caption": "",
+      "alt": ""
     }
   ]
 }
