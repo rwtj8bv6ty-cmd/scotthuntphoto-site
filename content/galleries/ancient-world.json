@@ -1,0 +1,12 @@
+{
+  "title": "Ancient World",
+  "slug": "ancient-world",
+  "parent": "the-space-between",
+  "draft": false,
+  "featured": true,
+  "layout": "single",
+  "description": "",
+  "order": 2,
+  "cover": "",
+  "photos": []
+}
