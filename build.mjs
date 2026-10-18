@@ -75,7 +75,7 @@ function photoNav(current) {
       const subs = subGalleries(g);
       if (!subs.length) return link(url(`${g.slug}/`), g.title);
       const inside = String(current).startsWith(url(`${g.slug}/`));
-      return `<li class="nav-parent${inside ? ' open' : ''}${url(`${g.slug}/`) === current ? ' active' : ''}"><a href="${url(`${g.slug}/`)}" aria-expanded="${inside}">${esc(g.title)}</a><div class="nav-sub-wrap"><ul class="nav-sub">${subs.map((x) => link(url(`${galleryPath(x)}/`), x.title)).join('')}</ul></div></li>`;
+      return `<li class="nav-parent${inside ? ' open' : ''}${url(`${g.slug}/`) === current ? ' active' : ''}"><a href="${url(`${g.slug}/`)}" aria-expanded="${inside}"${String(g.description || '').replace(/<[^>]*>/g, '').trim() ? ' data-page' : ''}>${esc(g.title)}</a><div class="nav-sub-wrap"><ul class="nav-sub">${subs.map((x) => link(url(`${galleryPath(x)}/`), x.title)).join('')}</ul></div></li>`;
     })
     .join('');
   const pg = menuPages('photography').map((p) => link(url(`${p.slug}/`), p.menuTitle || p.title)).join('');
@@ -243,6 +243,10 @@ function galleryBody(g) {
   const photos = photosFor(g);
   const subs = subGalleries(g);
   // A gallery with sub-galleries and no photos of its own shows its sub-galleries as a grid of covers.
+  // A parent gallery with an Introduction shows it as a statement page in place of the cover grid.
+  if (subs.length && !photos.length && String(g.description || '').replace(/<[^>]*>/g, '').trim()) {
+    return `<section class="statement"><h1>${esc(g.title)}</h1><div class="statement-text">${g.description}</div></section>`;
+  }
   if (subs.length && !photos.length) {
     return `<section class="sub-index">${subs
       .map((x) => {

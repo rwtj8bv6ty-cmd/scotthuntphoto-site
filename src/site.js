@@ -307,6 +307,7 @@ if (cartEl) {
 // Photography menu: clicking a gallery that has sub-menus (e.g. Anthologies) folds them open or closed.
 document.querySelectorAll('.nav-parent > a').forEach((a) => {
   a.addEventListener('click', (e) => {
+    if (a.hasAttribute('data-page')) return; // parent with its own statement page: open it (its sub-menu shows there)
     e.preventDefault();
     const open = a.parentElement.classList.toggle('open');
     a.setAttribute('aria-expanded', String(open));
