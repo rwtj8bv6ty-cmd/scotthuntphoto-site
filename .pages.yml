@@ -54,6 +54,7 @@ content:
       primary: title
     fields:
       - { name: title, label: Page title, type: string, required: true }
+      - { name: menuTitle, label: "Name in the menu (leave blank to use the page title)", type: string }
       - { name: draft, label: "Draft (hidden until you turn this off)", type: boolean, default: true }
       - { name: slug, label: "Web address (e.g. about). Leave blank to use the title. Use rockn-h for the Rock'n H landing page", type: string }
       - name: side
@@ -142,6 +143,7 @@ content:
       - { name: rockHeroText, label: "Rock'n H home: tagline", type: string }
       - { name: rockHeroButton, label: "Rock'n H home: button text", type: string }
       - { name: rockFeaturedHeading, label: "Rock'n H home: featured prints heading", type: string }
+      - { name: rockPrintsMenuLabel, label: "Rock'n H menu: name of the prints menu (e.g. The Prints)", type: string }
       - { name: rockStatementHeading, label: "Artist statement heading", type: string }
       - { name: rockStatementText, label: "Artist statement", type: rich-text }
       - { name: rockArtistHeading, label: "About the artist heading", type: string }
