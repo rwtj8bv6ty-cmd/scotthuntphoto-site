@@ -15,7 +15,10 @@ A Mac app for editing everything on the website, on both sides: Scott Hunt Photo
 ## What it does
 - **Galleries:** add photos (drag them in from Finder, or click *Add photos*), remove them, drag them into
   a new order, and move or copy them to another gallery (select them and drag onto a gallery in the sidebar;
-  hold Option to copy). Create, rename, reorder (drag in the sidebar), draft or delete galleries.
+  hold Option to copy). Replace a photo while keeping its place. Create, rename, reorder (drag in the sidebar), draft
+  or delete galleries, and edit each gallery's Introduction.
+- **Sub-galleries:** put a gallery under a main one (*Place in the menu*), reorder them on the main gallery's page or
+  in the sidebar, and turn folders from Finder into sub-galleries with their photos.
 - **Pages** on either side, including About me: text with simple formatting, side photo, contact form on/off.
 - **Rock'n H:** print collections, each with a price list of materials, sizes and prices that every print uses
   unless it has its own; edition size and prints sold (for *Sold out*); featured prints; the print-page sections
@@ -33,7 +36,8 @@ A photo file is deleted from the website only when nothing uses it any more.
   type and field, so new content types added to the site appear here without changing the app. Collections whose
   label starts with "Rock'n H" go under the Rock'n H side; pages are split by their `side` field; in
   `content/site.json`, fields starting with `rock` belong to Rock'n H (split into Home page & artist, Print pages
-  and Checkout).
+  and Checkout). Plain values found in the content files but missing from `.pages.yml` (such as a page's
+  `menuTitle`) are offered as fields too.
 - `Sources/main.swift` is the native window (WebKit). It stores the access key in
   `~/Library/Application Support/Scott Hunt Site Manager/config.json` (readable only by the user), makes the
   GitHub requests, and caches photos in `~/Library/Caches/Scott Hunt Site Manager`.

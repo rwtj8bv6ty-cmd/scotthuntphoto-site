@@ -23,7 +23,7 @@ const plural = (n, one, many = one + 's') => `${n} ${n === 1 ? one : many}`;
 const basename = (p) => p.slice(p.lastIndexOf('/') + 1);
 const dirname = (p) => p.slice(0, Math.max(0, p.lastIndexOf('/')));
 const serialize = (data) => JSON.stringify(data, null, 2);
-const cleanLabel = (s) => String(s || '').replace(/\s*\((drag to reorder|e\.g\.[^)]*)\)\s*/gi, ' ').trim();
+const cleanLabel = (s) => String(s || '').replace(/\s*\((drag to reorder|e\.g\.[^)]*)\)\s*/gi, ' ').replace(/\s+([.,])/g, '$1').trim();
 // Labels inside a group view don't need the group's name in front ("Checkout: currency code" -> "Currency code").
 const shortLabel = (s) => { const t = cleanLabel(s).replace(/^(print pages|checkout):\s*/i, ''); return t.charAt(0).toUpperCase() + t.slice(1); };
 const columnLabel = (s) => cleanLabel(s).replace(/\s*\([^)]*\)\s*/g, ' ').trim();
@@ -305,6 +305,7 @@ async function loadAll(keepView) {
     for (const entry of S.schema) {
       if (entry.type === 'file' && !S.docs.has(entry.path)) S.docs.set(entry.path, { path: entry.path, entry, data: {}, canon: serialize({}), isNew: false, deleted: false });
     }
+    addFieldsFoundInContent();
     S.initialRefs = currentRefs();
     for (const [p, u] of S.uploads) if (S.snap.files.has(p)) { URL.revokeObjectURL(u.url); URL.revokeObjectURL(u.thumbUrl); S.uploads.delete(p); }
     S.undo = [];
@@ -315,6 +316,28 @@ async function loadAll(keepView) {
       h('h2', {}, "Couldn't load the website"), h('p', { class: 'muted' }, e.message),
       h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => loadAll() }, 'Try again'),
         h('button', { onclick: renderSetup }, 'Account settings'))));
+  }
+}
+
+// Settings the site uses but .pages.yml doesn't list yet (e.g. a page's menu name) are still editable:
+// any plain value found at the top level of a content file becomes a field for that kind of content.
+const EXTRA_LABELS = {
+  menuTitle: 'Name in the menu (leave blank to use the title)',
+  rockPrintsMenuLabel: "Rock'n H menu name for the prints",
+};
+const OBSOLETE = new Set(['forSale', 'printSize', 'price', 'buyLink']);
+function addFieldsFoundInContent() {
+  for (const entry of S.schema) {
+    const known = new Set(entry.fields.map((f) => f.name));
+    for (const d of S.docs.values()) {
+      if (d.entry !== entry) continue;
+      for (const [k, v] of Object.entries(d.data)) {
+        if (known.has(k) || OBSOLETE.has(k) || v === null || typeof v === 'object') continue;
+        known.add(k);
+        const label = EXTRA_LABELS[k] || (k.replace(/([A-Z])/g, ' $1').toLowerCase().replace(/^./, (c) => c.toUpperCase()));
+        entry.fields.push({ name: k, label, type: typeof v === 'boolean' ? 'boolean' : typeof v === 'number' ? 'number' : 'string', found: true });
+      }
+    }
   }
 }
 
@@ -785,7 +808,12 @@ function fieldInput(obj, f, doc) {
     default: {
       const el = h('input', { type: f.type === 'date' ? 'date' : 'text', value: val ?? '' });
       el.addEventListener('focus', checkpoint);
-      el.addEventListener('input', () => set(el.value));
+      el.addEventListener('input', () => {
+        // A main gallery's web address is what its sub-galleries point at, so they follow a change.
+        const kids = f.name === 'slug' && doc && obj === doc.data ? childrenOf(doc) : [];
+        set(el.value);
+        kids.forEach((k) => { k.data.parent = docSlug(doc); });
+      });
       return el;
     }
   }
@@ -1288,8 +1316,19 @@ function photoGrid(doc, f, holder) {
   function openDetail(i) {
     const it = arr[i];
     const fields = f.fields.filter((s) => s.type !== 'image' && !s.hidden);
+    const big = h('img', { src: imgSrc(it[key], true), alt: '' });
+    const replace = h('button', { onclick: async () => {
+      const files = await chooseFiles(false);
+      const vals = await prepareUploads(files, uploadFolder(doc));
+      if (!vals.length) return;
+      checkpoint();
+      it[key] = vals[0];
+      big.src = imgSrc(it[key], true);
+      changed();
+    } }, 'Replace with another photo…');
     const body = h('div', { class: 'detail' },
-      h('div', { class: 'detail-img' }, h('img', { src: imgSrc(it[key], true), alt: '' })),
+      h('div', { class: 'detail-col' }, h('div', { class: 'detail-img' }, big), h('div', { class: 'row' }, replace,
+        h('span', { class: 'muted small' }, 'Keeps its place and details.'))),
       h('div', { class: 'detail-form' },
         fields.length ? h('div', { class: 'form compact' }, fields.map((s) => fieldRow(it, s, doc))) : h('p', { class: 'muted' }, 'Nothing else to fill in for this photo.'),
         doc.entry.name === 'galleries' ? h('p', { class: 'muted small' }, 'Titles and captions are private notes; visitors don\'t see them while “Show photo titles and captions” is off.') : null));
