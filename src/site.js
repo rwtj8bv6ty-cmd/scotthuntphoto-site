@@ -278,3 +278,38 @@ if (cartEl) {
     document.head.appendChild(s);
   }
 }
+
+// Rock'n H print page: click the photo to see it full page; click again, the X, or Esc to go back.
+(() => {
+  const photo = document.querySelector('.product-img img.zoom');
+  if (!photo) return;
+  const full = document.createElement('div');
+  full.className = 'rk-full';
+  full.innerHTML = '<button class="full-close" type="button" aria-label="Close">\u00d7</button><img alt="">';
+  const big = full.querySelector('img');
+  big.alt = photo.alt;
+  document.body.appendChild(full);
+  const open = () => {
+    big.src = photo.currentSrc || photo.src;
+    document.documentElement.classList.add('full-lock');
+    full.classList.add('open');
+  };
+  const close = () => {
+    full.classList.remove('open');
+    document.documentElement.classList.remove('full-lock');
+  };
+  photo.addEventListener('click', open);
+  photo.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+  full.addEventListener('click', close);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+})();
+
+// Photography menu: clicking a gallery that has sub-menus (e.g. Anthologies) folds them open or closed.
+document.querySelectorAll('.nav-parent > a').forEach((a) => {
+  a.addEventListener('click', (e) => {
+    if (a.hasAttribute('data-page')) return; // parent with its own statement page: open it (its sub-menu shows there)
+    e.preventDefault();
+    const open = a.parentElement.classList.toggle('open');
+    a.setAttribute('aria-expanded', String(open));
+  });
+});

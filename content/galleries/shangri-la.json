@@ -1,0 +1,73 @@
+{
+  "title": "Shangri-La",
+  "slug": "shangri-la",
+  "parent": "anthologies",
+  "draft": false,
+  "order": 4,
+  "featured": true,
+  "layout": "masonry",
+  "cover": "/photos/anthologies/shangri-la/bridge-2.jpg",
+  "description": "",
+  "photos": [
+    {
+      "image": "/photos/anthologies/shangri-la/bridge-2.jpg",
+      "title": "Bridge 2",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/shangri-la/bridge.jpg",
+      "title": "Bridge",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/shangri-la/cheri-flags.jpg",
+      "title": "Cheri Flags",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/shangri-la/chorten-valley.jpg",
+      "title": "Chorten Valley",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/shangri-la/dzong-2.jpg",
+      "title": "Dzong 2",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/shangri-la/dzong.jpg",
+      "title": "Dzong",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/shangri-la/flags.jpg",
+      "title": "Flags",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/shangri-la/memorial-chorten-2.jpg",
+      "title": "Memorial Chorten 2",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/shangri-la/memorial-chorten.jpg",
+      "title": "Memorial Chorten",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/shangri-la/rice-paddy.jpg",
+      "title": "Rice Paddy",
+      "caption": "",
+      "alt": ""
+    }
+  ]
+}

@@ -189,7 +189,9 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
 .shop-item { margin: 0; }
 [hidden] { display: none !important; }
 .stage { height: auto; min-height: 0; }
-.stage img { max-height: calc(100vh - 150px); }
+/* Every photo fills the same display area, so small files show at the same size as large ones. */
+.stage img { height: calc(100vh - 150px); width: auto; max-width: 100%; max-height: none; object-fit: contain; object-position: left center; }
+@media (max-width: 760px) { .stage img { width: 100%; height: auto; max-height: 75vh; object-position: center; } }
 
 /* ===== Rock'n H: light fine-art print shop ===== */
 .side-rock { --bg: #faf8f4; --fg: #1d1b18; --muted: #75706a; --line: #e4dfd6; --accent: #1d1b18; background: var(--bg); color: var(--fg); }
@@ -292,7 +294,13 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
 @media (max-width: 600px) { .cart-line { grid-template-columns: 72px 1fr; } .cart-line img { width: 72px; height: 72px; } .cl-price { grid-column: 2; } }
 
 /* Photography side: sub-menus (e.g. Pocket Pictures) and their cover grid */
-.side-photo .sidebar nav ul.nav-sub { margin: 2px 0 8px 12px; }
+/* Sub-menus stay folded until the parent is clicked (open on the parent's own pages). */
+.nav-sub-wrap { display: grid; grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows .45s cubic-bezier(.22, .61, .36, 1), opacity .35s ease, visibility 0s linear .45s; }
+.nav-parent.open > .nav-sub-wrap { grid-template-rows: 1fr; opacity: 1; visibility: visible; transition: grid-template-rows .45s cubic-bezier(.22, .61, .36, 1), opacity .35s ease .05s; }
+.nav-sub-wrap > ul { min-height: 0; overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .nav-sub-wrap, .nav-parent.open > .nav-sub-wrap { transition: none; } }
+.side-photo .sidebar nav ul.nav-sub { margin: 0 0 0 12px; padding: 0; }
+.side-photo .sidebar nav .nav-sub li:first-child { padding-top: 2px; } .side-photo .sidebar nav .nav-sub li:last-child { padding-bottom: 8px; }
 .side-photo .sidebar nav .nav-sub a { font-size: .76rem; padding: 2px 0; }
 .sub-index { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 28px; padding: 8px 0 40px; }
 .sub-card { display: block; color: var(--muted); text-decoration: none; font-size: .82rem; letter-spacing: .02em; }
@@ -300,3 +308,22 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
 .sub-card:hover { color: var(--fg); }
 .sub-card:hover img { opacity: .85; }
 @media (max-width: 760px) { .sub-index { grid-template-columns: 1fr 1fr; gap: 16px; } .side-photo .sidebar nav .nav-sub a { font-size: .9rem; } }
+
+/* Rock'n H print page: click the photo to see it larger. Only opacity and transform animate, so the motion stays smooth. */
+.product-img img.zoom { cursor: zoom-in; outline: none; }
+.rk-full { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: #faf8f4; opacity: 0; visibility: hidden; transition: opacity .35s ease, visibility 0s linear .35s; cursor: zoom-out; }
+.rk-full.open { opacity: 1; visibility: visible; transition: opacity .35s ease; }
+.rk-full img { width: 100vw; height: 100vh; object-fit: contain; }
+.rk-full .full-close { position: absolute; top: 12px; right: 16px; width: 44px; height: 44px; padding: 0; border: 0; background: none; color: #222; font: 300 34px/1 sans-serif; cursor: pointer; opacity: .6; }
+.rk-full .full-close:hover { opacity: 1; }
+html.full-lock { overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .rk-full, .rk-full.open { transition: none; } }
+
+/* Statement page for a parent gallery (e.g. The Space Between) */
+.statement { max-width: 640px; padding: 12vh 0 80px; opacity: 0; animation: statement-in 1.2s ease .1s forwards; }
+.statement h1 { font: 400 2.4rem/1.15 var(--serif); letter-spacing: .01em; margin: 0 0 36px; }
+.statement-text p { font: 400 1.22rem/1.75 var(--serif); color: var(--fg); margin: 0 0 1.3em; }
+.statement-text p:last-child { font-style: italic; color: var(--muted); margin-top: 2em; }
+@keyframes statement-in { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .statement { animation: none; opacity: 1; } }
+@media (max-width: 760px) { .statement { padding: 32px 0 48px; } .statement h1 { font-size: 1.9rem; } .statement-text p { font-size: 1.1rem; } }

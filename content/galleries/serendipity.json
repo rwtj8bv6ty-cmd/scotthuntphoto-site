@@ -1,0 +1,265 @@
+{
+  "title": "Serendipity",
+  "slug": "serendipity",
+  "parent": "anthologies",
+  "draft": false,
+  "order": 3,
+  "featured": true,
+  "layout": "masonry",
+  "cover": "/photos/anthologies/serendipity/arg-alter.jpg",
+  "description": "",
+  "photos": [
+    {
+      "image": "/photos/anthologies/serendipity/arg-alter.jpg",
+      "title": "ARG_alter",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/arg-church.jpg",
+      "title": "ARG_church",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/arg-crosses.jpg",
+      "title": "ARG_crosses",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/arg-door.jpg",
+      "title": "ARG_door",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/arg-drive.jpg",
+      "title": "ARG_drive",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/arg-gaucho.jpg",
+      "title": "ARG_gaucho",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/arg-goal.jpg",
+      "title": "ARG_goal",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/arg-parilla.jpg",
+      "title": "ARG_parilla",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/arg-plaza.jpg",
+      "title": "ARG_plaza",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/arg-salt-flat.jpg",
+      "title": "ARG_salt-flat",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/arg-sombrero.jpg",
+      "title": "ARG_sombrero",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/arg-spoon.jpg",
+      "title": "ARG_spoon",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/church.jpg",
+      "title": "church",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/death-valley-road.jpg",
+      "title": "Death_Valley_Road",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/film.jpg",
+      "title": "Film",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/ita-aloe.jpg",
+      "title": "ITA_aloe",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/ita-breakfast.jpg",
+      "title": "ITA_breakfast",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/ita-castle-flowers.jpg",
+      "title": "ITA_castle-flowers",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/ita-clothespin.jpg",
+      "title": "ITA_clothespin",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/ita-colusium.jpg",
+      "title": "ITA_colusium",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/ita-drummer-boy.jpg",
+      "title": "ITA_drummer-boy",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/ita-flag.jpg",
+      "title": "ITA_flag",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/ita-light.jpg",
+      "title": "ITA_light",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/ita-monument.jpg",
+      "title": "ITA_monument",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/ita-path.jpg",
+      "title": "ITA_path",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/ita-study.jpg",
+      "title": "ITA_study",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/ita-umbrella.jpg",
+      "title": "ITA_umbrella",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/ita-wall.jpg",
+      "title": "ITA_wall",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/ita-wc.jpg",
+      "title": "ITA_WC",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/june-lake-5.jpg",
+      "title": "June Lake_5",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/nm104.jpg",
+      "title": "NM104",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/road-2.jpg",
+      "title": "Road 2",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/road.jpg",
+      "title": "Road",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/teepee.jpg",
+      "title": "teepee",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/uru-berries.jpg",
+      "title": "URU_berries",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/uru-boy-dog.jpg",
+      "title": "URU_boy-&-dog",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/uru-colonia-car.jpg",
+      "title": "URU_Colonia-car",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/uru-colonia-light-post.jpg",
+      "title": "URU_Colonia-Light-post",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/uru-colonia-sidewalk.jpg",
+      "title": "URU_Colonia-sidewalk",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/wa-barn.jpg",
+      "title": "WA_barn",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/wa-canoe.jpg",
+      "title": "WA_canoe",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/serendipity/wa-rope.jpg",
+      "title": "WA_rope",
+      "caption": "",
+      "alt": ""
+    }
+  ]
+}

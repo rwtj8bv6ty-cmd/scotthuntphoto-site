@@ -1,0 +1,403 @@
+{
+  "title": "Vista",
+  "slug": "vista",
+  "parent": "anthologies",
+  "draft": false,
+  "order": 5,
+  "featured": true,
+  "layout": "masonry",
+  "cover": "/photos/anthologies/vista/arg-andes.jpg",
+  "description": "",
+  "photos": [
+    {
+      "image": "/photos/anthologies/vista/arg-andes.jpg",
+      "title": "ARG_andes",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/arg-cacti.jpg",
+      "title": "ARG_cacti",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/arg-creek.jpg",
+      "title": "ARG_creek",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/arg-lake.jpg",
+      "title": "ARG_lake",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/arg-mountain-2.jpg",
+      "title": "ARG_mountain-2",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/arg-mountains.jpg",
+      "title": "ARG_mountains",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/arg-red-mountains.jpg",
+      "title": "ARG_red-mountains",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/arg-sunset.jpg",
+      "title": "ARG_sunset",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/arg-valley.jpg",
+      "title": "ARG_valley",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/arg-yucca.jpg",
+      "title": "ARG_yucca",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/camp.jpg",
+      "title": "camp",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/colo-abstract.jpg",
+      "title": "COLO_abstract",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/colo-grove.jpg",
+      "title": "COLO_grove",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/colo-red-leaves-2.jpg",
+      "title": "COLO_red-leaves-2",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/colo-river.jpg",
+      "title": "COLO_river",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/colo-shore.jpg",
+      "title": "COLO_shore",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/colo-thistle.jpg",
+      "title": "COLO_thistle",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/dv-04.jpg",
+      "title": "DV_04",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/dv-1.jpg",
+      "title": "DV_1",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/fence.jpg",
+      "title": "fence",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/gc-03.jpg",
+      "title": "GC_03",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/gc-04.jpg",
+      "title": "GC_04",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/gc-05.jpg",
+      "title": "GC_05",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/gc-07.jpg",
+      "title": "GC_07",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/gc-1.jpg",
+      "title": "GC_1",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/gc-12.jpg",
+      "title": "GC_12",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/june-lake-1.jpg",
+      "title": "June Lake_1",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/june-lake-2.jpg",
+      "title": "June Lake_2",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/june-lake-3.jpg",
+      "title": "June Lake_3",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/june-lake-4.jpg",
+      "title": "June Lake_4",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/million-dollar-hwy.jpg",
+      "title": "Million Dollar Hwy",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/monolake.jpg",
+      "title": "MonoLake",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/monument-valley.jpg",
+      "title": "Monument Valley",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/nm-01.jpg",
+      "title": "NM_01",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/nm-02.jpg",
+      "title": "NM_02",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/nm-04.jpg",
+      "title": "NM_04",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/nmex-burn.jpg",
+      "title": "NMEX_burn",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/pass.jpg",
+      "title": "Pass",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/pec-aspens.jpg",
+      "title": "PEC_aspens",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/pec-clouds.jpg",
+      "title": "PEC_clouds",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/pec-floating-logs.jpg",
+      "title": "PEC_floating-logs",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/pec-meadow-2.jpg",
+      "title": "PEC_meadow-2",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/pec-milkweed.jpg",
+      "title": "PEC_milkweed",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/pec-rock.jpg",
+      "title": "PEC_rock",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/plant.jpg",
+      "title": "plant",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/plateau.jpg",
+      "title": "plateau",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/ruta-40-2.jpg",
+      "title": "Ruta 40 2",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/ruta-40.jpg",
+      "title": "Ruta 40",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/sage.jpg",
+      "title": "sage",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/sierras.jpg",
+      "title": "Sierras",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/sierras-2.jpg",
+      "title": "Sierras_2",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/sunburst.jpg",
+      "title": "Sunburst",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/valley.jpg",
+      "title": "valley",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/yosemite-09.jpg",
+      "title": "Yosemite_09",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/yosemite-1.jpg",
+      "title": "Yosemite_1",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/yosemite-2.jpg",
+      "title": "Yosemite_2",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/yosemite-3.jpg",
+      "title": "Yosemite_3",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/yosemite-4.jpg",
+      "title": "Yosemite_4",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/yosemite-5.jpg",
+      "title": "Yosemite_5",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/yosemite-6.jpg",
+      "title": "Yosemite_6",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/yosemite-7.jpg",
+      "title": "Yosemite_7",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/yosemite-8.jpg",
+      "title": "Yosemite_8",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/zion-06.jpg",
+      "title": "Zion_06",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/zion-1.jpg",
+      "title": "Zion_1",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/vista/zion-2.jpg",
+      "title": "Zion_2",
+      "caption": "",
+      "alt": ""
+    }
+  ]
+}
