@@ -323,7 +323,7 @@ html.full-lock { overflow: hidden; }
 .statement { max-width: 640px; padding: 12vh 0 80px; opacity: 0; animation: statement-in 1.2s ease .1s forwards; }
 .statement h1 { font: 400 2.4rem/1.15 var(--serif); letter-spacing: .01em; margin: 0 0 36px; }
 .statement-text p { font: 400 1.22rem/1.75 var(--serif); color: var(--fg); margin: 0 0 1.3em; }
-.statement-text p:last-child { font-style: italic; color: var(--muted); margin-top: 2em; }
+.statement-text p:last-child { margin-top: 2em; }
 @keyframes statement-in { to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .statement { animation: none; opacity: 1; } }
 @media (max-width: 760px) { .statement { padding: 32px 0 48px; } .statement h1 { font-size: 1.9rem; } .statement-text p { font-size: 1.1rem; } }
