@@ -6,7 +6,104 @@
   "order": 7,
   "featured": true,
   "layout": "masonry",
-  "cover": "",
+  "cover": "/photos/anthologies/pocket-pictures/mountain.jpg",
   "description": "",
-  "photos": []
+  "photos": [
+    {
+      "image": "/photos/anthologies/pocket-pictures/mountain.jpg",
+      "title": "Mountain",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/pocket-pictures/leaf.jpg",
+      "title": "Leaf",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/pocket-pictures/branches.jpg",
+      "title": "Branches",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/pocket-pictures/statue.jpg",
+      "title": "Statue",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/pocket-pictures/road.jpg",
+      "title": "Road",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/pocket-pictures/ocotillo.jpg",
+      "title": "Ocotillo",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/pocket-pictures/windmill.jpg",
+      "title": "Windmill",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/pocket-pictures/cactus.jpg",
+      "title": "Cactus",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/pocket-pictures/ocotillos.jpg",
+      "title": "Ocotillos",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/pocket-pictures/mountain-bw.jpg",
+      "title": "Mountain BW",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/pocket-pictures/prayer-flags.jpg",
+      "title": "Prayer Flags",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/pocket-pictures/buddha.jpg",
+      "title": "Buddha",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/pocket-pictures/dzong.jpg",
+      "title": "Dzong",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/pocket-pictures/window.jpg",
+      "title": "Window",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/pocket-pictures/bridge.jpg",
+      "title": "Bridge",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/pocket-pictures/stupa.jpg",
+      "title": "Stupa",
+      "caption": "",
+      "alt": ""
+    }
+  ]
 }
