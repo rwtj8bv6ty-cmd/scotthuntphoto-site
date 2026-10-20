@@ -2,7 +2,7 @@
   "title": "Discarded Legacies",
   "slug": "discarded-legacies",
   "parent": "anthologies",
-  "draft": false,
+  "draft": true,
   "order": 8,
   "featured": true,
   "layout": "masonry",

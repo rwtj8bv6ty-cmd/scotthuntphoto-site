@@ -61,8 +61,24 @@
   "rockNewsletterHeading": "Be the first to see new releases",
   "rockLimitedEditions": "<p>Placeholder: edition sizes and how each print is signed and numbered.</p>",
   "rockDimensions": "<p>Placeholder: image and paper dimensions for each size, and the white border used for signing and framing.</p>",
-  "rockPaypalClientId": "",
+  "rockPaypalClientId": "AdNXqu5G-zyqxdQ9K1_fhkjeUq_7bLo8JHDlLhSEuTFeq9cGEzgjWJy2cneal0Kk1KzkOefT1CRz3kOV",
   "rockCurrency": "USD",
   "rockShippingCost": 0,
+  "rockShippingZones": [
+    {
+      "name": "Texas",
+      "states": "TX"
+    },
+    {
+      "name": "Alaska & Hawaii",
+      "states": "AK, HI"
+    },
+    {
+      "name": "Rest of the U.S.",
+      "states": ""
+    }
+  ],
+  "rockShippingRates": [],
+  "rockShipOnRequest": "Acrylic",
   "rockShippingNote": ""
 }

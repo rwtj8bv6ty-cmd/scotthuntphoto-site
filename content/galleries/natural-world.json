@@ -17,13 +17,6 @@
       "forSale": false
     },
     {
-      "image": "/photos/the-space-between/arg-andes.jpg",
-      "title": "Argentina, Andes",
-      "caption": "",
-      "alt": "",
-      "forSale": false
-    },
-    {
       "image": "/photos/the-space-between/arg-grass-salta.jpg",
       "title": "Argentina, Grass Salta",
       "caption": "",
@@ -227,13 +220,6 @@
       "forSale": false
     },
     {
-      "image": "/photos/the-space-between/baja-1.jpg",
-      "title": "Baja",
-      "caption": "",
-      "alt": "",
-      "forSale": false
-    },
-    {
       "image": "/photos/the-space-between/baja-2.jpg",
       "title": "Baja",
       "caption": "",
@@ -304,20 +290,6 @@
       "forSale": false
     },
     {
-      "image": "/photos/the-space-between/canoe.jpg",
-      "title": "Canoe",
-      "caption": "",
-      "alt": "",
-      "forSale": false
-    },
-    {
-      "image": "/photos/the-space-between/canoes.jpg",
-      "title": "Canoes",
-      "caption": "",
-      "alt": "",
-      "forSale": false
-    },
-    {
       "image": "/photos/the-space-between/canyon-de-chelley-4.jpg",
       "title": "Canyon de Chelley",
       "caption": "",
@@ -369,13 +341,6 @@
     {
       "image": "/photos/the-space-between/fenceline.jpg",
       "title": "Fenceline",
-      "caption": "",
-      "alt": "",
-      "forSale": false
-    },
-    {
-      "image": "/photos/the-space-between/gate.jpg",
-      "title": "Gate",
       "caption": "",
       "alt": "",
       "forSale": false
@@ -831,13 +796,6 @@
     {
       "image": "/photos/the-space-between/banff-02.jpg",
       "title": "Banff",
-      "caption": "",
-      "alt": "",
-      "forSale": false
-    },
-    {
-      "image": "/photos/the-space-between/deer.jpg",
-      "title": "Deer",
       "caption": "",
       "alt": "",
       "forSale": false

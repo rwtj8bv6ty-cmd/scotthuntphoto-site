@@ -54,6 +54,7 @@ content:
       primary: title
     fields:
       - { name: title, label: Page title, type: string, required: true }
+      - { name: menuTitle, label: "Name in the menu (leave blank to use the page title)", type: string }
       - { name: draft, label: "Draft (hidden until you turn this off)", type: boolean, default: true }
       - { name: slug, label: "Web address (e.g. about). Leave blank to use the title. Use rockn-h for the Rock'n H landing page", type: string }
       - name: side
@@ -142,6 +143,7 @@ content:
       - { name: rockHeroText, label: "Rock'n H home: tagline", type: string }
       - { name: rockHeroButton, label: "Rock'n H home: button text", type: string }
       - { name: rockFeaturedHeading, label: "Rock'n H home: featured prints heading", type: string }
+      - { name: rockPrintsMenuLabel, label: "Rock'n H menu: name of the prints menu (e.g. The Prints)", type: string }
       - { name: rockStatementHeading, label: "Artist statement heading", type: string }
       - { name: rockStatementText, label: "Artist statement", type: rich-text }
       - { name: rockArtistHeading, label: "About the artist heading", type: string }
@@ -153,7 +155,23 @@ content:
       - { name: rockShippingDetails, label: "Print pages: Shipping and Production Times", type: rich-text }
       - { name: rockPaypalClientId, label: "Checkout: PayPal Client ID (Live)", type: string }
       - { name: rockCurrency, label: "Checkout: currency code (e.g. USD)", type: string }
-      - { name: rockShippingCost, label: "Checkout: shipping charge per order (0 = included)", type: number }
+      - { name: rockShippingCost, label: "Checkout: flat shipping charge per order, used only while the shipping price table is empty (0 = included)", type: number }
+      - name: rockShippingZones
+        label: "Checkout: shipping regions (a region with no states covers the rest of the U.S.)"
+        type: object
+        list: true
+        fields:
+          - { name: name, label: "Region name (e.g. Texas)", type: string }
+          - { name: states, label: "State codes, separated by commas (e.g. AK, HI); leave empty for everywhere else", type: string }
+      - name: rockShippingRates
+        label: "Checkout: shipping price table, one row per size and region (charged per print)"
+        type: object
+        list: true
+        fields:
+          - { name: size, label: "Size, exactly as in the price lists (e.g. 16 × 20 in)", type: string }
+          - { name: zone, label: "Region name, exactly as above", type: string }
+          - { name: price, label: "Shipping price (number only)", type: string }
+      - { name: rockShipOnRequest, label: "Checkout: materials shipped on request, separated by commas (e.g. Acrylic); these show a quote button instead of Add to cart", type: string }
       - { name: rockShippingNote, label: "Checkout: note shown in the cart", type: rich-text }
       - { name: rockNewsletter, label: Show newsletter sign-up, type: boolean }
       - { name: rockNewsletterHeading, label: Newsletter heading, type: string }
