@@ -102,9 +102,9 @@ content:
         list: true
         fields:
           - { name: image, label: Photo, type: image, required: true }
-          - { name: title, label: Title, type: string }
+          - { name: title, label: "Title of the work", type: string }
           - { name: featured, label: Show on the Rock'n H home page, type: boolean, default: false }
-          - { name: description, label: Description, type: rich-text }
+          - { name: description, label: "About this work (a short narrative shown on the print's page)", type: rich-text }
           - { name: alt, label: "Description for screen readers", type: string }
           - { name: editionSize, label: "Whole-print edition size, all sizes together (usually leave empty; set editions per size in the price list)", type: number }
           - { name: editionsSold, label: "Prints sold so far, all sizes together (shows Sold out when it reaches the whole-print edition size)", type: number, default: 0 }
@@ -159,6 +159,7 @@ content:
       - { name: rockArtistPhoto, label: "About the artist photo", type: image }
       - { name: rockArtistText, label: "About the artist", type: rich-text }
       - { name: rockPrintDetails, label: "Print pages: About the Prints", type: rich-text }
+      - { name: rockMaterials, label: "Print pages: Materials", type: rich-text }
       - { name: rockLimitedEditions, label: "Print pages: Limited Editions", type: rich-text }
       - { name: rockDimensions, label: "Print pages: Dimensions and Borders", type: rich-text }
       - { name: rockShippingDetails, label: "Print pages: Shipping and Production Times", type: rich-text }
@@ -180,6 +181,14 @@ content:
           - { name: size, label: "Size (e.g. 7 × 19 in); matches price-list sizes with the same two numbers", type: string }
           - { name: zone, label: "Region name, exactly as above", type: string }
           - { name: price, label: "Shipping price (number only)", type: string }
+      - name: rockSalesTax
+        label: "Checkout: sales tax, one row per state where you collect it (leave empty to charge no tax)"
+        type: object
+        list: true
+        fields:
+          - { name: state, label: "State code (e.g. TX)", type: string }
+          - { name: rate, label: "Tax rate in percent (e.g. 8.25)", type: string }
+          - { name: taxShipping, label: "Also charge tax on shipping", type: boolean }
       - { name: rockShipOnRequest, label: "Checkout: materials shipped on request, separated by commas (e.g. Acrylic); these show a quote button instead of Add to cart", type: string }
       - { name: rockShippingNote, label: "Checkout: note shown in the cart", type: rich-text }
       - { name: rockNewsletter, label: Show newsletter sign-up, type: boolean }

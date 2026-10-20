@@ -222,7 +222,16 @@ if (cartEl) {
   // Sizes match on their first two numbers, so "7x19", "7 × 19 in" and "7 × 19 in (11 × 22 overall)" are the same size.
   const sizeKey = (v) => { const n = String(v || '').match(/\d+(?:\.\d+)?/g); return n && n.length >= 2 ? `${n[0]}x${n[1]}` : String(v || '').trim().toLowerCase(); };
   const rateFor = (size, zone) => cfg.rates.find((r) => r.zone.toLowerCase() === zone.name.toLowerCase() && sizeKey(r.size) === sizeKey(size));
-  const totals = (ls) => {
+  // Sales tax for the chosen state, worked out in cents so PayPal's totals add up exactly.
+  const taxFor = (state) => (cfg.tax || []).find((x) => x.state === state);
+  const withTax = (t) => {
+    const rule = t.ready && taxFor(shipState);
+    const cents = (n) => Math.round(n * 100);
+    const tax = rule ? Math.round(((cents(t.sub) + (rule.shipping ? cents(t.ship) : 0)) * rule.rate) / 100) / 100 : 0;
+    return { ...t, tax, rate: rule ? rule.rate : 0, total: (cents(t.sub) + cents(t.ship) + Math.round(tax * 100)) / 100 };
+  };
+  const totals = (ls) => withTax(baseTotals(ls));
+  const baseTotals = (ls) => {
     const sub = ls.reduce((a, l) => a + l.price * l.qty, 0);
     if (!byRegion) {
       const ship = ls.length ? cfg.shipping : 0;
@@ -260,6 +269,8 @@ if (cartEl) {
     cartEl.querySelector('.subtotal').textContent = money(t.sub);
     cartEl.querySelector('.shipping').textContent =
       t.need === 'state' ? 'Choose a state' : t.need === 'rate' ? 'Quoted on request' : t.ship ? money(t.ship) : byRegion ? 'Free' : 'Included';
+    const taxRow = cartEl.querySelector('.tax-row');
+    if (taxRow) { taxRow.hidden = !t.tax; taxRow.querySelector('span').textContent = `Sales tax (${t.rate}%)`; taxRow.querySelector('.tax').textContent = money(t.tax); }
     cartEl.querySelector('.grand').textContent = money(t.total);
     cartEl.querySelector('.ship-missing').hidden = t.need !== 'rate';
     if (payBox) payBox.hidden = !t.ready;
@@ -298,7 +309,7 @@ if (cartEl) {
               description: `${cfg.store} prints`,
               amount: {
                 currency_code: cfg.currency, value: v(t.total),
-                breakdown: { item_total: { currency_code: cfg.currency, value: v(t.sub) }, shipping: { currency_code: cfg.currency, value: v(t.ship) } },
+                breakdown: { item_total: { currency_code: cfg.currency, value: v(t.sub) }, shipping: { currency_code: cfg.currency, value: v(t.ship) }, tax_total: { currency_code: cfg.currency, value: v(t.tax) } },
               },
               items: ls.map((l) => ({
                 name: l.title.slice(0, 120), description: [l.material, l.size].filter(Boolean).join(' · ').slice(0, 120),
@@ -313,7 +324,9 @@ if (cartEl) {
           if (addr) {
             const t = totals(lines());
             const there = addr.country_code === 'US' && zoneOf(String(addr.admin_area_1 || '').toUpperCase());
-            if (!there || there.name !== t.zone.name) {
+            const st = String(addr.admin_area_1 || '').toUpperCase();
+            const taxDiffers = (taxFor(st) || {}).rate !== (taxFor(shipState) || {}).rate;
+            if (!there || there.name !== t.zone.name || taxDiffers) {
               const off = cartEl.querySelector('.checkout-off');
               off.hidden = false;
               off.textContent = addr.country_code !== 'US'

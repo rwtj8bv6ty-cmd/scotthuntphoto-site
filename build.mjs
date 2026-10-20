@@ -289,7 +289,7 @@ function pageBody(p) {
         ? `<p class="note">The contact form will appear here once a form address is set in Site settings.</p>`
         : '';
   return `<section class="page-head"><h1>${esc(p.title)}</h1></section>
-<article class="prose${p.image ? ' with-image' : ''}">${p.image ? `<img class="page-image" src="${img(p.image)}" alt="">` : ''}<div>${p.body || ''}${form}</div></article>`;
+<article class="prose${p.image ? ' with-image' : ''}">${p.image ? `<img class="page-image" src="${img(p.image)}" alt="">` : ''}<div>${p.body || ''}${p.slug === PRINT_INFO_SLUG ? infoSections() : ''}${form}</div></article>`;
 }
 
 
@@ -328,6 +328,9 @@ const onRequest = (material) => quoteMaterials.includes(String(material || '').t
 const shipZones = (site.rockShippingZones || []).filter((z) => z && z.name).map((z) => ({ name: String(z.name).trim(), states: listOf(z.states).map((x) => x.toUpperCase()) }));
 const shipRates = (site.rockShippingRates || []).filter((r) => r && r.size && r.zone && String(r.price ?? '').trim() !== '')
   .map((r) => ({ size: String(r.size).trim(), zone: String(r.zone).trim(), price: num(r.price) }));
+// Sales tax by the state an order ships to: a percentage, optionally charged on shipping too.
+const salesTax = (site.rockSalesTax || []).filter((t) => t && t.state && num(t.rate) > 0)
+  .flatMap((t) => listOf(t.state).map((st) => ({ state: st.toUpperCase(), rate: num(t.rate), shipping: t.taxShipping !== false })));
 const enquireHref = (p) => `${url(`${site.rockContactSlug || 'rockn-h-contact'}/`)}?about=${encodeURIComponent(p.title || p.slug)}`;
 
 function newsletter() {
@@ -381,16 +384,18 @@ ${intro ? `<div class="intro rk-intro">${intro}</div>` : ''}
 ${newsletter()}`;
 }
 
-const infoSections = () =>
+// The print information shows as drop-downs on each print page and all together on the About the Prints page.
+const PRINT_INFO_SLUG = 'about-the-prints';
+const infoList = () =>
   [
-    ['About the Prints', site.rockPrintDetails],
+    ['Materials', site.rockMaterials],
     ['Limited Editions', site.rockLimitedEditions],
     ['Dimensions and Borders', site.rockDimensions],
     ['Shipping and Production Times', site.rockShippingDetails],
   ]
-    .filter(([, html]) => html)
-    .map(([t, html]) => `<details class="product-details"><summary>${t}</summary>${html}</details>`)
-    .join('');
+    .filter(([, html]) => html);
+const infoSections = () => infoList().map(([t, html]) => `<section class="print-info"><h2>${t}</h2>${html}</section>`).join('');
+const infoDropdowns = () => infoList().map(([t, html]) => `<details class="product-details"><summary>${t}</summary>${html}</details>`).join('');
 
 function productBody(p) {
   const opts = optsOf(p);
@@ -428,7 +433,7 @@ function productBody(p) {
           : `<a class="rk-btn" href="${enquireHref(p)}">Enquire</a>`
     }
     ${p.description ? `<div class="product-desc">${p.description}</div>` : ''}
-    ${infoSections()}
+    ${infoDropdowns()}
   </div>
 </section>`;
 }
@@ -445,6 +450,7 @@ function cartBody() {
     shipping: num(site.rockShippingCost || 0) || 0,
     zones: shipRates.length ? shipZones : [],
     rates: shipRates,
+    tax: salesTax,
     store: ROCK_NAME,
     shop: url(`${ROCK_HOME}collections/`),
     contact: url(`${site.rockContactSlug || 'rockn-h-contact'}/`),
@@ -456,6 +462,7 @@ function cartBody() {
     <p class="row"><span>Subtotal</span><span class="subtotal"></span></p>
     <label class="ship-to" hidden>Ship to <select><option value="">Choose a state</option>${US_STATES.map(([c, n]) => `<option value="${c}">${n}</option>`).join('')}</select></label>
     <p class="row"><span>Shipping</span><span class="shipping"></span></p>
+    <p class="row tax-row" hidden><span>Sales tax</span><span class="tax"></span></p>
     <p class="ship-missing" hidden>We don't have a shipping price for one of these sizes yet. <a href="${cfg.contact}?about=shipping">Send us a message</a> and we'll quote it.</p>
     <p class="row total"><span>Total</span><span class="grand"></span></p>
     ${site.rockShippingNote ? `<div class="cart-note">${site.rockShippingNote}</div>` : ''}
