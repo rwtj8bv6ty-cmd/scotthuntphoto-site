@@ -1003,7 +1003,7 @@ function richText(obj, f) {
 }
 
 // A list of small records, e.g. a price list (material, size, price) or a print's own prices.
-const SIMPLE_TYPES = new Set(['string', 'number', 'select', undefined]);
+const SIMPLE_TYPES = new Set(['string', 'number', 'select', 'boolean', undefined]);
 const money = (n) => `${(siteDoc() && siteDoc().data.currencySymbol) || '$'}${Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
 const priceOf = (o) => { const v = parseFloat(String(o && o.price != null ? o.price : '').replace(/[^0-9.]/g, '')); return Number.isFinite(v) ? v : null; };
 function lowestPrice(list) {
@@ -1064,7 +1064,8 @@ function cellProblem(listName, key, value, sub) {
   const v = String(value ?? '').trim();
   if (!v) return '';
   if (key === 'price') return priceOf({ price: v }) == null ? 'Type a number, e.g. 45' : '';
-  if (key === 'states' && listName === 'rockShippingZones') {
+  if (key === 'rate') return priceOf({ price: v }) == null ? 'Type a number, e.g. 8.25' : '';
+  if (key === 'states' || key === 'state') {
     const bad = listOf(v).filter((x) => !/^[A-Za-z]{2}$/.test(x));
     return bad.length ? `Use two-letter state codes, e.g. TX (not ${bad.join(', ')})` : '';
   }
@@ -1135,9 +1136,9 @@ function itemList(obj, f, doc) {
     const head = h('tr', {}, sub.map((x) => h('th', {}, columnLabel(x.label || x.name))), h('th', {}));
     const rows = arr.map((it, i) => h('tr', {}, sub.map((x) => {
       let input;
-      if (x.type === 'select') input = fieldInput(it, x, doc);
+      if (x.type === 'select' || x.type === 'boolean') input = fieldInput(it, x, doc);
       else {
-        if (x.type !== 'number' && x.name !== 'price' && x.name !== 'states' && !lists[x.name]) {
+        if (x.type !== 'number' && !['price', 'states', 'rate'].includes(x.name) && !lists[x.name]) {
           lists[x.name] = h('datalist', { id: 'dl' + ++datalistId });
         }
         const dl = lists[x.name];
