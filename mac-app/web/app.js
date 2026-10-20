@@ -1566,8 +1566,9 @@ function photoGrid(doc, f, holder) {
         h('span', { class: 'muted small' }, 'Keeps its place and details.'))),
       h('div', { class: 'detail-form' },
         fields.length ? h('div', { class: 'form compact' }, fields.filter((s) => !WHOLE_PRINT.has(s.name)).map((s) => fieldRow(it, s, doc))) : h('p', { class: 'muted' }, 'Nothing else to fill in for this photo.'),
-        // An edition for the whole print (all sizes together) is rarely used now that each size has its own.
-        fields.some((s) => WHOLE_PRINT.has(s.name)) ? h('details', { class: 'more', open: Number(it.editionSize) > 0 || Number(it.editionsSold) > 0 },
+        // An edition for the whole print (all sizes together) is no longer used now that each size has its own,
+        // so it only shows for a print that still has one.
+        fields.some((s) => WHOLE_PRINT.has(s.name)) && (Number(it.editionSize) > 0 || Number(it.editionsSold) > 0) ? h('details', { class: 'more', open: true },
           h('summary', {}, 'Edition for the whole print (rarely used)'),
           h('div', { class: 'form compact' }, fields.filter((s) => WHOLE_PRINT.has(s.name)).map((s) => fieldRow(it, s, doc)))) : null,
         doc.entry.name === 'galleries' ? h('p', { class: 'muted small' }, 'Titles and captions are private notes; visitors don\'t see them while “Show photo titles and captions” is off.') : null));
