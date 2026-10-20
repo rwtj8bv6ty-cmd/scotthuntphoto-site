@@ -200,7 +200,8 @@ if (cartEl) {
         return o ? { ...i, title: p.title, image: p.image, url: p.url, price: o.price } : null;
       })
       .filter(Boolean);
-  // Shipping: with a rate table, the price per print depends on its size and the region of the state it ships to.
+  // Shipping: with a rate table, the price depends on the size and the region of the state it ships to.
+  // Prints ship together, so an order pays once, at the rate of its most expensive (largest) print.
   const SHIP_KEY = 'rockn-h-ship-state';
   const byRegion = cfg.zones.length > 0;
   const shipSelect = cartEl.querySelector('.ship-to select');
@@ -229,7 +230,7 @@ if (cartEl) {
     for (const l of ls) {
       const r = rateFor(l.size, zone);
       if (!r) return { sub, ship: 0, total: sub, ready: false, need: 'rate', zone };
-      ship += r.price * l.qty;
+      ship = Math.max(ship, r.price);
     }
     return { sub, ship, total: sub + ship, ready: true, zone };
   };

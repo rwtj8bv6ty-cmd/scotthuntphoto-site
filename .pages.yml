@@ -164,7 +164,7 @@ content:
           - { name: name, label: "Region name (e.g. Texas)", type: string }
           - { name: states, label: "State codes, separated by commas (e.g. AK, HI); leave empty for everywhere else", type: string }
       - name: rockShippingRates
-        label: "Checkout: shipping price table, one row per size and region (charged per print)"
+        label: "Checkout: shipping price table, one row per size and region (an order pays once, at the rate of its largest print)"
         type: object
         list: true
         fields:
