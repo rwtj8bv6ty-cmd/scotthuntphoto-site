@@ -22,6 +22,9 @@ const esc = (s = '') =>
   String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const slugify = (s = '') => String(s).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const url = (p = '') => BASE + String(p).replace(/^\//, '');
+const absImg = (p = '') => (/^https?:/.test(p) ? p : absUrl(p));
+// Full web address, for links shared outside the site (falls back to a site-relative path in local builds).
+const absUrl = (p = '') => (process.env.SITE_URL ? process.env.SITE_URL.replace(/\/?$/, '/') + String(p).replace(/^\//, '') : url(p));
 const img = (p = '') => (/^https?:/.test(p) ? p : url(p));
 // Small preview image made by scripts/thumbs.py (photos/<folder>/_thumbs/<name>); falls back to the full photo.
 const thumb = (p = '') => {
@@ -106,7 +109,7 @@ function rockNav(current) {
 }
 
 // ---------- layout ----------
-function layout({ title, body, current, side = 'photography', draft = false, bodyClass = '', description }) {
+function layout({ title, body, current, side = 'photography', draft = false, bodyClass = '', description, share }) {
   const brand = side === 'rocknh' ? ROCK_NAME : side === 'entrance' ? site.title : PHOTO_NAME;
   const fullTitle = title ? `${title} · ${brand}` : brand;
   const chrome = side === 'photography' ? photoNav(current) : side === 'rocknh' ? rockNav(current) : '';
@@ -119,6 +122,7 @@ function layout({ title, body, current, side = 'photography', draft = false, bod
 <title>${esc(fullTitle)}</title>
 <meta name="description" content="${esc(description || site.tagline || '')}">
 ${draft ? '<meta name="robots" content="noindex, nofollow">' : ''}
+${share ? `<meta property="og:type" content="website"><meta property="og:title" content="${esc(fullTitle)}"><meta property="og:url" content="${share.url}"><meta property="og:image" content="${share.image}"><meta name="twitter:card" content="summary_large_image">` : ''}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${url('assets/style.css')}?v=${ASSET_V}">
@@ -397,6 +401,22 @@ const infoList = () =>
 const infoSections = () => infoList().map(([t, html]) => `<section class="print-info"><h2>${t}</h2>${html}</section>`).join('');
 const infoDropdowns = () => infoList().map(([t, html]) => `<details class="product-details"><summary>${t}</summary>${html}</details>`).join('');
 
+// Share: the phone's own share sheet where there is one, otherwise copy link, email, Facebook and Pinterest.
+function shareBox(p) {
+  const link = absUrl(`${ROCK_HOME}prints/${p.slug}/`);
+  const title = `${p.title || 'Untitled'} · ${ROCK_NAME}`;
+  const e = encodeURIComponent;
+  return `<div class="share" data-url="${esc(link)}" data-title="${esc(title)}">
+      <button type="button" class="share-btn">Share</button>
+      <div class="share-menu" hidden>
+        <button type="button" class="share-copy">Copy link</button>
+        <a href="mailto:?subject=${e(title)}&amp;body=${e(link)}">Email</a>
+        <a href="https://www.facebook.com/sharer/sharer.php?u=${e(link)}" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://pinterest.com/pin/create/button/?url=${e(link)}&amp;media=${e(absImg(p.image))}&amp;description=${e(title)}" target="_blank" rel="noopener">Pinterest</a>
+      </div>
+    </div>`;
+}
+
 function productBody(p) {
   const opts = optsOf(p);
   const out = soldOut(p);
@@ -433,6 +453,7 @@ function productBody(p) {
           : `<a class="rk-btn" href="${enquireHref(p)}">Enquire</a>`
     }
     ${p.description ? `<div class="product-desc">${p.description}</div>` : ''}
+    ${shareBox(p)}
     ${infoDropdowns()}
   </div>
 </section>`;
@@ -501,7 +522,8 @@ for (const c of collections) {
   write(where, layout({ title: c.title, side: 'rocknh', draft: !!c.draft, current: url(`${ROCK_HOME}collections/${c.slug}/`), body: collectionBody(c.title, c.prints, c.description) }));
   for (const p of c.prints) {
     const pw = c.draft ? `drafts/prints/${p.slug}` : `${ROCK_HOME}prints/${p.slug}`;
-    write(pw, layout({ title: p.title, side: 'rocknh', draft: !!c.draft, current: url(`${ROCK_HOME}prints/${p.slug}/`), body: productBody(p) }));
+    write(pw, layout({ title: p.title, side: 'rocknh', draft: !!c.draft, current: url(`${ROCK_HOME}prints/${p.slug}/`), body: productBody(p),
+      share: { url: absUrl(`${ROCK_HOME}prints/${p.slug}/`), image: absImg(p.image) } }));
   }
 }
 // Old addresses: send visitors to the right side.

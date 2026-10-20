@@ -25,7 +25,7 @@ jobs:
       - name: Build
         run: |
           domain=$(node -p "require('./content/site.json').customDomain || ''")
-          if [ -n "$domain" ]; then export SITE_BASE=/; else export SITE_BASE="${{ steps.pages.outputs.base_path }}/"; fi
+          if [ -n "$domain" ]; then export SITE_BASE=/ SITE_URL="https://$domain/"; else export SITE_BASE="${{ steps.pages.outputs.base_path }}/" SITE_URL="${{ steps.pages.outputs.base_url }}/"; fi
           node build.mjs
       - uses: actions/upload-pages-artifact@v4
         with:
