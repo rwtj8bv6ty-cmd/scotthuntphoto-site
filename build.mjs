@@ -330,7 +330,7 @@ const shipRates = (site.rockShippingRates || []).filter((r) => r && r.size && r.
   .map((r) => ({ size: String(r.size).trim(), zone: String(r.zone).trim(), price: num(r.price) }));
 // Sales tax by the state an order ships to: a percentage, optionally charged on shipping too.
 const salesTax = (site.rockSalesTax || []).filter((t) => t && t.state && num(t.rate) > 0)
-  .flatMap((t) => listOf(t.state).map((st) => ({ state: st.toUpperCase(), rate: num(t.rate), shipping: t.taxShipping !== false })));
+  .flatMap((t) => listOf(t.state).map((st) => ({ state: st.toUpperCase(), rate: num(t.rate), shipping: t.taxShipping === true })));
 const enquireHref = (p) => `${url(`${site.rockContactSlug || 'rockn-h-contact'}/`)}?about=${encodeURIComponent(p.title || p.slug)}`;
 
 function newsletter() {
