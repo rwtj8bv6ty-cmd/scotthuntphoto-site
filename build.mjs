@@ -297,17 +297,27 @@ function pageBody(p) {
 const money = (v) => `${esc(site.currencySymbol || '$')}${Number(String(v).replace(/[^0-9.]/g, '')).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 const num = (v) => Number(String(v).replace(/[^0-9.]/g, ''));
 // Purchase options: each print's own list, or its collection's list as the default. One row per material + size.
-const optsOf = (p) => p.options.map((o, i) => ({ id: i, material: o.material || '', size: o.size || '', price: num(o.price) }));
+// Sizes match on their first two numbers, so "7x19" and "7 × 19 in (11 × 22 overall)" are the same size.
+const sizeKey = (v) => { const n = String(v || '').match(/\d+(?:\.\d+)?/g); return n && n.length >= 2 ? `${n[0]}x${n[1]}` : String(v || '').trim().toLowerCase(); };
+// Each option can carry its own edition size. A print records how many it has sold of each size (including sales
+// from before the site); a size whose sales reach its edition drops out of the options.
+const soldOf = (p, size) => (p.sales || []).filter((r) => r && sizeKey(r.size) === sizeKey(size)).reduce((a, r) => a + (Number(r.sold) || 0), 0);
+const optsOf = (p) =>
+  p.options
+    .map((o, i) => ({ id: i, material: o.material || '', size: o.size || '', price: num(o.price), edition: Number(o.edition) || 0 }))
+    .map((o) => ({ ...o, sold: soldOf(p, o.size) }))
+    .filter((o) => !o.edition || o.sold < o.edition);
 function fromPrice(p) {
   const prices = optsOf(p).map((o) => o.price);
   return prices.length ? `Prices from ${money(Math.min(...prices))}` : 'Price on request';
 }
-const soldOut = (p) => Number(p.editionSize) > 0 && (Number(p.editionsSold) || 0) >= Number(p.editionSize);
+const soldOut = (p) =>
+  (Number(p.editionSize) > 0 && (Number(p.editionsSold) || 0) >= Number(p.editionSize)) || (p.options.length > 0 && optsOf(p).length === 0);
 function printCard(p) {
   return `<a class="product-card" href="${url(`${ROCK_HOME}prints/${p.slug}/`)}">
   <span class="pc-img"><img src="${thumb(p.image)}" alt="${esc(p.alt || '')}" loading="lazy">${soldOut(p) ? '<span class="badge">Sold out</span>' : ''}</span>
   <span class="pc-title">${esc(p.title || 'Untitled')}</span>
-  <span class="pc-price">${fromPrice(p)}</span>
+  <span class="pc-price">${soldOut(p) ? 'Sold out' : fromPrice(p)}</span>
 </a>`;
 }
 // Shipping: a price per size for each region (regions are lists of state codes; a region with no states covers the rest
@@ -406,6 +416,7 @@ function productBody(p) {
         ? `<form class="buy-form">
       ${pick('material', materials)}
       <fieldset class="choice" data-name="size"><legend>Size</legend><div class="size-list"></div></fieldset>
+      <p class="edition-note"></p>
       <label class="qty">Quantity <input type="number" name="qty" min="1" max="10" value="1"></label>
       <button type="submit" class="rk-btn add-to-cart">Add to cart</button>
       <p class="ship-request" hidden>Shipping for this material is quoted on request. <a class="rk-btn" href="${enquireHref(p)}">Request a shipping quote</a></p>

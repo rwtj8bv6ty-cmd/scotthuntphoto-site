@@ -12,7 +12,6 @@
       "description": "",
       "alt": "",
       "featured": true,
-      "editionSize": 25,
       "editionsSold": 0,
       "options": []
     },
@@ -22,7 +21,6 @@
       "description": "",
       "alt": "",
       "featured": true,
-      "editionSize": 25,
       "editionsSold": 0,
       "options": []
     },
@@ -32,7 +30,6 @@
       "description": "",
       "alt": "",
       "featured": true,
-      "editionSize": 25,
       "editionsSold": 0,
       "options": []
     },
@@ -42,7 +39,6 @@
       "description": "",
       "alt": "",
       "featured": true,
-      "editionSize": 25,
       "editionsSold": 0,
       "options": []
     },
@@ -52,7 +48,6 @@
       "description": "",
       "alt": "",
       "featured": true,
-      "editionSize": 25,
       "editionsSold": 0,
       "options": []
     },
@@ -62,7 +57,6 @@
       "description": "",
       "alt": "",
       "featured": true,
-      "editionSize": 25,
       "editionsSold": 0,
       "options": []
     },
@@ -72,10 +66,16 @@
       "description": "",
       "alt": "",
       "featured": true,
-      "editionSize": 25,
       "editionsSold": 0,
       "options": []
     }
   ],
-  "options": []
+  "options": [
+    {
+      "material": "Paper",
+      "size": "7 × 19 in (11 × 22 in overall)",
+      "price": "375",
+      "edition": 100
+    }
+  ]
 }

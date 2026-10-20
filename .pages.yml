@@ -95,6 +95,7 @@ content:
           - { name: material, label: "Material (e.g. Fine art paper)", type: string }
           - { name: size, label: "Size (e.g. 20 × 54 in)", type: string }
           - { name: price, label: "Price (number only)", type: string }
+          - { name: edition, label: "Limited edition size for this size (e.g. 100; leave empty if none)", type: number }
       - name: prints
         label: "Prints (drag to reorder)"
         type: object
@@ -105,8 +106,15 @@ content:
           - { name: featured, label: Show on the Rock'n H home page, type: boolean, default: false }
           - { name: description, label: Description, type: rich-text }
           - { name: alt, label: "Description for screen readers", type: string }
-          - { name: editionSize, label: "Edition size (e.g. 25)", type: number }
-          - { name: editionsSold, label: "Prints sold so far (shows Sold out when it reaches the edition size)", type: number, default: 0 }
+          - { name: editionSize, label: "Whole-print edition size, all sizes together (usually leave empty; set editions per size in the price list)", type: number }
+          - { name: editionsSold, label: "Prints sold so far, all sizes together (shows Sold out when it reaches the whole-print edition size)", type: number, default: 0 }
+          - name: sales
+            label: "Prints sold, by size (include sales from before the website; a size sells out when this reaches its edition size)"
+            type: object
+            list: true
+            fields:
+              - { name: size, label: "Size (e.g. 7 × 19 in)", type: string }
+              - { name: sold, label: "Number sold", type: number, default: 0 }
           - name: options
             label: "Materials, sizes and prices for this print (leave empty to use the collection's price list)"
             type: object
@@ -115,6 +123,7 @@ content:
               - { name: material, label: "Material (e.g. Fine art paper)", type: string }
               - { name: size, label: "Size (e.g. 20 × 54 in)", type: string }
               - { name: price, label: "Price (number only)", type: string }
+              - { name: edition, label: "Limited edition size for this size (e.g. 100; leave empty if none)", type: number }
 
   - name: site
     label: Site settings
