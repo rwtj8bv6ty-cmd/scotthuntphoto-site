@@ -200,7 +200,8 @@ if (cartEl) {
         return o ? { ...i, title: p.title, image: p.image, url: p.url, price: o.price } : null;
       })
       .filter(Boolean);
-  // Shipping: with a rate table, the price per print depends on its size and the region of the state it ships to.
+  // Shipping: with a rate table, the price depends on the size and the region of the state it ships to.
+  // Prints ship together, so an order pays once, at the rate of its most expensive (largest) print.
   const SHIP_KEY = 'rockn-h-ship-state';
   const byRegion = cfg.zones.length > 0;
   const shipSelect = cartEl.querySelector('.ship-to select');
@@ -216,7 +217,9 @@ if (cartEl) {
     });
   }
   const zoneOf = (state) => state && (cfg.zones.find((z) => z.states.includes(state)) || cfg.zones.find((z) => !z.states.length));
-  const rateFor = (size, zone) => cfg.rates.find((r) => r.zone.toLowerCase() === zone.name.toLowerCase() && r.size.toLowerCase() === String(size || '').toLowerCase());
+  // Sizes match on their first two numbers, so "7x19", "7 × 19 in" and "7 × 19 in (11 × 22 overall)" are the same size.
+  const sizeKey = (v) => { const n = String(v || '').match(/\d+(?:\.\d+)?/g); return n && n.length >= 2 ? `${n[0]}x${n[1]}` : String(v || '').trim().toLowerCase(); };
+  const rateFor = (size, zone) => cfg.rates.find((r) => r.zone.toLowerCase() === zone.name.toLowerCase() && sizeKey(r.size) === sizeKey(size));
   const totals = (ls) => {
     const sub = ls.reduce((a, l) => a + l.price * l.qty, 0);
     if (!byRegion) {
@@ -229,7 +232,7 @@ if (cartEl) {
     for (const l of ls) {
       const r = rateFor(l.size, zone);
       if (!r) return { sub, ship: 0, total: sub, ready: false, need: 'rate', zone };
-      ship += r.price * l.qty;
+      ship = Math.max(ship, r.price);
     }
     return { sub, ship, total: sub + ship, ready: true, zone };
   };
