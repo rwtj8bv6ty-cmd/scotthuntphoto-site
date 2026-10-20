@@ -289,7 +289,7 @@ function pageBody(p) {
         ? `<p class="note">The contact form will appear here once a form address is set in Site settings.</p>`
         : '';
   return `<section class="page-head"><h1>${esc(p.title)}</h1></section>
-<article class="prose${p.image ? ' with-image' : ''}">${p.image ? `<img class="page-image" src="${img(p.image)}" alt="">` : ''}<div>${p.body || ''}${form}</div></article>`;
+<article class="prose${p.image ? ' with-image' : ''}">${p.image ? `<img class="page-image" src="${img(p.image)}" alt="">` : ''}<div>${p.body || ''}${p.slug === PRINT_INFO_SLUG ? infoSections() : ''}${form}</div></article>`;
 }
 
 
@@ -381,16 +381,17 @@ ${intro ? `<div class="intro rk-intro">${intro}</div>` : ''}
 ${newsletter()}`;
 }
 
+// The print information lives on the About the Prints page; print pages link to it.
+const PRINT_INFO_SLUG = 'about-the-prints';
 const infoSections = () =>
   [
-    ['About the Prints', site.rockPrintDetails],
     ['Materials', site.rockMaterials],
     ['Limited Editions', site.rockLimitedEditions],
     ['Dimensions and Borders', site.rockDimensions],
     ['Shipping and Production Times', site.rockShippingDetails],
   ]
     .filter(([, html]) => html)
-    .map(([t, html]) => `<details class="product-details"><summary>${t}</summary>${html}</details>`)
+    .map(([t, html]) => `<section class="print-info"><h2>${t}</h2>${html}</section>`)
     .join('');
 
 function productBody(p) {
@@ -429,7 +430,7 @@ function productBody(p) {
           : `<a class="rk-btn" href="${enquireHref(p)}">Enquire</a>`
     }
     ${p.description ? `<div class="product-desc">${p.description}</div>` : ''}
-    ${infoSections()}
+    ${pages.some((x) => x.slug === PRINT_INFO_SLUG && !x.draft) ? `<p class="print-info-link"><a href="${url(`${PRINT_INFO_SLUG}/`)}">About the prints: materials, editions, sizes and shipping</a></p>` : ''}
   </div>
 </section>`;
 }
