@@ -102,9 +102,9 @@ content:
         list: true
         fields:
           - { name: image, label: Photo, type: image, required: true }
-          - { name: title, label: Title, type: string }
+          - { name: title, label: "Title of the work", type: string }
           - { name: featured, label: Show on the Rock'n H home page, type: boolean, default: false }
-          - { name: description, label: Description, type: rich-text }
+          - { name: description, label: "About this work (a short narrative shown on the print's page)", type: rich-text }
           - { name: alt, label: "Description for screen readers", type: string }
           - { name: editionSize, label: "Whole-print edition size, all sizes together (usually leave empty; set editions per size in the price list)", type: number }
           - { name: editionsSold, label: "Prints sold so far, all sizes together (shows Sold out when it reaches the whole-print edition size)", type: number, default: 0 }
