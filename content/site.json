@@ -93,6 +93,36 @@
       "size": "7 × 19 in",
       "zone": "Alaska & Hawaii",
       "price": "24.50"
+    },
+    {
+      "size": "14 × 38 in",
+      "zone": "Texas",
+      "price": "22.50"
+    },
+    {
+      "size": "14 × 38 in",
+      "zone": "Continental U.S.",
+      "price": "23.00"
+    },
+    {
+      "size": "14 × 38 in",
+      "zone": "Alaska & Hawaii",
+      "price": "25.50"
+    },
+    {
+      "size": "17.75 × 48 in",
+      "zone": "Texas",
+      "price": "22.50"
+    },
+    {
+      "size": "17.75 × 48 in",
+      "zone": "Continental U.S.",
+      "price": "23.00"
+    },
+    {
+      "size": "17.75 × 48 in",
+      "zone": "Alaska & Hawaii",
+      "price": "25.50"
     }
   ],
   "rockShipOnRequest": "Acrylic",
