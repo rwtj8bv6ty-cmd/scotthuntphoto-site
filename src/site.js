@@ -166,6 +166,8 @@ if (buyForm && printData) {
     buyForm.querySelector('.qty').hidden = ask;
     if (quote) quote.hidden = !ask;
     button.textContent = o ? `Add to cart · ${fmt(o.price)}` : 'Add to cart';
+    const note = buyForm.querySelector('.edition-note');
+    if (note) note.textContent = o && o.edition ? `Limited edition of ${o.edition}${o.sold ? ` · ${o.edition - o.sold} remaining` : ''}` : '';
     if (ask && quote) quote.querySelector('a').textContent = `Request a shipping quote · print ${fmt(o.price)}`;
   };
   buyForm.addEventListener('change', (e) => { if (e.target.name === 'material') renderSizes(); else renderPrice(); });
@@ -173,7 +175,7 @@ if (buyForm && printData) {
     e.preventDefault();
     const o = chosen();
     if (!o || o.onRequest) return;
-    const qty = Math.min(10, Math.max(1, parseInt(buyForm.qty.value, 10) || 1));
+    const qty = Math.min(o.edition ? o.edition - o.sold : 10, 10, Math.max(1, parseInt(buyForm.qty.value, 10) || 1));
     const key = `${print.slug}|${o.material}|${o.size}`;
     const items = readCart();
     const found = items.find((i) => i.key === key);
