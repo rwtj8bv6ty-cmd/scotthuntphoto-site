@@ -159,6 +159,7 @@ content:
       - { name: rockArtistPhoto, label: "About the artist photo", type: image }
       - { name: rockArtistText, label: "About the artist", type: rich-text }
       - { name: rockPrintDetails, label: "Print pages: About the Prints", type: rich-text }
+      - { name: rockMaterials, label: "Print pages: Materials", type: rich-text }
       - { name: rockLimitedEditions, label: "Print pages: Limited Editions", type: rich-text }
       - { name: rockDimensions, label: "Print pages: Dimensions and Borders", type: rich-text }
       - { name: rockShippingDetails, label: "Print pages: Shipping and Production Times", type: rich-text }

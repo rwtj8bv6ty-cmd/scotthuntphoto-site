@@ -384,6 +384,7 @@ ${newsletter()}`;
 const infoSections = () =>
   [
     ['About the Prints', site.rockPrintDetails],
+    ['Materials', site.rockMaterials],
     ['Limited Editions', site.rockLimitedEditions],
     ['Dimensions and Borders', site.rockDimensions],
     ['Shipping and Production Times', site.rockShippingDetails],
