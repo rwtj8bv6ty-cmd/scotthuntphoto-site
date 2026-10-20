@@ -74,11 +74,27 @@
       "states": "AK, HI"
     },
     {
-      "name": "Rest of the U.S.",
+      "name": "Continental U.S.",
       "states": ""
     }
   ],
-  "rockShippingRates": [],
+  "rockShippingRates": [
+    {
+      "size": "7 × 19 in",
+      "zone": "Texas",
+      "price": "21.50"
+    },
+    {
+      "size": "7 × 19 in",
+      "zone": "Continental U.S.",
+      "price": "22.00"
+    },
+    {
+      "size": "7 × 19 in",
+      "zone": "Alaska & Hawaii",
+      "price": "24.50"
+    }
+  ],
   "rockShipOnRequest": "Acrylic",
   "rockShippingNote": ""
 }

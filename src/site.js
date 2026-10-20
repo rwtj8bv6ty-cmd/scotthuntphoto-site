@@ -217,7 +217,9 @@ if (cartEl) {
     });
   }
   const zoneOf = (state) => state && (cfg.zones.find((z) => z.states.includes(state)) || cfg.zones.find((z) => !z.states.length));
-  const rateFor = (size, zone) => cfg.rates.find((r) => r.zone.toLowerCase() === zone.name.toLowerCase() && r.size.toLowerCase() === String(size || '').toLowerCase());
+  // Sizes match on their first two numbers, so "7x19", "7 × 19 in" and "7 × 19 in (11 × 22 overall)" are the same size.
+  const sizeKey = (v) => { const n = String(v || '').match(/\d+(?:\.\d+)?/g); return n && n.length >= 2 ? `${n[0]}x${n[1]}` : String(v || '').trim().toLowerCase(); };
+  const rateFor = (size, zone) => cfg.rates.find((r) => r.zone.toLowerCase() === zone.name.toLowerCase() && sizeKey(r.size) === sizeKey(size));
   const totals = (ls) => {
     const sub = ls.reduce((a, l) => a + l.price * l.qty, 0);
     if (!byRegion) {

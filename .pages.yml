@@ -168,7 +168,7 @@ content:
         type: object
         list: true
         fields:
-          - { name: size, label: "Size, exactly as in the price lists (e.g. 16 × 20 in)", type: string }
+          - { name: size, label: "Size (e.g. 7 × 19 in); matches price-list sizes with the same two numbers", type: string }
           - { name: zone, label: "Region name, exactly as above", type: string }
           - { name: price, label: "Shipping price (number only)", type: string }
       - { name: rockShipOnRequest, label: "Checkout: materials shipped on request, separated by commas (e.g. Acrylic); these show a quote button instead of Add to cart", type: string }
