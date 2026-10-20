@@ -181,6 +181,14 @@ content:
           - { name: size, label: "Size (e.g. 7 × 19 in); matches price-list sizes with the same two numbers", type: string }
           - { name: zone, label: "Region name, exactly as above", type: string }
           - { name: price, label: "Shipping price (number only)", type: string }
+      - name: rockSalesTax
+        label: "Checkout: sales tax, one row per state where you collect it (leave empty to charge no tax)"
+        type: object
+        list: true
+        fields:
+          - { name: state, label: "State code (e.g. TX)", type: string }
+          - { name: rate, label: "Tax rate in percent (e.g. 8.25)", type: string }
+          - { name: taxShipping, label: "Also charge tax on shipping", type: boolean }
       - { name: rockShipOnRequest, label: "Checkout: materials shipped on request, separated by commas (e.g. Acrylic); these show a quote button instead of Add to cart", type: string }
       - { name: rockShippingNote, label: "Checkout: note shown in the cart", type: rich-text }
       - { name: rockNewsletter, label: Show newsletter sign-up, type: boolean }

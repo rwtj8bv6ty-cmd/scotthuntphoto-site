@@ -127,5 +127,12 @@
     }
   ],
   "rockShipOnRequest": "Acrylic",
-  "rockShippingNote": ""
+  "rockShippingNote": "",
+  "rockSalesTax": [
+    {
+      "state": "TX",
+      "rate": "8.25",
+      "taxShipping": true
+    }
+  ]
 }
