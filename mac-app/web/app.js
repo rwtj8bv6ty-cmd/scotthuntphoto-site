@@ -23,7 +23,7 @@ const plural = (n, one, many = one + 's') => `${n} ${n === 1 ? one : many}`;
 const basename = (p) => p.slice(p.lastIndexOf('/') + 1);
 const dirname = (p) => p.slice(0, Math.max(0, p.lastIndexOf('/')));
 const serialize = (data) => JSON.stringify(data, null, 2);
-const cleanLabel = (s) => String(s || '').replace(/\s*\((drag to reorder|e\.g\.[^)]*)\)\s*/gi, ' ').replace(/\s+([.,])/g, '$1').trim();
+const cleanLabel = (s) => String(s || '').replace(/\s*\((drag to reorder|e\.g\.[^)]*)\)\s*/gi, ' ').replace(/\s+([.,;:])/g, '$1').trim();
 // Labels inside a group view don't need the group's name in front ("Checkout: currency code" -> "Currency code").
 const shortLabel = (s) => { const t = cleanLabel(s).replace(/^(print pages|checkout):\s*/i, ''); return t.charAt(0).toUpperCase() + t.slice(1); };
 const columnLabel = (s) => cleanLabel(s).replace(/\s*\([^)]*\)\s*/g, ' ').trim();
@@ -419,7 +419,7 @@ function updateTopbar() {
   $('.publish').disabled = !n;
   $('.discard').hidden = !n;
 }
-function changed() { updateTopbar(); refreshSidebarCounts(); }
+function changed() { updateTopbar(); refreshSidebarCounts(); document.dispatchEvent(new Event('content-changed')); }
 
 function siteURL() {
   const site = siteDoc() ? siteDoc().data : {};
@@ -741,7 +741,9 @@ function checkoutHelp(site) {
     h('ol', { class: 'steps' },
       h('li', {}, h('button', { class: 'link', onclick: () => Native.open('https://developer.paypal.com/dashboard/applications/live') }, 'Open PayPal’s developer dashboard'), ' and sign in with your PayPal business account.'),
       h('li', {}, 'Make sure the switch at the top says ', h('b', {}, 'Live'), ', then click ', h('b', {}, 'Create App'), ' (any name, e.g. “Rock’n H shop”).'),
-      h('li', {}, 'Copy the ', h('b', {}, 'Client ID'), ' and paste it below. Never paste the ', h('b', {}, 'Secret'), ' anywhere.')));
+      h('li', {}, 'Copy the ', h('b', {}, 'Client ID'), ' and paste it below. Never paste the ', h('b', {}, 'Secret'), ' anywhere.')),
+    h('p', {}, h('b', {}, 'Shipping: '), 'list the regions by state, then give each print size a shipping price for each region. ',
+      '“Add a row for every size and region” fills in the table from your price lists; a buyer sees the price for the state they pick in the cart.'));
 }
 
 function accountView() {
@@ -1021,12 +1023,73 @@ function knownValues(listName, key) {
 }
 let datalistId = 0;
 
+// Shipping (Rock'n H checkout): regions are lists of state codes, and the price table has one row per size and region.
+// The website matches sizes and region names ignoring capitals, and a print can't be checked out to a region
+// without a row for its size.
+const norm = (v) => String(v ?? '').trim().toLowerCase();
+const listOf = (v) => String(v || '').split(/[,;\n]/).map((x) => x.trim()).filter(Boolean);
+const regionNames = () => ((siteDoc() && siteDoc().data.rockShippingZones) || []).map((z) => String((z && z.name) || '').trim()).filter(Boolean);
+// Every size in a price list that goes through checkout (materials shipped on request don't need shipping prices).
+function sizesSold() {
+  const site = siteDoc() ? siteDoc().data : {};
+  const onRequest = listOf(site.rockShipOnRequest).map(norm);
+  const out = new Map();
+  const walk = (v) => {
+    if (Array.isArray(v)) v.forEach(walk);
+    else if (v && typeof v === 'object') {
+      for (const [k, x] of Object.entries(v)) {
+        if (k === 'options' && Array.isArray(x)) {
+          x.forEach((o) => { if (o && String(o.size || '').trim() && !onRequest.includes(norm(o.material)) && !out.has(norm(o.size))) out.set(norm(o.size), String(o.size).trim()); });
+        } else walk(x);
+      }
+    }
+  };
+  for (const d of S.docs.values()) if (!d.deleted && d !== siteDoc()) walk(d.data);
+  return [...out.values()];
+}
+const isRateList = (sub) => ['size', 'zone', 'price'].every((n) => sub.some((x) => x.name === n));
+function missingRates(rates) {
+  const have = new Set(rates.filter((r) => r && priceOf(r) != null).map((r) => norm(r.size) + '|' + norm(r.zone)));
+  const out = [];
+  for (const size of sizesSold()) for (const zone of regionNames()) if (!have.has(norm(size) + '|' + norm(zone))) out.push({ size, zone });
+  return out;
+}
+// Why a value in a table cell won't work on the website, or '' when it's fine.
+function cellProblem(listName, key, value, sub) {
+  const v = String(value ?? '').trim();
+  if (!v) return '';
+  if (key === 'price') return priceOf({ price: v }) == null ? 'Type a number, e.g. 45' : '';
+  if (key === 'states' && listName === 'rockShippingZones') {
+    const bad = listOf(v).filter((x) => !/^[A-Za-z]{2}$/.test(x));
+    return bad.length ? `Use two-letter state codes, e.g. TX (not ${bad.join(', ')})` : '';
+  }
+  if (isRateList(sub) && key === 'zone') {
+    const names = regionNames();
+    return names.length && !names.some((n) => norm(n) === norm(v)) ? `There is no region called “${v}” in Shipping regions.` : '';
+  }
+  if (isRateList(sub) && key === 'size') {
+    const sizes = sizesSold();
+    return sizes.length && !sizes.some((n) => norm(n) === norm(v)) ? `No price list has the size “${v}”.` : '';
+  }
+  return '';
+}
+// Values offered while typing in a table cell.
+function suggestionsFor(listName, key, sub) {
+  if (key === 'zone' && isRateList(sub)) return regionNames();
+  const out = new Map();
+  const add = (v) => { if (!out.has(norm(v))) out.set(norm(v), v); };
+  if (key === 'size' && listName !== 'options') sizesSold().forEach(add);
+  knownValues(listName, key).forEach(add);
+  return [...out.values()].sort();
+}
+
 function itemList(obj, f, doc) {
   if (!Array.isArray(obj[f.name])) obj[f.name] = [];
   const arr = obj[f.name];
   const sub = f.fields || [];
   const box = h('div', { class: 'item-list' });
-  const isPrice = sub.some((x) => x.name === 'price');
+  const isPrice = f.name === 'options';
+  const isRates = isRateList(sub);
   // A print with no prices of its own uses its collection's list of the same name.
   const parentList = obj !== doc.data && Array.isArray(doc.data[f.name]) ? doc.data[f.name] : null;
   const move = (i, to) => { checkpoint(); arr.splice(to, 0, arr.splice(i, 1)[0]); changed(); draw(); };
@@ -1035,24 +1098,58 @@ function itemList(obj, f, doc) {
     h('button', { title: 'Move up', disabled: i === 0, onclick: (e) => { e.preventDefault(); move(i, i - 1); } }, '↑'),
     h('button', { title: 'Move down', disabled: i === arr.length - 1, onclick: (e) => { e.preventDefault(); move(i, i + 1); } }, '↓'),
     h('button', { title: 'Remove', class: 'danger-quiet', onclick: (e) => { e.preventDefault(); checkpoint(); arr.splice(i, 1); changed(); draw(); } }, '✕'));
+  // "Checkout: shipping price table, one row per size…" -> "+ Add shipping price".
+  const noun = shortLabel(f.label || f.name).split(/[(,;]/)[0].trim().toLowerCase().replace(/\s+(table|list)$/, '').replace(/s$/, '');
   const add = h('button', { onclick: (e) => { e.preventDefault(); checkpoint(); arr.push(defaultsFor(sub)); changed(); draw(); } },
-    isPrice ? '+ Add a price' : `+ Add ${columnLabel(f.label).toLowerCase().replace(/s$/, '')}`);
+    isPrice ? '+ Add a price' : `+ Add ${noun}`);
+  const fillRates = () => {
+    const missing = missingRates(arr);
+    const empty = new Set(arr.filter((r) => r && priceOf(r) == null).map((r) => norm(r.size) + '|' + norm(r.zone)));
+    const toAdd = missing.filter((m) => !empty.has(norm(m.size) + '|' + norm(m.zone)));
+    if (!toAdd.length) { toast('Every size already has a row for every region. Fill in the empty prices.'); return; }
+    checkpoint();
+    arr.push(...toAdd.map((m) => ({ ...defaultsFor(sub), size: m.size, zone: m.zone, price: '' })));
+    changed(); draw();
+    toast(`Added ${plural(toAdd.length, 'row')}. Fill in their prices.`);
+  };
 
+  // The shipping table's checks depend on the regions and price lists, which are edited elsewhere.
+  const checks = [];
+  const fillBtn = isRates ? h('button', { onclick: (e) => { e.preventDefault(); fillRates(); } }, 'Add a row for every size and region') : null;
+  const recheck = () => {
+    checks.forEach((c) => c());
+    summary.textContent = summaryText();
+    if (fillBtn) fillBtn.hidden = !(sizesSold().length && regionNames().length);
+  };
+  if (isRates) {
+    let shown = false;
+    const onEdit = () => {
+      if (box.isConnected) { shown = true; recheck(); } else if (shown) document.removeEventListener('content-changed', onEdit);
+    };
+    document.addEventListener('content-changed', onEdit);
+  }
   function tableView() {
+    checks.length = 0;
     const lists = {};
     const head = h('tr', {}, sub.map((x) => h('th', {}, columnLabel(x.label || x.name))), h('th', {}));
     const rows = arr.map((it, i) => h('tr', {}, sub.map((x) => {
       let input;
       if (x.type === 'select') input = fieldInput(it, x, doc);
       else {
-        if (x.type !== 'number' && x.name !== 'price' && !lists[x.name]) {
-          const id = 'dl' + ++datalistId;
-          lists[x.name] = h('datalist', { id }, knownValues(f.name, x.name).map((v) => h('option', { value: v })));
+        if (x.type !== 'number' && x.name !== 'price' && x.name !== 'states' && !lists[x.name]) {
+          lists[x.name] = h('datalist', { id: 'dl' + ++datalistId });
         }
-        input = h('input', { type: x.type === 'number' ? 'number' : 'text', value: it[x.name] ?? '', list: lists[x.name] ? lists[x.name].id : null,
-          placeholder: (String(x.label || '').match(/e\.g\. ([^)]*)/) || [])[1] || '' });
-        input.addEventListener('focus', checkpoint);
-        const check = () => input.classList.toggle('bad', x.name === 'price' && input.value.trim() !== '' && priceOf({ price: input.value }) == null);
+        const dl = lists[x.name];
+        input = h('input', { type: x.type === 'number' ? 'number' : 'text', value: it[x.name] ?? '', list: dl ? dl.id : null,
+          placeholder: x.name === 'states' ? 'Everywhere else' : (String(x.label || '').match(/e\.g\. ([^)]*)/) || [])[1] || '' });
+        // Suggestions are gathered when the box is clicked, so a region added a moment ago is offered too.
+        input.addEventListener('focus', () => { checkpoint(); if (dl) dl.replaceChildren(...suggestionsFor(f.name, x.name, sub).map((v) => h('option', { value: v }))); });
+        const check = () => {
+          const problem = cellProblem(f.name, x.name, input.value, sub);
+          input.classList.toggle('bad', !!problem);
+          input.title = problem;
+        };
+        checks.push(check);
         input.addEventListener('input', () => {
           if (x.type === 'number') { if (input.value === '') delete it[x.name]; else it[x.name] = Number(input.value); }
           else it[x.name] = input.value;
@@ -1072,6 +1169,14 @@ function itemList(obj, f, doc) {
     return h('div', {}, h('table', { class: 'grid-table' }, h('thead', {}, head), h('tbody', {}, rows)), Object.values(lists));
   }
   function summaryText() {
+    if (isRates) {
+      if (!arr.some((r) => r && priceOf(r) != null)) return 'While this table is empty, the flat shipping charge above is used.';
+      if (!sizesSold().length) return 'No price list has a size yet, so nothing can be checked out.';
+      const missing = missingRates(arr);
+      if (!missing.length) return 'Every size in the price lists has a shipping price for every region.';
+      const shown = missing.slice(0, 6).map((m) => `${m.size} to ${m.zone}`).join('; ');
+      return `Missing ${plural(missing.length, 'shipping price')}: ${shown}${missing.length > 6 ? '; …' : ''}. Buyers can't check out a print in that size to that region until it has one.`;
+    }
     if (!isPrice) return '';
     const low = lowestPrice(arr);
     return low == null ? '' : `Shown on the website as “Prices from ${money(low)}”.`;
@@ -1092,12 +1197,13 @@ function itemList(obj, f, doc) {
     } else if (simple) {
       if (arr.length) parts.push(tableView());
       parts.push(h('div', { class: 'row' }, add,
+        fillBtn,
         parentList && arr.length ? h('button', { class: 'link', onclick: (e) => { e.preventDefault(); checkpoint(); arr.splice(0); changed(); draw(); } }, "Use the collection's price list instead") : null));
     } else {
       parts.push(...arr.map((it, i) => h('div', { class: 'item' }, h('div', { class: 'form compact' }, sub.map((x) => fieldRow(it, x, doc))), tools(i))), add);
     }
-    summary.textContent = summaryText();
     box.replaceChildren(...parts, summary);
+    recheck();
     if (isPrice) refreshPriceTags(doc);
   }
   draw();

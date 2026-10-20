@@ -147,6 +147,7 @@ details summary { cursor: default; color: var(--muted); }
 .tips { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin: 22px 0; }
 .tip { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
 .tip p { margin: 0; color: var(--muted); }
+.tip .steps + p { margin-top: 10px; }
 
 /* photo grid */
 .photos { outline: none; margin: 8px 0 18px; }
@@ -214,3 +215,4 @@ input.bad { outline: 2px solid var(--danger); outline-offset: -1px; }
 .block.subs .row { margin: 4px 0; }
 .block.subs h3 { margin: 0 8px 0 0; }
 .eyebrow .link { padding: 0; font-size: 12px; }
+.item-list > p.muted:empty { display: none; }

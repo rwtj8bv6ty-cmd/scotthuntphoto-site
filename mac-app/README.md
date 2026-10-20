@@ -23,7 +23,9 @@ A Mac app for editing everything on the website, on both sides: Scott Hunt Photo
 - **Rock'n H:** print collections, each with a price list of materials, sizes and prices that every print uses
   unless it has its own; edition size and prints sold (for *Sold out*); featured prints; the print-page sections
   (About the Prints, Limited Editions, Dimensions and Borders, Shipping and Production Times); PayPal checkout
-  settings; the Rock'n H home page, artist statement and biography.
+  settings; shipping regions (by state) and a shipping price for each size and region, with a button that adds a
+  row for every size in the price lists and a warning for any size or region still missing a price; materials
+  shipped on request; the Rock'n H home page, artist statement and biography.
 - **Home page** photos, site settings and drafts.
 - Nothing changes on the website until you press **Publish**. Undo steps back; Discard throws away
   everything not yet published. The website updates about a minute after publishing.
