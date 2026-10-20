@@ -20,8 +20,10 @@ A Mac app for editing everything on the website, on both sides: Scott Hunt Photo
 - **Sub-galleries:** put a gallery under a main one (*Place in the menu*), reorder them on the main gallery's page or
   in the sidebar, and turn folders from Finder into sub-galleries with their photos.
 - **Pages** on either side, including About me: text with simple formatting, side photo, contact form on/off.
-- **Rock'n H:** print collections, each with a price list of materials, sizes and prices that every print uses
-  unless it has its own; edition size and prints sold (for *Sold out*); featured prints; the print-page sections
+- **Rock'n H:** print collections, each with a price list of materials, sizes, prices and edition sizes that every
+  print uses unless it has its own; featured prints; **Prints sold**, a page listing every print with how many of
+  each size have sold against its edition (with + and − buttons, and room for sizes sold before the website), also
+  shown in each print's details; the print-page sections
   (About the Prints, Limited Editions, Dimensions and Borders, Shipping and Production Times); PayPal checkout
   settings; shipping regions (by state) and a shipping price for each size and region, with a button that adds a
   row for every size in the price lists and a warning for any size or region still missing a price; materials

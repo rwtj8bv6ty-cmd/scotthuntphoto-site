@@ -471,6 +471,7 @@ function renderSidebar() {
           childrenOf(d).forEach((c) => addDoc(c, true));
         }
         nav.append(list);
+        if (side === 'rocknh' && salesField(entry) && !nav.querySelector('.nav-item.sales')) nav.append(item('Prints sold', { type: 'sales' }, { cls: 'group-head sales' }));
       } else if (entry.type === 'file') {
         const groups = new Set(entry.fields.map((f) => fieldGroup(entry, f)));
         if (entry.side !== 'fields') {
@@ -556,6 +557,7 @@ function renderView() {
   else if (v.type === 'doc' && S.docs.get(v.path)) wrap.append(docView(S.docs.get(v.path)));
   else if (v.type === 'file' && S.docs.get(v.path)) wrap.append(fileView(S.docs.get(v.path), v.group));
   else if (v.type === 'account') wrap.append(accountView());
+  else if (v.type === 'sales') wrap.append(salesView());
   else wrap.append(homeView());
   return wrap;
 }
@@ -759,7 +761,8 @@ function accountView() {
 
 // ---------- fields ----------
 function fieldRow(obj, f, doc) {
-  const label = f.name === 'parent' && doc && obj === doc.data && hasParents(doc.entry) ? 'Place in the menu' : shortLabel(f.label || f.name);
+  const label = f.name === 'parent' && doc && obj === doc.data && hasParents(doc.entry) ? 'Place in the menu'
+    : isSalesList(f) && doc && obj !== doc.data ? 'Prints sold' : shortLabel(f.label || f.name);
   const input = fieldInput(obj, f, doc);
   if (f.type === 'boolean') return h('label', { class: 'field check' }, input, h('span', {}, label));
   if (f.type === 'object' && f.list) return h('div', { class: 'field wide' }, h('span', { class: 'field-label' }, label), input);
@@ -798,6 +801,7 @@ function fieldInput(obj, f, doc) {
     case 'image': return imageInput(obj, f, doc);
     case 'rich-text': return richText(obj, f);
     case 'object':
+      if (f.list && isSalesList(f) && doc && obj !== doc.data) return salesTable(obj, doc.data, doc);
       if (f.list) return isImageList(f) ? photoGrid(doc, f, obj) : itemList(obj, f, doc);
       if (!obj[f.name] || typeof obj[f.name] !== 'object') obj[f.name] = {};
       return h('div', { class: 'form nested' }, (f.fields || []).map((s) => fieldRow(obj[f.name], s, doc)));
@@ -1024,9 +1028,10 @@ function knownValues(listName, key) {
 let datalistId = 0;
 
 // Shipping (Rock'n H checkout): regions are lists of state codes, and the price table has one row per size and region.
-// The website matches sizes and region names ignoring capitals, and a print can't be checked out to a region
-// without a row for its size.
+// The website matches region names ignoring capitals and sizes on their first two numbers ("7x19" = "7 × 19 in"),
+// and a print can't be checked out to a region without a row for its size.
 const norm = (v) => String(v ?? '').trim().toLowerCase();
+const sizeKey = (v) => { const n = String(v || '').match(/\d+(?:\.\d+)?/g); return n && n.length >= 2 ? `${n[0]}x${n[1]}` : norm(v); };
 const listOf = (v) => String(v || '').split(/[,;\n]/).map((x) => x.trim()).filter(Boolean);
 const regionNames = () => ((siteDoc() && siteDoc().data.rockShippingZones) || []).map((z) => String((z && z.name) || '').trim()).filter(Boolean);
 // Every size in a price list that goes through checkout (materials shipped on request don't need shipping prices).
@@ -1039,7 +1044,7 @@ function sizesSold() {
     else if (v && typeof v === 'object') {
       for (const [k, x] of Object.entries(v)) {
         if (k === 'options' && Array.isArray(x)) {
-          x.forEach((o) => { if (o && String(o.size || '').trim() && !onRequest.includes(norm(o.material)) && !out.has(norm(o.size))) out.set(norm(o.size), String(o.size).trim()); });
+          x.forEach((o) => { if (o && String(o.size || '').trim() && !onRequest.includes(norm(o.material)) && !out.has(sizeKey(o.size))) out.set(sizeKey(o.size), String(o.size).trim()); });
         } else walk(x);
       }
     }
@@ -1049,9 +1054,9 @@ function sizesSold() {
 }
 const isRateList = (sub) => ['size', 'zone', 'price'].every((n) => sub.some((x) => x.name === n));
 function missingRates(rates) {
-  const have = new Set(rates.filter((r) => r && priceOf(r) != null).map((r) => norm(r.size) + '|' + norm(r.zone)));
+  const have = new Set(rates.filter((r) => r && priceOf(r) != null).map((r) => sizeKey(r.size) + '|' + norm(r.zone)));
   const out = [];
-  for (const size of sizesSold()) for (const zone of regionNames()) if (!have.has(norm(size) + '|' + norm(zone))) out.push({ size, zone });
+  for (const size of sizesSold()) for (const zone of regionNames()) if (!have.has(sizeKey(size) + '|' + norm(zone))) out.push({ size, zone });
   return out;
 }
 // Why a value in a table cell won't work on the website, or '' when it's fine.
@@ -1067,17 +1072,13 @@ function cellProblem(listName, key, value, sub) {
     const names = regionNames();
     return names.length && !names.some((n) => norm(n) === norm(v)) ? `There is no region called “${v}” in Shipping regions.` : '';
   }
-  if (isRateList(sub) && key === 'size') {
-    const sizes = sizesSold();
-    return sizes.length && !sizes.some((n) => norm(n) === norm(v)) ? `No price list has the size “${v}”.` : '';
-  }
   return '';
 }
 // Values offered while typing in a table cell.
 function suggestionsFor(listName, key, sub) {
   if (key === 'zone' && isRateList(sub)) return regionNames();
   const out = new Map();
-  const add = (v) => { if (!out.has(norm(v))) out.set(norm(v), v); };
+  const add = (v) => { const k = key === 'size' ? sizeKey(v) : norm(v); if (!out.has(k)) out.set(k, v); };
   if (key === 'size' && listName !== 'options') sizesSold().forEach(add);
   knownValues(listName, key).forEach(add);
   return [...out.values()].sort();
@@ -1104,8 +1105,8 @@ function itemList(obj, f, doc) {
     isPrice ? '+ Add a price' : `+ Add ${noun}`);
   const fillRates = () => {
     const missing = missingRates(arr);
-    const empty = new Set(arr.filter((r) => r && priceOf(r) == null).map((r) => norm(r.size) + '|' + norm(r.zone)));
-    const toAdd = missing.filter((m) => !empty.has(norm(m.size) + '|' + norm(m.zone)));
+    const empty = new Set(arr.filter((r) => r && priceOf(r) == null).map((r) => sizeKey(r.size) + '|' + norm(r.zone)));
+    const toAdd = missing.filter((m) => !empty.has(sizeKey(m.size) + '|' + norm(m.zone)));
     if (!toAdd.length) { toast('Every size already has a row for every region. Fill in the empty prices.'); return; }
     checkpoint();
     arr.push(...toAdd.map((m) => ({ ...defaultsFor(sub), size: m.size, zone: m.zone, price: '' })));
@@ -1210,6 +1211,133 @@ function itemList(obj, f, doc) {
   return box;
 }
 
+// ---------- prints sold ----------
+const WHOLE_PRINT = new Set(['editionSize', 'editionsSold']);
+// A print records how many it has sold of each size (sales: [{size, sold}]), including sales from before the website.
+// A size in the price list can be a limited edition; it sells out on the website when its sales reach the edition.
+const isSalesList = (f) => !!f && f.type === 'object' && !!f.list && ['size', 'sold'].every((n) => (f.fields || []).some((x) => x.name === n));
+const salesField = (entry) => { const pf = photoListField(entry); return pf ? pf.fields.find(isSalesList) : null; };
+const optionsOf = (print, coll) => (Array.isArray(print.options) && print.options.length ? print.options : (coll && Array.isArray(coll.options) ? coll.options : []));
+const soldOf = (print, size) => (print.sales || []).filter((r) => r && sizeKey(r.size) === sizeKey(size)).reduce((a, r) => a + (Number(r.sold) || 0), 0);
+const totalSold = (print) => (print.sales || []).reduce((a, r) => a + (Number(r && r.sold) || 0), 0);
+// One line per size: the price list's sizes with their editions, then any size sold earlier that the list doesn't have.
+function salesSizes(print, coll) {
+  const out = new Map();
+  for (const o of optionsOf(print, coll)) {
+    if (!o || !String(o.size || '').trim()) continue;
+    const k = sizeKey(o.size);
+    if (!out.has(k)) out.set(k, { size: String(o.size).trim(), edition: 0, listed: true });
+    out.get(k).edition = out.get(k).edition || Number(o.edition) || 0;
+  }
+  for (const r of print.sales || []) {
+    if (r && String(r.size || '').trim() && !out.has(sizeKey(r.size))) out.set(sizeKey(r.size), { size: String(r.size).trim(), edition: 0, listed: false });
+  }
+  return [...out.values()];
+}
+function setSold(print, size, n, listed) {
+  const rows = (print.sales || []).filter((r) => r && sizeKey(r.size) === sizeKey(size));
+  // A size from the price list needs no row while nothing is sold; a size added by hand keeps its row until removed.
+  if (!rows.length) { if (n > 0 || !listed) (Array.isArray(print.sales) ? print.sales : (print.sales = [])).push({ size, sold: n }); return; }
+  rows.slice(1).forEach((r) => print.sales.splice(print.sales.indexOf(r), 1));
+  if (n === 0 && listed) print.sales.splice(print.sales.indexOf(rows[0]), 1);
+  else rows[0].sold = n;
+}
+function salesTable(print, coll, doc) {
+  const box = h('div', { class: 'sales' });
+  const total = h('span', { class: 'muted' });
+  const showTotal = () => { total.textContent = `${plural(totalSold(print), 'print')} sold in all.`; };
+  let keys = '';
+  const sizeKeys = () => salesSizes(print, coll).map((x) => `${sizeKey(x.size)}:${x.edition}:${x.listed}`).join(',');
+  function status(x) {
+    if (!x.edition) return [x.listed ? 'Open edition' : 'Not in the price list now', ''];
+    const left = x.edition - soldOf(print, x.size);
+    return left <= 0 ? ['Sold out', 'sold'] : [`${left} left`, ''];
+  }
+  function row(x) {
+    const input = h('input', { type: 'number', min: '0', step: '1', value: String(soldOf(print, x.size)), 'aria-label': `Number sold, ${x.size}` });
+    const st = h('span', { class: 'sales-status' });
+    const show = () => { const [t, c] = status(x); st.textContent = t; st.className = 'sales-status' + (c ? ' ' + c : ''); };
+    const set = (v) => {
+      const n = Math.max(0, Math.floor(Number(v) || 0));
+      setSold(print, x.size, n, x.listed);
+      if (document.activeElement !== input || String(n) !== input.value) input.value = String(n);
+      show(); showTotal(); changed(); refreshPriceTags(doc);
+    };
+    input.addEventListener('focus', checkpoint);
+    input.addEventListener('input', () => { if (input.value !== '') set(input.value); });
+    input.addEventListener('change', () => set(input.value));
+    const step = (d) => h('button', { title: d > 0 ? 'One more sold' : 'One fewer sold',
+      onclick: (e) => { e.preventDefault(); checkpoint(); set(soldOf(print, x.size) + d); } }, d > 0 ? '+' : '−');
+    const remove = x.listed ? null : h('button', { class: 'danger-quiet', title: 'Remove this size',
+      onclick: (e) => { e.preventDefault(); checkpoint(); print.sales = print.sales.filter((r) => !(r && sizeKey(r.size) === sizeKey(x.size))); changed(); refreshPriceTags(doc); draw(); } }, '✕');
+    show();
+    return h('tr', {}, h('td', {}, x.size), h('td', { class: 'muted' }, x.edition ? `Edition of ${x.edition}` : '—'),
+      h('td', {}, h('div', { class: 'stepper' }, step(-1), input, step(1))), h('td', {}, st), h('td', {}, remove));
+  }
+  async function addSize() {
+    const size = (await askText('Record sales of another size', 'Size, e.g. 16 × 20 in') || '').trim();
+    if (!size) return;
+    if (salesSizes(print, coll).some((x) => sizeKey(x.size) === sizeKey(size))) { toast(`${size} is already listed.`); return; }
+    checkpoint();
+    setSold(print, size, 0, false);
+    changed(); draw();
+  }
+  function draw() {
+    keys = sizeKeys();
+    const sizes = salesSizes(print, coll);
+    box.replaceChildren(...[
+      sizes.length
+        ? h('table', { class: 'grid-table sales-table' },
+          h('thead', {}, h('tr', {}, h('th', {}, 'Size'), h('th', {}, 'Edition'), h('th', {}, 'Sold so far'), h('th', {}), h('th', {}))),
+          h('tbody', {}, sizes.map(row)))
+        : h('p', { class: 'muted' }, "No sizes yet. Add sizes and edition sizes to the price list, or record sales of a size below."),
+      h('div', { class: 'row' }, h('button', { onclick: (e) => { e.preventDefault(); addSize(); } }, '+ Record sales of another size'), total),
+    ]);
+    showTotal();
+  }
+  // Sizes and editions come from the price list, which can be edited at the same time.
+  let shown = false;
+  const onEdit = () => {
+    if (box.isConnected) { shown = true; if (sizeKeys() !== keys) draw(); } else if (shown) document.removeEventListener('content-changed', onEdit);
+  };
+  document.addEventListener('content-changed', onEdit);
+  draw();
+  return box;
+}
+
+function salesView() {
+  const docs = S.schema.filter((e) => e.type === 'collection' && salesField(e)).flatMap((e) => sortedDocs(e));
+  const grand = h('p', { class: 'sales-grand' });
+  const showGrand = () => {
+    const n = docs.reduce((a, d) => a + (d.data[photoListField(d.entry).name] || []).reduce((b, p) => b + totalSold(p), 0), 0);
+    grand.textContent = `${plural(n, 'print')} sold in all.`;
+  };
+  const page = h('div', { class: 'page' },
+    h('div', { class: 'page-head' }, h('div', {}, h('div', { class: 'eyebrow' }, SIDES.rocknh), h('h1', {}, 'Prints sold'))),
+    h('p', { class: 'muted' }, 'Enter how many of each print you have sold in each size, including sales from before the website. ',
+      'Orders paid on the website are not counted automatically, so add those here too. ',
+      'When a size reaches its edition size (set in the collection’s price list), the website stops offering it and shows Sold out once every size is gone.'),
+    grand,
+    docs.length ? null : h('p', {}, 'There are no print collections yet.'),
+    docs.map((d) => {
+      const pf = photoListField(d.entry);
+      const prints = d.data[pf.name] || [];
+      const key = imageKey(pf);
+      return h('div', { class: 'block' },
+        h('div', { class: 'row' }, h('h2', {}, docTitle(d)), d.data.draft ? h('span', { class: 'muted' }, 'draft') : null,
+          h('button', { class: 'link', onclick: () => go({ type: 'doc', path: d.path }) }, 'Open collection')),
+        prints.length ? prints.map((p) => h('div', { class: 'sale-print' },
+          h('div', { class: 'sale-thumb' }, h('img', { src: imgSrc(p[key]), alt: '' })),
+          h('div', {}, h('h3', {}, p.title || 'Untitled'), salesTable(p, d.data, d))))
+          : h('p', { class: 'muted' }, 'No prints in this collection yet.'));
+    }));
+  let shown = false;
+  const onEdit = () => { if (page.isConnected) { shown = true; showGrand(); } else if (shown) document.removeEventListener('content-changed', onEdit); };
+  document.addEventListener('content-changed', onEdit);
+  showGrand();
+  return page;
+}
+
 // ---------- photo grid ----------
 let tileSize = 150;
 try { tileSize = Number(localStorage.getItem('tileSize')) || 150; } catch {}
@@ -1257,9 +1385,10 @@ function refreshPriceTags(doc) {
 // On prints: "Sold out" or the lowest price, so the grid shows what visitors will see.
 function printTag(it, f, doc) {
   if (!f.fields.some((x) => x.name === 'options' || x.name === 'editionSize')) return null;
-  if (Number(it.editionSize) > 0 && Number(it.editionsSold) >= Number(it.editionSize)) return h('span', { class: 'tag price sold' }, 'Sold out');
-  const own = Array.isArray(it.options) && it.options.length ? it.options : null;
-  const low = lowestPrice(own || doc.data.options);
+  const opts = optionsOf(it, doc.data).filter((o) => priceOf(o) != null);
+  const left = opts.filter((o) => !(Number(o.edition) > 0 && soldOf(it, o.size) >= Number(o.edition)));
+  if ((Number(it.editionSize) > 0 && Number(it.editionsSold) >= Number(it.editionSize)) || (opts.length && !left.length)) return h('span', { class: 'tag price sold' }, 'Sold out');
+  const low = lowestPrice(left);
   return h('span', { class: 'tag price' }, low == null ? 'No price' : `from ${money(low)}`);
 }
 
@@ -1436,7 +1565,11 @@ function photoGrid(doc, f, holder) {
       h('div', { class: 'detail-col' }, h('div', { class: 'detail-img' }, big), h('div', { class: 'row' }, replace,
         h('span', { class: 'muted small' }, 'Keeps its place and details.'))),
       h('div', { class: 'detail-form' },
-        fields.length ? h('div', { class: 'form compact' }, fields.map((s) => fieldRow(it, s, doc))) : h('p', { class: 'muted' }, 'Nothing else to fill in for this photo.'),
+        fields.length ? h('div', { class: 'form compact' }, fields.filter((s) => !WHOLE_PRINT.has(s.name)).map((s) => fieldRow(it, s, doc))) : h('p', { class: 'muted' }, 'Nothing else to fill in for this photo.'),
+        // An edition for the whole print (all sizes together) is rarely used now that each size has its own.
+        fields.some((s) => WHOLE_PRINT.has(s.name)) ? h('details', { class: 'more', open: Number(it.editionSize) > 0 || Number(it.editionsSold) > 0 },
+          h('summary', {}, 'Edition for the whole print (rarely used)'),
+          h('div', { class: 'form compact' }, fields.filter((s) => WHOLE_PRINT.has(s.name)).map((s) => fieldRow(it, s, doc)))) : null,
         doc.entry.name === 'galleries' ? h('p', { class: 'muted small' }, 'Titles and captions are private notes; visitors don\'t see them while “Show photo titles and captions” is off.') : null));
     modal(`Photo ${i + 1} of ${arr.length}`, body, [
       { label: '‹ Previous', value: 'prev' }, { label: 'Next ›', value: 'next' }, { label: 'Done', primary: true, value: 'done' },

@@ -216,3 +216,19 @@ input.bad { outline: 2px solid var(--danger); outline-offset: -1px; }
 .block.subs h3 { margin: 0 8px 0 0; }
 .eyebrow .link { padding: 0; font-size: 12px; }
 .item-list > p.muted:empty { display: none; }
+
+/* Prints sold */
+.stepper { display: inline-flex; align-items: center; gap: 4px; }
+.stepper button { padding: 3px 9px; }
+.stepper input { width: 72px; min-width: 0; text-align: center; }
+.sales-table { width: auto; }
+.sales-table td, .sales-table th { padding-right: 22px; }
+.sales-table td:first-child { white-space: nowrap; }
+.sales-status { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.sales-status.sold { color: var(--danger); font-weight: 600; }
+.sales .row { margin-top: 8px; align-items: center; gap: 12px; }
+.sales-grand { font-size: 15px; font-weight: 600; }
+.sale-print { display: grid; grid-template-columns: 140px 1fr; gap: 18px; padding: 14px 0; border-top: 1px solid var(--line); }
+.sale-thumb img { width: 140px; height: 100px; object-fit: cover; border-radius: 6px; background: var(--side); }
+.sale-print h3 { margin: 0 0 6px; }
+.block > .row h2 { margin: 0; }
