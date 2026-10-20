@@ -381,18 +381,18 @@ ${intro ? `<div class="intro rk-intro">${intro}</div>` : ''}
 ${newsletter()}`;
 }
 
-// The print information lives on the About the Prints page; print pages link to it.
+// The print information shows as drop-downs on each print page and all together on the About the Prints page.
 const PRINT_INFO_SLUG = 'about-the-prints';
-const infoSections = () =>
+const infoList = () =>
   [
     ['Materials', site.rockMaterials],
     ['Limited Editions', site.rockLimitedEditions],
     ['Dimensions and Borders', site.rockDimensions],
     ['Shipping and Production Times', site.rockShippingDetails],
   ]
-    .filter(([, html]) => html)
-    .map(([t, html]) => `<section class="print-info"><h2>${t}</h2>${html}</section>`)
-    .join('');
+    .filter(([, html]) => html);
+const infoSections = () => infoList().map(([t, html]) => `<section class="print-info"><h2>${t}</h2>${html}</section>`).join('');
+const infoDropdowns = () => infoList().map(([t, html]) => `<details class="product-details"><summary>${t}</summary>${html}</details>`).join('');
 
 function productBody(p) {
   const opts = optsOf(p);
@@ -430,7 +430,7 @@ function productBody(p) {
           : `<a class="rk-btn" href="${enquireHref(p)}">Enquire</a>`
     }
     ${p.description ? `<div class="product-desc">${p.description}</div>` : ''}
-    ${pages.some((x) => x.slug === PRINT_INFO_SLUG && !x.draft) ? `<p class="print-info-link"><a href="${url(`${PRINT_INFO_SLUG}/`)}">About the prints: materials, editions, sizes and shipping</a></p>` : ''}
+    ${infoDropdowns()}
   </div>
 </section>`;
 }
