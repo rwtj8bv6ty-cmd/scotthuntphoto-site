@@ -310,6 +310,14 @@ function printCard(p) {
   <span class="pc-price">${fromPrice(p)}</span>
 </a>`;
 }
+// Shipping: a price per size for each region (regions are lists of state codes; a region with no states covers the rest
+// of the U.S.). Materials listed as "shipped on request" can't go through checkout; buyers ask for a quote instead.
+const listOf = (v) => String(v || '').split(/[,;\n]/).map((x) => x.trim()).filter(Boolean);
+const quoteMaterials = listOf(site.rockShipOnRequest).map((m) => m.toLowerCase());
+const onRequest = (material) => quoteMaterials.includes(String(material || '').trim().toLowerCase());
+const shipZones = (site.rockShippingZones || []).filter((z) => z && z.name).map((z) => ({ name: String(z.name).trim(), states: listOf(z.states).map((x) => x.toUpperCase()) }));
+const shipRates = (site.rockShippingRates || []).filter((r) => r && r.size && r.zone && String(r.price ?? '').trim() !== '')
+  .map((r) => ({ size: String(r.size).trim(), zone: String(r.zone).trim(), price: num(r.price) }));
 const enquireHref = (p) => `${url(`${site.rockContactSlug || 'rockn-h-contact'}/`)}?about=${encodeURIComponent(p.title || p.slug)}`;
 
 function newsletter() {
@@ -379,7 +387,8 @@ function productBody(p) {
   const out = soldOut(p);
   const canBuy = !out && opts.length > 0;
   const materials = [...new Set(opts.map((o) => o.material))];
-  const data = { slug: p.slug, title: p.title || 'Untitled', image: thumb(p.image), url: url(`${ROCK_HOME}prints/${p.slug}/`), options: opts };
+  const data = { slug: p.slug, title: p.title || 'Untitled', image: thumb(p.image), url: url(`${ROCK_HOME}prints/${p.slug}/`), quote: enquireHref(p),
+    options: opts.map((o) => (onRequest(o.material) ? { ...o, onRequest: true } : o)) };
   const pick = (name, values) =>
     values.length > 1 || values[0]
       ? `<fieldset class="choice" data-name="${name}"><legend>${name === 'material' ? 'Material' : 'Size'}</legend>${values
@@ -399,6 +408,7 @@ function productBody(p) {
       <fieldset class="choice" data-name="size"><legend>Size</legend><div class="size-list"></div></fieldset>
       <label class="qty">Quantity <input type="number" name="qty" min="1" max="10" value="1"></label>
       <button type="submit" class="rk-btn add-to-cart">Add to cart</button>
+      <p class="ship-request" hidden>Shipping for this material is quoted on request. <a class="rk-btn" href="${enquireHref(p)}">Request a shipping quote</a></p>
       <p class="added" aria-live="polite"></p>
     </form>
     <script type="application/json" class="print-data">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>`
@@ -414,13 +424,16 @@ function productBody(p) {
 
 // Cart: drawn in the browser from the visitor's saved cart. Prices are always re-read from this catalog,
 // never from what the browser saved. Checkout uses PayPal (cards accepted without a PayPal account).
+const US_STATES = [['AL','Alabama'],['AK','Alaska'],['AZ','Arizona'],['AR','Arkansas'],['CA','California'],['CO','Colorado'],['CT','Connecticut'],['DE','Delaware'],['DC','District of Columbia'],['FL','Florida'],['GA','Georgia'],['HI','Hawaii'],['ID','Idaho'],['IL','Illinois'],['IN','Indiana'],['IA','Iowa'],['KS','Kansas'],['KY','Kentucky'],['LA','Louisiana'],['ME','Maine'],['MD','Maryland'],['MA','Massachusetts'],['MI','Michigan'],['MN','Minnesota'],['MS','Mississippi'],['MO','Missouri'],['MT','Montana'],['NE','Nebraska'],['NV','Nevada'],['NH','New Hampshire'],['NJ','New Jersey'],['NM','New Mexico'],['NY','New York'],['NC','North Carolina'],['ND','North Dakota'],['OH','Ohio'],['OK','Oklahoma'],['OR','Oregon'],['PA','Pennsylvania'],['RI','Rhode Island'],['SC','South Carolina'],['SD','South Dakota'],['TN','Tennessee'],['TX','Texas'],['UT','Utah'],['VT','Vermont'],['VA','Virginia'],['WA','Washington'],['WV','West Virginia'],['WI','Wisconsin'],['WY','Wyoming']];
 function cartBody() {
-  const catalog = Object.fromEntries(allPrints.filter((p) => !soldOut(p)).map((p) => [p.slug, { title: p.title || 'Untitled', image: thumb(p.image), url: url(`${ROCK_HOME}prints/${p.slug}/`), options: optsOf(p) }]));
+  const catalog = Object.fromEntries(allPrints.filter((p) => !soldOut(p)).map((p) => [p.slug, { title: p.title || 'Untitled', image: thumb(p.image), url: url(`${ROCK_HOME}prints/${p.slug}/`), options: optsOf(p).filter((o) => !onRequest(o.material)) }]));
   const cfg = {
     clientId: site.rockPaypalClientId || '',
     currency: site.rockCurrency || 'USD',
     symbol: site.currencySymbol || '$',
     shipping: num(site.rockShippingCost || 0) || 0,
+    zones: shipRates.length ? shipZones : [],
+    rates: shipRates,
     store: ROCK_NAME,
     shop: url(`${ROCK_HOME}collections/`),
     contact: url(`${site.rockContactSlug || 'rockn-h-contact'}/`),
@@ -430,7 +443,9 @@ function cartBody() {
   <div class="cart-items"></div>
   <div class="cart-summary" hidden>
     <p class="row"><span>Subtotal</span><span class="subtotal"></span></p>
+    <label class="ship-to" hidden>Ship to <select><option value="">Choose a state</option>${US_STATES.map(([c, n]) => `<option value="${c}">${n}</option>`).join('')}</select></label>
     <p class="row"><span>Shipping</span><span class="shipping"></span></p>
+    <p class="ship-missing" hidden>We don't have a shipping price for one of these sizes yet. <a href="${cfg.contact}?about=shipping">Send us a message</a> and we'll quote it.</p>
     <p class="row total"><span>Total</span><span class="grand"></span></p>
     ${site.rockShippingNote ? `<div class="cart-note">${site.rockShippingNote}</div>` : ''}
     <div id="paypal-buttons"></div>

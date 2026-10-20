@@ -286,6 +286,11 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
 .cart-summary { margin: 28px 0 0 auto; max-width: 380px; }
 .cart-summary .row { display: flex; justify-content: space-between; margin: 0 0 8px; }
 .cart-summary .total { font-size: 1.15rem; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 4px; }
+.cart-summary .ship-to { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 0 0 10px; }
+.cart-summary .ship-to select { font: inherit; padding: 6px 8px; border: 1px solid var(--line); background: transparent; color: inherit; max-width: 60%; }
+.cart-summary .ship-missing { font-size: .9rem; margin: 4px 0 12px; }
+.ship-request { margin: 8px 0 0; }
+.ship-request .rk-btn { margin-top: 10px; }
 .cart-note { color: var(--muted); font-size: .85rem; }
 #paypal-buttons { margin-top: 20px; }
 .checkout-off { color: var(--muted); font-size: .9rem; }

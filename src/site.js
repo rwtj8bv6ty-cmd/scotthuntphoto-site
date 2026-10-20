@@ -157,15 +157,22 @@ if (buyForm && printData) {
     if (!sizeList.querySelector(':checked')) sizeList.querySelector('input')?.click();
     renderPrice();
   };
+  // Materials shipped on request (e.g. acrylic) can't be bought online: show the price and a quote link instead.
+  const quote = buyForm.querySelector('.ship-request');
   const renderPrice = () => {
     const o = chosen();
+    const ask = Boolean(o && o.onRequest);
+    button.hidden = ask;
+    buyForm.querySelector('.qty').hidden = ask;
+    if (quote) quote.hidden = !ask;
     button.textContent = o ? `Add to cart · ${fmt(o.price)}` : 'Add to cart';
+    if (ask && quote) quote.querySelector('a').textContent = `Request a shipping quote · print ${fmt(o.price)}`;
   };
   buyForm.addEventListener('change', (e) => { if (e.target.name === 'material') renderSizes(); else renderPrice(); });
   buyForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const o = chosen();
-    if (!o) return;
+    if (!o || o.onRequest) return;
     const qty = Math.min(10, Math.max(1, parseInt(buyForm.qty.value, 10) || 1));
     const key = `${print.slug}|${o.material}|${o.size}`;
     const items = readCart();
@@ -193,11 +200,40 @@ if (cartEl) {
         return o ? { ...i, title: p.title, image: p.image, url: p.url, price: o.price } : null;
       })
       .filter(Boolean);
+  // Shipping: with a rate table, the price per print depends on its size and the region of the state it ships to.
+  const SHIP_KEY = 'rockn-h-ship-state';
+  const byRegion = cfg.zones.length > 0;
+  const shipSelect = cartEl.querySelector('.ship-to select');
+  let shipState = '';
+  try { shipState = localStorage.getItem(SHIP_KEY) || ''; } catch {}
+  if (byRegion && shipSelect) {
+    shipSelect.closest('.ship-to').hidden = false;
+    shipSelect.value = shipState;
+    shipSelect.addEventListener('change', () => {
+      shipState = shipSelect.value;
+      try { localStorage.setItem(SHIP_KEY, shipState); } catch {}
+      render();
+    });
+  }
+  const zoneOf = (state) => state && (cfg.zones.find((z) => z.states.includes(state)) || cfg.zones.find((z) => !z.states.length));
+  const rateFor = (size, zone) => cfg.rates.find((r) => r.zone.toLowerCase() === zone.name.toLowerCase() && r.size.toLowerCase() === String(size || '').toLowerCase());
   const totals = (ls) => {
     const sub = ls.reduce((a, l) => a + l.price * l.qty, 0);
-    const ship = ls.length ? cfg.shipping : 0;
-    return { sub, ship, total: sub + ship };
+    if (!byRegion) {
+      const ship = ls.length ? cfg.shipping : 0;
+      return { sub, ship, total: sub + ship, ready: true };
+    }
+    const zone = zoneOf(shipState);
+    if (!zone) return { sub, ship: 0, total: sub, ready: false, need: 'state' };
+    let ship = 0;
+    for (const l of ls) {
+      const r = rateFor(l.size, zone);
+      if (!r) return { sub, ship: 0, total: sub, ready: false, need: 'rate', zone };
+      ship += r.price * l.qty;
+    }
+    return { sub, ship, total: sub + ship, ready: true, zone };
   };
+  const payBox = cartEl.querySelector('#paypal-buttons');
   const render = () => {
     const ls = lines();
     writeCart(ls.map(({ key, slug, material, size, qty }) => ({ key, slug, material, size, qty })));
@@ -217,8 +253,11 @@ if (cartEl) {
       .join('');
     const t = totals(ls);
     cartEl.querySelector('.subtotal').textContent = money(t.sub);
-    cartEl.querySelector('.shipping').textContent = t.ship ? money(t.ship) : 'Included';
+    cartEl.querySelector('.shipping').textContent =
+      t.need === 'state' ? 'Choose a state' : t.need === 'rate' ? 'Quoted on request' : t.ship ? money(t.ship) : byRegion ? 'Free' : 'Included';
     cartEl.querySelector('.grand').textContent = money(t.total);
+    cartEl.querySelector('.ship-missing').hidden = t.need !== 'rate';
+    if (payBox) payBox.hidden = !t.ready;
     summary.hidden = false;
   };
   cartEl.addEventListener('change', (e) => {
@@ -244,6 +283,7 @@ if (cartEl) {
     s.onload = () => {
       window.paypal.Buttons({
         style: { layout: 'vertical', color: 'black', shape: 'rect', label: 'checkout' },
+        onClick: (data, actions) => (totals(lines()).ready ? actions.resolve() : actions.reject()),
         createOrder: (data, actions) => {
           const ls = lines();
           const t = totals(ls);
@@ -262,7 +302,24 @@ if (cartEl) {
             }],
           });
         },
-        onApprove: (data, actions) => actions.order.capture().then(() => {
+        // Before taking payment, make sure PayPal's shipping address is in the U.S. and in the region that was priced.
+        onApprove: (data, actions) => (byRegion ? actions.order.get() : Promise.resolve(null)).then((order) => {
+          const addr = order && order.purchase_units && order.purchase_units[0].shipping && order.purchase_units[0].shipping.address;
+          if (addr) {
+            const t = totals(lines());
+            const there = addr.country_code === 'US' && zoneOf(String(addr.admin_area_1 || '').toUpperCase());
+            if (!there || there.name !== t.zone.name) {
+              const off = cartEl.querySelector('.checkout-off');
+              off.hidden = false;
+              off.textContent = addr.country_code !== 'US'
+                ? 'Sorry, we can only ship within the United States online. Please send us a message for an international quote. You have not been charged.'
+                : `Your PayPal shipping address is in ${addr.admin_area_1}. Please choose that state above and check out again. You have not been charged.`;
+              return null;
+            }
+          }
+          return actions.order.capture();
+        }).then((captured) => {
+          if (!captured) return;
           writeCart([]);
           cartEl.querySelector('.cart-items').innerHTML = '';
           cartEl.querySelector('.cart-summary').hidden = true;

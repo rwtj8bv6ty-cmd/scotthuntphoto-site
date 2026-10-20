@@ -155,7 +155,23 @@ content:
       - { name: rockShippingDetails, label: "Print pages: Shipping and Production Times", type: rich-text }
       - { name: rockPaypalClientId, label: "Checkout: PayPal Client ID (Live)", type: string }
       - { name: rockCurrency, label: "Checkout: currency code (e.g. USD)", type: string }
-      - { name: rockShippingCost, label: "Checkout: shipping charge per order (0 = included)", type: number }
+      - { name: rockShippingCost, label: "Checkout: flat shipping charge per order, used only while the shipping price table is empty (0 = included)", type: number }
+      - name: rockShippingZones
+        label: "Checkout: shipping regions (a region with no states covers the rest of the U.S.)"
+        type: object
+        list: true
+        fields:
+          - { name: name, label: "Region name (e.g. Texas)", type: string }
+          - { name: states, label: "State codes, separated by commas (e.g. AK, HI); leave empty for everywhere else", type: string }
+      - name: rockShippingRates
+        label: "Checkout: shipping price table, one row per size and region (charged per print)"
+        type: object
+        list: true
+        fields:
+          - { name: size, label: "Size, exactly as in the price lists (e.g. 16 × 20 in)", type: string }
+          - { name: zone, label: "Region name, exactly as above", type: string }
+          - { name: price, label: "Shipping price (number only)", type: string }
+      - { name: rockShipOnRequest, label: "Checkout: materials shipped on request, separated by commas (e.g. Acrylic); these show a quote button instead of Add to cart", type: string }
       - { name: rockShippingNote, label: "Checkout: note shown in the cart", type: rich-text }
       - { name: rockNewsletter, label: Show newsletter sign-up, type: boolean }
       - { name: rockNewsletterHeading, label: Newsletter heading, type: string }
