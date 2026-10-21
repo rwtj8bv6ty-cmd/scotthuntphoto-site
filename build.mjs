@@ -113,6 +113,9 @@ function rockNav(current) {
 }
 
 // ---------- layout ----------
+// Visitor counts: GoatCounter's script, only when a code is set in Settings and never on draft previews.
+const statsTag = (draft = false) => site.goatcounterCode && !draft ? `<script data-goatcounter="https://${esc(String(site.goatcounterCode).trim().replace(/\.goatcounter\.com.*$/, '').replace(/^https?:\/\//, ''))}.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>` : '';
+
 // Browser-tab icons: the Scott Hunt Photography coin, or the Rock'n H coin on that side.
 const iconLinks = (which) => `<link rel="icon" type="image/png" sizes="32x32" href="${url(`assets/icons/${which}-32.png`)}"><link rel="icon" type="image/png" sizes="512x512" href="${url(`assets/icons/${which}-512.png`)}"><link rel="apple-touch-icon" href="${url(`assets/icons/${which}-180.png`)}">`;
 
@@ -134,6 +137,7 @@ ${share ? `<meta property="og:type" content="website"><meta property="og:title" 
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${url('assets/style.css')}?v=${ASSET_V}">
 ${iconLinks(side === 'rocknh' ? 'rock' : 'photo')}
+${statsTag(draft)}
 </head>
 <body class="${sideClass} ${bodyClass}">
 ${draft ? '<div class="draft-banner">Draft preview · not published · only people with this link can see it</div>' : ''}
@@ -155,6 +159,7 @@ function entranceHtml() {
 <title>${esc(site.title)}</title>
 <meta name="description" content="${esc(site.tagline || '')}">
 ${iconLinks('photo')}
+${statsTag()}
 <style>
   :root { color-scheme: light; }
   html, body { margin: 0; height: 100%; background: #fff; color: #222; overflow: hidden; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }

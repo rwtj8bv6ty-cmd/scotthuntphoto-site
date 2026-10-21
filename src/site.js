@@ -1,3 +1,6 @@
+// Visitor counts (GoatCounter, when switched on): records an event such as an add to cart.
+const count = (path, title) => { try { window.goatcounter?.count?.({ path, title, event: true }); } catch (e) {} };
+
 // Menu toggle (sidebar on the photography side, top bar on the Rock'n H side)
 document.querySelector('.menu-toggle')?.addEventListener('click', (e) => {
   const open = document.body.classList.toggle('menu-open');
@@ -182,6 +185,7 @@ if (buyForm && printData) {
     if (found) found.qty = Math.min(10, found.qty + qty);
     else items.push({ key, slug: print.slug, material: o.material, size: o.size, qty });
     writeCart(items);
+    count(`event/add-to-cart/${print.slug}`, `Added to cart: ${print.slug}`);
     buyForm.querySelector('.added').innerHTML = `Added to your cart. <a href="${document.querySelector('.nav-cart a').getAttribute('href')}">View cart</a>`;
   });
   renderSizes();
@@ -338,6 +342,7 @@ if (cartEl) {
           return actions.order.capture();
         }).then((captured) => {
           if (!captured) return;
+          count('event/purchase', 'Purchase completed');
           writeCart([]);
           cartEl.querySelector('.cart-items').innerHTML = '';
           cartEl.querySelector('.cart-summary').hidden = true;
