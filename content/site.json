@@ -135,5 +135,16 @@
       "taxShipping": true
     }
   ],
-  "rockInstagram": "@rockn_h_editions_fine_art"
+  "rockInstagram": "@rockn_h_editions_fine_art",
+  "rockRoomPhotos": [
+    {
+      "image": "/photos/rockn-h/room-station-wagon.jpg"
+    },
+    {
+      "image": "/photos/rockn-h/room-storm-cloud.jpg"
+    },
+    {
+      "image": "/photos/rockn-h/room-gas-signs.jpg"
+    }
+  ]
 }

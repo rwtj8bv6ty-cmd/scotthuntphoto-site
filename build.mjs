@@ -371,6 +371,9 @@ function rockHomeBody() {
   const artist = site.rockArtistText
     ? `<section class="rk-artist">${site.rockArtistPhoto ? `<img src="${img(site.rockArtistPhoto)}" alt="">` : ''}<div><h2>${esc(site.rockArtistHeading || 'About the artist')}</h2>${site.rockArtistText}</div></section>`
     : '';
+  // Room photos: prints shown on walls, full width, one after another.
+  const rooms = (site.rockRoomPhotos || []).map((r) => (typeof r === 'string' ? r : r && r.image)).filter(Boolean);
+  const roomsHtml = rooms.length ? `<section class="rk-rooms">${rooms.map((r) => `<img src="${img(r)}" alt="" loading="lazy">`).join('')}</section>` : '';
   return `<section class="rk-hero"${hero ? ` style="background-image:url('${img(hero)}')"` : ''}>
   <div class="rk-hero-text">
     <h1>${esc(site.rockHeroHeading || ROCK_NAME)}</h1>
@@ -379,6 +382,7 @@ function rockHomeBody() {
   </div>
 </section>
 ${featured.length ? `<section class="rk-section"><div class="rk-head"><h2>${esc(site.rockFeaturedHeading || 'Featured prints')}</h2><a href="${url(`${ROCK_HOME}collections/`)}">View all</a></div><div class="product-grid">${featured.slice(0, 12).map(printCard).join('')}</div></section>` : ''}
+${roomsHtml}
 ${statement}
 ${liveCollections.length > 1 ? `<section class="rk-section"><div class="rk-head"><h2>Collections</h2></div><div class="cards rk-cards">${cards}</div></section>` : ''}
 ${artist}

@@ -148,6 +148,12 @@ content:
       - { name: galleriesMenuLabel, label: Menu name for galleries, type: string }
       - { name: rockLogo, label: "Rock'n H logo (optional, replaces the name in the header)", type: image }
       - { name: rockHeroImage, label: "Rock'n H home: large photo", type: image }
+      - name: rockRoomPhotos
+        label: "Rock'n H home: room photos, shown full width below the prints (drag to reorder)"
+        type: object
+        list: true
+        fields:
+          - { name: image, label: "Room photo", type: image }
       - { name: rockHeroHeading, label: "Rock'n H home: heading", type: string }
       - { name: rockHeroText, label: "Rock'n H home: tagline", type: string }
       - { name: rockHeroButton, label: "Rock'n H home: button text", type: string }
