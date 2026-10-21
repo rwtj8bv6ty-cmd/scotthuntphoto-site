@@ -1355,6 +1355,19 @@ function listTargets(exceptDoc, exceptField) {
   return out.sort((a, b) => (a.doc.entry === b.doc.entry ? 0 : a.doc.entry.side === 'rocknh' ? 1 : -1) || fullTitle(a.doc).localeCompare(fullTitle(b.doc)));
 }
 
+// The entry a photo already has in a gallery or collection (with a title), so its details come along when it is added
+// somewhere else from the website.
+function sourceItem(value, exceptArr) {
+  for (const d of S.docs.values()) {
+    const pf = !d.deleted && photoListField(d.entry);
+    const list = pf && d.data[pf.name];
+    if (!Array.isArray(list) || list === exceptArr) continue;
+    const it = list.find((x) => x && x[imageKey(pf)] === value && String(x.title || '').trim());
+    if (it) return { item: it, field: pf };
+  }
+  return null;
+}
+
 // Copy what fits from one kind of photo entry to another (e.g. gallery photo -> print).
 function convertItem(item, fromField, toField) {
   const out = defaultsFor(toField.fields);
@@ -1537,7 +1550,7 @@ function photoGrid(doc, f, holder) {
     const vals = await pickPhotos(true, new Set(arr.map((it) => it[key])));
     if (!vals || !vals.length) return;
     checkpoint();
-    arr.push(...vals.map((v) => ({ ...defaultsFor(f.fields), [key]: v })));
+    arr.push(...vals.map((v) => { const src = sourceItem(v, arr); return src ? convertItem(src.item, src.field, f) : { ...defaultsFor(f.fields), [key]: v }; }));
     changed();
     draw();
   }
@@ -1740,6 +1753,23 @@ function describeChanges() {
   return lines;
 }
 
+// Things that publish fine but that visitors would notice.
+function publishNotes() {
+  const notes = [];
+  let untitled = 0;
+  for (const d of S.docs.values()) {
+    if (d.deleted || d.data.draft || !salesField(d.entry)) continue;
+    untitled += (d.data[photoListField(d.entry).name] || []).filter((p) => p && !String(p.title || '').trim()).length;
+  }
+  if (untitled) notes.push(`${plural(untitled, 'print')} in a published collection ${untitled === 1 ? 'has' : 'have'} no title, so the website shows “Untitled”.`);
+  const rates = siteDoc() && siteDoc().data.rockShippingRates;
+  if (Array.isArray(rates) && rates.some((r) => r && priceOf(r) != null)) {
+    const sizes = [...new Set(missingRates(rates).map((m) => m.size))];
+    if (sizes.length) notes.push(`${sizes.join(', ')} ${sizes.length === 1 ? 'has' : 'have'} no shipping price for some regions, so buyers there can't check out ${sizes.length === 1 ? 'that size' : 'those sizes'} (see Rock'n H › Checkout).`);
+  }
+  return notes;
+}
+
 function validate() {
   const problems = [];
   for (const d of S.docs.values()) {
@@ -1757,11 +1787,13 @@ async function publishDialog() {
   const problems = validate();
   if (problems.length) return modal("Can't publish yet", h('ul', {}, problems.map((p) => h('li', {}, p))), [{ label: 'OK', primary: true }]);
   if (!lines.length && !newPhotos.length) return toast('Nothing to publish.');
+  const notes = publishNotes();
   const status = h('p', { class: 'muted' });
   const body = h('div', {},
     h('ul', { class: 'changes' }, lines.map((l) => h('li', {}, l)),
       newPhotos.length ? h('li', {}, `Upload ${plural(newPhotos.length, 'new photo')}`) : null,
       gone.length ? h('li', {}, `Delete ${plural(gone.length, 'photo file')} no longer used anywhere`) : null),
+    notes.length ? h('div', { class: 'note' }, h('p', {}, h('b', {}, 'Worth checking (you can still publish):')), h('ul', {}, notes.map((n) => h('li', {}, n)))) : null,
     h('p', { class: 'muted' }, 'The website updates about a minute after publishing.'), status);
   let busy = false;
   await modal('Publish to your website', body, [
