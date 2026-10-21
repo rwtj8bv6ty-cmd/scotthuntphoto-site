@@ -93,6 +93,10 @@ function photoNav(current) {
 </aside>`;
 }
 
+// Instagram: a handle (@name) or a full link.
+const igHref = (v) => { v = String(v || '').trim(); return !v ? '' : /^https?:/.test(v) ? v : `https://www.instagram.com/${v.replace(/^@/, '')}/`; };
+const IG_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none"/></svg>';
+
 function rockNav(current) {
   const link = (href, title) => `<li${href === current ? ' class="active"' : ''}><a href="${href}">${esc(title)}</a></li>`;
   const sub = [`<li><a href="${url(`${ROCK_HOME}collections/`)}">All Prints</a></li>`, ...liveCollections.map((c) => `<li><a href="${url(`${ROCK_HOME}collections/${c.slug}/`)}">${esc(c.title)}</a></li>`)].join('');
@@ -104,7 +108,7 @@ function rockNav(current) {
   return `<header class="site-header">
   <a class="brand" href="${url(ROCK_HOME)}">${site.rockLogo ? `<img src="${img(site.rockLogo)}" alt="${esc(ROCK_NAME)}">` : esc(ROCK_NAME)}</a>
   <button class="menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
-  <nav><ul>${items}<li class="nav-cart"><a href="${url(`${ROCK_HOME}cart/`)}">Cart <span class="cart-count"></span></a></li><li class="nav-switch"><a href="${url(PHOTO_HOME)}">${esc(PHOTO_NAME)} →</a></li></ul></nav>
+  <nav><ul>${items}<li class="nav-cart"><a href="${url(`${ROCK_HOME}cart/`)}">Cart <span class="cart-count"></span></a></li><li class="nav-switch"><a href="${url(PHOTO_HOME)}">${esc(PHOTO_NAME)} →</a></li>${igHref(site.rockInstagram) ? `<li class="nav-ig"><a href="${esc(igHref(site.rockInstagram))}" target="_blank" rel="noopener" aria-label="Instagram">${IG_ICON}</a></li>` : ''}</ul></nav>
 </header>`;
 }
 
