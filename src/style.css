@@ -226,6 +226,7 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
 .rk-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 28px; }
 .rk-head h1, .rk-head h2 { margin: 0; font: 400 clamp(1.6rem, 3vw, 2.2rem) var(--serif); }
 .rk-head a, .rk-count { font-size: .85rem; color: var(--muted); }
+@media (max-width: 760px) { .rk-head > a { display: none; } }
 .rk-intro { margin: -12px 0 28px; text-align: left; }
 .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 40px 28px; }
 .product-card { text-decoration: none; display: grid; gap: 6px; }
@@ -340,8 +341,8 @@ html.full-lock { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .statement { animation: none; opacity: 1; } }
 @media (max-width: 760px) { .statement { padding: 32px 0 48px; } .statement h1 { font-size: 1.9rem; } .statement-text p { font-size: 1.1rem; } }
 .edition-note { font-size: .9rem; color: var(--muted, #777); margin: 4px 0 12px; min-height: 1em; }
-.print-info { margin-top: 28px; }
-.print-info h2 { font-size: .85rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 400; margin: 0 0 8px; }
+.print-info { margin-top: 40px; }
+.print-info h2 { font-size: 1.4rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 500; margin: 0 0 12px; }
 .print-info-link { margin-top: 24px; font-size: .9rem; }
 .share { margin-top: 22px; }
 .share-btn { background: none; border: 1px solid var(--line); padding: 8px 18px; font: inherit; font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; color: inherit; }
@@ -380,3 +381,14 @@ html.full-lock { overflow: hidden; }
 .rk-rooms { display: grid; gap: 32px; max-width: 1280px; margin: 0 auto; padding: 40px 32px 64px; }
 @media (max-width: 760px) { .rk-rooms { gap: 16px; padding: 24px 16px 40px; } }
 .rk-rooms img { display: block; width: 100%; height: auto; }
+.statement-text p:only-child { margin-top: 0; }
+.statement-next { display: inline-block; margin-top: 28px; font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; text-decoration: none; opacity: .75; }
+.statement-next:hover { opacity: 1; }
+
+/* Intro pages: on phones, the way to the photographs is a bar fixed at the foot of the screen. */
+.statement-nav.phone-only { display: none; }
+@media (max-width: 760px) {
+  body:has(.statement-nav) { padding-bottom: 120px; }
+  .statement-nav, .statement-nav.phone-only { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); background: var(--bg); border-top: 1px solid var(--line); }
+  .statement-nav .statement-next { margin: 0; padding: 10px 14px; border: 1px solid var(--muted); opacity: 1; font-size: .72rem; }
+}

@@ -113,6 +113,12 @@ function rockNav(current) {
 }
 
 // ---------- layout ----------
+// Visitor counts: GoatCounter's script, only when a code is set in Settings and never on draft previews.
+const statsTag = (draft = false) => site.goatcounterCode && !draft ? `<script data-goatcounter="https://${esc(String(site.goatcounterCode).trim().replace(/\.goatcounter\.com.*$/, '').replace(/^https?:\/\//, ''))}.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>` : '';
+
+// Browser-tab icons: the Scott Hunt Photography coin, or the Rock'n H coin on that side.
+const iconLinks = (which) => `<link rel="icon" type="image/png" sizes="32x32" href="${url(`assets/icons/${which}-32.png`)}"><link rel="icon" type="image/png" sizes="512x512" href="${url(`assets/icons/${which}-512.png`)}"><link rel="apple-touch-icon" href="${url(`assets/icons/${which}-180.png`)}">`;
+
 function layout({ title, body, current, side = 'photography', draft = false, bodyClass = '', description, share }) {
   const brand = side === 'rocknh' ? ROCK_NAME : side === 'entrance' ? site.title : PHOTO_NAME;
   const fullTitle = title ? `${title} · ${brand}` : brand;
@@ -130,6 +136,8 @@ ${share ? `<meta property="og:type" content="website"><meta property="og:title" 
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${url('assets/style.css')}?v=${ASSET_V}">
+${iconLinks(side === 'rocknh' ? 'rock' : 'photo')}
+${statsTag(draft)}
 </head>
 <body class="${sideClass} ${bodyClass}">
 ${draft ? '<div class="draft-banner">Draft preview · not published · only people with this link can see it</div>' : ''}
@@ -150,6 +158,8 @@ function entranceHtml() {
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(site.title)}</title>
 <meta name="description" content="${esc(site.tagline || '')}">
+${iconLinks('photo')}
+${statsTag()}
 <style>
   :root { color-scheme: light; }
   html, body { margin: 0; height: 100%; background: #fff; color: #222; overflow: hidden; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
@@ -246,6 +256,11 @@ function editionInfo(p) {
 const showCaptions = site.showCaptions === true; // titles and captions stay hidden from visitors unless turned on in Site settings
 const captionText = (p) => (showCaptions ? [p.title, p.caption].filter(Boolean).join(' · ') : '');
 
+const hasIntro = (g) => String(g.description || '').replace(/<[^>]*>/g, '').trim() !== '';
+// A gallery with its own photos and an Introduction opens on the introduction; the photos follow at <gallery>/photos/.
+const introFirst = (g) => hasIntro(g) && photosFor(g).length > 0 && !subGalleries(g).length;
+const introBody = (g) => `<section class="statement"><h1>${esc(g.title)}</h1><div class="statement-text">${g.description}</div><div class="statement-nav"><a class="statement-next" href="${url(`${galleryPath(g)}/photos/`)}">View the photographs →</a></div></section>`;
+
 // Gallery: one large photo with arrows and a counter, plus a "show thumbnails" grid.
 function galleryBody(g) {
   const photos = photosFor(g);
@@ -253,7 +268,9 @@ function galleryBody(g) {
   // A gallery with sub-galleries and no photos of its own shows its sub-galleries as a grid of covers.
   // A parent gallery with an Introduction shows it as a statement page in place of the cover grid.
   if (subs.length && !photos.length && String(g.description || '').replace(/<[^>]*>/g, '').trim()) {
-    return `<section class="statement"><h1>${esc(g.title)}</h1><div class="statement-text">${g.description}</div></section>`;
+    // On phones the sub-gallery links sit in a bar at the foot of the screen, since the menu is folded away.
+    const nav = `<div class="statement-nav phone-only">${subs.map((x) => `<a class="statement-next" href="${url(`${galleryPath(x)}/`)}">${esc(x.title)} →</a>`).join('')}</div>`;
+    return `<section class="statement"><h1>${esc(g.title)}</h1><div class="statement-text">${g.description}</div>${nav}</section>`;
   }
   if (subs.length && !photos.length) {
     return `<section class="sub-index">${subs
@@ -543,7 +560,11 @@ if (!galleries.some((g) => g.slug === 'pocket-pictures' && !g.parent)) write('po
 const drafts = [];
 for (const g of galleries) {
   const where = g.draft ? `drafts/${galleryPath(g)}` : galleryPath(g);
-  write(where, layout({ title: g.title, body: galleryBody(g), current: url(`${galleryPath(g)}/`), draft: !!g.draft, bodyClass: 'gallery-page' }));
+  const current = url(`${galleryPath(g)}/`);
+  if (introFirst(g)) {
+    write(where, layout({ title: g.title, body: introBody(g), current, draft: !!g.draft, bodyClass: 'gallery-page' }));
+    write(`${where}/photos`, layout({ title: g.title, body: galleryBody(g), current, draft: !!g.draft, bodyClass: 'gallery-page' }));
+  } else write(where, layout({ title: g.title, body: galleryBody(g), current, draft: !!g.draft, bodyClass: 'gallery-page' }));
   if (g.draft) drafts.push({ kind: 'Gallery', title: g.title, href: url(`${where}/`) });
 }
 for (const c of collections.filter((c) => c.draft)) drafts.push({ kind: 'Print collection', title: c.title, href: url(`drafts/collections/${c.slug}/`) });

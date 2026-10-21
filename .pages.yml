@@ -205,4 +205,5 @@ content:
       - { name: contactPageSlug, label: "Web address of the contact page (used by Enquire buttons)", type: string }
       - { name: formEndpoint, label: "Contact form address (Web3Forms or Formspree)", type: string }
       - { name: formAccessKey, label: "Web3Forms access key", type: string }
+      - { name: goatcounterCode, label: "Visitor counts: your GoatCounter code (the name before .goatcounter.com); leave empty to switch off", type: string }
       - { name: customDomain, label: "Custom domain (e.g. www.scotthuntphoto.com)", type: string }

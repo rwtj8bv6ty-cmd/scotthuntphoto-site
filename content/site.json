@@ -48,7 +48,7 @@
   "rockHeroHeading": "Rock'n H",
   "rockHeroText": "Signed, limited-edition fine art prints by Scott Hunt.",
   "rockHeroButton": "Explore the collection",
-  "rockFeaturedHeading": "Featured prints",
+  "rockFeaturedHeading": "Featured Prints from The Space Between",
   "rockPrintsMenuLabel": "The Prints",
   "rockStatementHeading": "Artist statement",
   "rockStatementText": "",
@@ -138,13 +138,14 @@
   "rockInstagram": "@rockn_h_editions_fine_art",
   "rockRoomPhotos": [
     {
-      "image": "/photos/rockn-h/room-station-wagon.jpg"
+      "image": "/photos/rockn-h/room-station-wagon-shadow.jpg"
     },
     {
-      "image": "/photos/rockn-h/room-storm-cloud.jpg"
+      "image": "/photos/rockn-h/room-storm-cloud-shadow.jpg"
     },
     {
       "image": "/photos/rockn-h/room-gas-signs.jpg"
     }
-  ]
+  ],
+  "goatcounterCode": ""
 }
