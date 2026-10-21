@@ -1,0 +1,57 @@
+{
+  "title": "Out There",
+  "draft": false,
+  "slug": "",
+  "order": 2,
+  "cover": "",
+  "description": "",
+  "options": [
+    {
+      "material": "Archival Paper",
+      "size": "14x17.5",
+      "price": "225"
+    }
+  ],
+  "prints": [
+    {
+      "image": "/photos/out-there/road.jpg",
+      "title": "Road",
+      "featured": false,
+      "description": "",
+      "alt": "",
+      "editionsSold": 0,
+      "sales": [],
+      "options": []
+    },
+    {
+      "image": "/photos/out-there/grocery.jpg",
+      "title": "Grocery",
+      "featured": false,
+      "description": "",
+      "alt": "",
+      "editionsSold": 0,
+      "sales": [],
+      "options": []
+    },
+    {
+      "image": "/photos/out-there/yucca.jpg",
+      "title": "Yucca",
+      "featured": false,
+      "description": "",
+      "alt": "",
+      "editionsSold": 0,
+      "sales": [],
+      "options": []
+    },
+    {
+      "image": "/photos/out-there/texas.jpg",
+      "title": "Texas",
+      "featured": false,
+      "description": "",
+      "alt": "",
+      "editionsSold": 0,
+      "sales": [],
+      "options": []
+    }
+  ]
+}
