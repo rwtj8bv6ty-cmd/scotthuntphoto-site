@@ -386,12 +386,6 @@ function rockHomeBody() {
   const statement = site.rockStatementText
     ? `<section class="rk-statement"><h2>${esc(site.rockStatementHeading || '')}</h2><div>${site.rockStatementText}</div><a class="rk-btn" href="${url(`${ROCK_HOME}collections/`)}">${esc(site.rockHeroButton || 'Explore the collection')}</a></section>`
     : '';
-  const cards = liveCollections
-    .map((c) => {
-      const cover = c.cover || c.prints[0]?.image;
-      return `<a class="card" href="${url(`${ROCK_HOME}collections/${c.slug}/`)}">${cover ? `<img src="${img(cover)}" alt="" loading="lazy">` : ''}<span>${esc(c.title)}</span></a>`;
-    })
-    .join('');
   const artist = site.rockArtistText
     ? `<section class="rk-artist">${site.rockArtistPhoto ? `<img src="${img(site.rockArtistPhoto)}" alt="">` : ''}<div><h2>${esc(site.rockArtistHeading || 'About the artist')}</h2>${site.rockArtistText}</div></section>`
     : '';
@@ -409,7 +403,6 @@ ${firstCollection ? printRow(firstCollection, site.rockFeaturedHeading || `Featu
 ${roomsHtml}
 ${moreCollections.map((c) => printRow(c, `Featured Prints from ${c.title}`)).join('\n')}
 ${statement}
-${liveCollections.length > 1 ? `<section class="rk-section"><div class="rk-head"><h2>Collections</h2></div><div class="cards rk-cards">${cards}</div></section>` : ''}
 ${artist}
 ${newsletter()}`;
 }
