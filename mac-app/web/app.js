@@ -230,8 +230,9 @@ async function prepareUploads(files, folder) {
   else if (values.length) toast(`Added ${plural(values.length, 'photo')}. Publish when you're ready.`);
   return values;
 }
-function uploadFolder(doc) {
-  if (!doc || doc.entry.type !== 'collection') return `${inDir()}/site`;
+// Rock'n H settings photos (room photos, artist photo…) live with the other Rock'n H images.
+function uploadFolder(doc, f) {
+  if (!doc || doc.entry.type !== 'collection') return `${inDir()}/${f && /^rock/i.test(f.name) ? 'rockn-h' : 'site'}`;
   const own = slugify(doc.data.slug || docTitle(doc)) || 'photos';
   const parent = parentOf(doc);
   return parent ? `${inDir()}/${slugify(docSlug(parent))}/${own}` : `${inDir()}/${own}`;
@@ -955,7 +956,7 @@ function imageInput(obj, f, doc) {
       h('div', { class: 'image-preview' }, v ? h('img', { src: imgSrc(v), alt: '' }) : h('span', { class: 'muted' }, 'None')),
       h('div', { class: 'col' },
         h('button', { onclick: async (e) => { e.preventDefault(); const p = await pickPhotos(false); if (p) { checkpoint(); obj[f.name] = p[0]; changed(); draw(); } } }, 'Choose from website…'),
-        h('button', { onclick: async (e) => { e.preventDefault(); const files = await chooseFiles(false); const vals = await prepareUploads(files, uploadFolder(doc)); if (vals.length) { checkpoint(); obj[f.name] = vals[0]; changed(); draw(); } } }, 'Upload from Mac…'),
+        h('button', { onclick: async (e) => { e.preventDefault(); const files = await chooseFiles(false); const vals = await prepareUploads(files, uploadFolder(doc, f)); if (vals.length) { checkpoint(); obj[f.name] = vals[0]; changed(); draw(); } } }, 'Upload from Mac…'),
         v ? h('button', { class: 'danger-quiet', onclick: (e) => { e.preventDefault(); checkpoint(); obj[f.name] = ''; changed(); draw(); } }, 'Remove') : null));
   };
   draw();
@@ -1521,7 +1522,7 @@ function photoGrid(doc, f, holder) {
     toast('Cover photo set.');
   }
   async function addFiles(files, at = arr.length) {
-    const vals = await prepareUploads(files, uploadFolder(doc));
+    const vals = await prepareUploads(files, uploadFolder(doc, f));
     if (!vals.length) return;
     checkpoint();
     arr.splice(at, 0, ...vals.map((v) => ({ ...defaultsFor(f.fields), [key]: v })));
@@ -1555,7 +1556,7 @@ function photoGrid(doc, f, holder) {
     const big = h('img', { src: imgSrc(it[key], true), alt: '' });
     const replace = h('button', { onclick: async () => {
       const files = await chooseFiles(false);
-      const vals = await prepareUploads(files, uploadFolder(doc));
+      const vals = await prepareUploads(files, uploadFolder(doc, f));
       if (!vals.length) return;
       checkpoint();
       it[key] = vals[0];
