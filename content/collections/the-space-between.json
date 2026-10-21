@@ -4,8 +4,30 @@
   "draft": false,
   "order": 1,
   "cover": "",
-  "description": "<p>Panoramic landscapes.</p>",
+  "description": "",
   "prints": [
+    {
+      "image": "/photos/the-space-between/bhutan-2.jpg",
+      "title": "Path to Enlightenment ",
+      "featured": false,
+      "description": "<p>The Thimphu Chhu River flows beneath a traditional Bhutanese cantilevered bridge adorned with colorful prayer flags. Those making the journey to the Cheri Monastery, perched high above, often rest here to take in the sounds of rushing water and the smell of Himalayan Blue Pine.</p>",
+      "alt": "",
+      "editionsSold": 0,
+      "sales": [],
+      "options": [
+        {
+          "material": "Archival Paper",
+          "size": "7 × 19 in (11 × 22 in overall)",
+          "price": "900",
+          "edition": 100
+        },
+        {
+          "material": "Archival Paper",
+          "size": "",
+          "price": ""
+        }
+      ]
+    },
     {
       "image": "/photos/the-space-between/alabama-hills-1.jpg",
       "title": "Alabama Hills",
@@ -43,15 +65,6 @@
       "options": []
     },
     {
-      "image": "/photos/the-space-between/lake-louise.jpg",
-      "title": "Lake Louise",
-      "description": "",
-      "alt": "",
-      "featured": true,
-      "editionsSold": 0,
-      "options": []
-    },
-    {
       "image": "/photos/the-space-between/death-valley-1.jpg",
       "title": "Death Valley",
       "description": "",
@@ -71,16 +84,6 @@
     },
     {
       "image": "/photos/the-space-between/iguazu-5.jpg",
-      "title": "",
-      "featured": false,
-      "description": "",
-      "alt": "",
-      "editionsSold": 0,
-      "sales": [],
-      "options": []
-    },
-    {
-      "image": "/photos/the-space-between/bhutan-2.jpg",
       "title": "",
       "featured": false,
       "description": "",
