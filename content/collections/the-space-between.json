@@ -52,15 +52,6 @@
       "options": []
     },
     {
-      "image": "/photos/the-space-between/zion-2.jpg",
-      "title": "Zion",
-      "description": "",
-      "alt": "",
-      "featured": true,
-      "editionsSold": 0,
-      "options": []
-    },
-    {
       "image": "/photos/the-space-between/death-valley-1.jpg",
       "title": "Death Valley",
       "description": "",
@@ -76,6 +67,26 @@
       "alt": "",
       "featured": true,
       "editionsSold": 0,
+      "options": []
+    },
+    {
+      "image": "/photos/the-space-between/iguazu-5.jpg",
+      "title": "",
+      "featured": false,
+      "description": "",
+      "alt": "",
+      "editionsSold": 0,
+      "sales": [],
+      "options": []
+    },
+    {
+      "image": "/photos/the-space-between/bhutan-2.jpg",
+      "title": "",
+      "featured": false,
+      "description": "",
+      "alt": "",
+      "editionsSold": 0,
+      "sales": [],
       "options": []
     }
   ],
