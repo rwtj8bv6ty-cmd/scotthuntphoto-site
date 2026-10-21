@@ -7,6 +7,16 @@
   "description": "",
   "prints": [
     {
+      "image": "/photos/the-space-between/big-sur-3.jpg",
+      "title": "",
+      "featured": false,
+      "description": "",
+      "alt": "",
+      "editionsSold": 0,
+      "sales": [],
+      "options": []
+    },
+    {
       "image": "/photos/the-space-between/bhutan-2.jpg",
       "title": "Path to Enlightenment ",
       "featured": false,
@@ -38,26 +48,8 @@
       "options": []
     },
     {
-      "image": "/photos/the-space-between/andes-1.jpg",
-      "title": "Andes",
-      "description": "",
-      "alt": "",
-      "featured": true,
-      "editionsSold": 0,
-      "options": []
-    },
-    {
       "image": "/photos/the-space-between/big-sur-1.jpg",
       "title": "Big Sur",
-      "description": "",
-      "alt": "",
-      "featured": true,
-      "editionsSold": 0,
-      "options": []
-    },
-    {
-      "image": "/photos/the-space-between/great-sand-dunes.jpg",
-      "title": "Great Sand Dunes",
       "description": "",
       "alt": "",
       "featured": true,
@@ -84,7 +76,17 @@
       "options": []
     },
     {
-      "image": "/photos/the-space-between/big-sur-3.jpg",
+      "image": "/photos/the-space-between/sierras-1.jpg",
+      "title": "",
+      "featured": false,
+      "description": "",
+      "alt": "",
+      "editionsSold": 0,
+      "sales": [],
+      "options": []
+    },
+    {
+      "image": "/photos/the-space-between/sahara.jpg",
       "title": "",
       "featured": false,
       "description": "",
