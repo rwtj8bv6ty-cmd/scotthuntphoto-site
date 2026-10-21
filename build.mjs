@@ -374,7 +374,14 @@ function newsletter() {
 }
 
 function rockHomeBody() {
-  const featured = allPrints.filter((p) => p.featured).length ? allPrints.filter((p) => p.featured) : allPrints;
+  // Each collection gets its own row of prints: its featured ones, or all of them if none is featured.
+  // The first collection sits under the hero; the others follow the room photos, each under its own heading.
+  const featuredOf = (c) => (c.prints.some((p) => p.featured) ? c.prints.filter((p) => p.featured) : c.prints);
+  const printRow = (c, heading) => {
+    const list = featuredOf(c).slice(0, 12);
+    return list.length ? `<section class="rk-section"><div class="rk-head"><h2>${esc(heading)}</h2><a href="${url(`${ROCK_HOME}collections/${c.slug}/`)}">View all</a></div><div class="product-grid">${list.map(printCard).join('')}</div></section>` : '';
+  };
+  const [firstCollection, ...moreCollections] = liveCollections;
   const hero = site.rockHeroImage || allPrints[0]?.image;
   const statement = site.rockStatementText
     ? `<section class="rk-statement"><h2>${esc(site.rockStatementHeading || '')}</h2><div>${site.rockStatementText}</div><a class="rk-btn" href="${url(`${ROCK_HOME}collections/`)}">${esc(site.rockHeroButton || 'Explore the collection')}</a></section>`
@@ -398,8 +405,9 @@ function rockHomeBody() {
     ${allPrints.length ? `<a class="rk-btn light" href="${url(`${ROCK_HOME}collections/`)}">${esc(site.rockHeroButton || 'Explore the collection')}</a>` : ''}
   </div>
 </section>
-${featured.length ? `<section class="rk-section"><div class="rk-head"><h2>${esc(site.rockFeaturedHeading || 'Featured prints')}</h2><a href="${url(`${ROCK_HOME}collections/`)}">View all</a></div><div class="product-grid">${featured.slice(0, 12).map(printCard).join('')}</div></section>` : ''}
+${firstCollection ? printRow(firstCollection, site.rockFeaturedHeading || `Featured Prints from ${firstCollection.title}`) : ''}
 ${roomsHtml}
+${moreCollections.map((c) => printRow(c, `Featured Prints from ${c.title}`)).join('\n')}
 ${statement}
 ${liveCollections.length > 1 ? `<section class="rk-section"><div class="rk-head"><h2>Collections</h2></div><div class="cards rk-cards">${cards}</div></section>` : ''}
 ${artist}

@@ -1,6 +1,6 @@
 {
   "title": "Out There",
-  "draft": true,
+  "draft": false,
   "slug": "",
   "order": 2,
   "cover": "",
@@ -15,7 +15,7 @@
   "prints": [
     {
       "image": "/photos/out-there/road.jpg",
-      "title": "",
+      "title": "Road",
       "featured": false,
       "description": "",
       "alt": "",
@@ -25,7 +25,7 @@
     },
     {
       "image": "/photos/out-there/grocery.jpg",
-      "title": "",
+      "title": "Grocery",
       "featured": false,
       "description": "",
       "alt": "",
@@ -35,7 +35,7 @@
     },
     {
       "image": "/photos/out-there/yucca.jpg",
-      "title": "",
+      "title": "Yucca",
       "featured": false,
       "description": "",
       "alt": "",
@@ -45,7 +45,7 @@
     },
     {
       "image": "/photos/out-there/texas.jpg",
-      "title": "",
+      "title": "Texas",
       "featured": false,
       "description": "",
       "alt": "",
