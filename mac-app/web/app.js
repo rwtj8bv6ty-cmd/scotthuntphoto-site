@@ -1652,8 +1652,10 @@ let lastPickSource = null;
 function pickPhotos(multiple, already = new Set()) {
   const sources = photoSources();
   const chosen = new Set();
-  const grid = h('div', { class: 'grid picker' });
+  const grid = h('div', { class: 'grid' });
   grid.style.setProperty('--tile', '120px');
+  // The grid scrolls inside its own box rather than being the scrolling box itself (see .tile in app.css).
+  const scroller = h('div', { class: 'picker' }, grid);
   const groups = [...new Set(sources.map((x) => x.group))];
   const sourceSel = h('select', {}, groups.map((g) => h('optgroup', { label: g },
     sources.filter((x) => x.group === g).map((x) => h('option', { value: x.id }, `${x.label} (${x.values.length})`)))));
@@ -1681,13 +1683,13 @@ function pickPhotos(multiple, already = new Set()) {
       });
       return t;
     }));
-    grid.scrollTop = 0;
+    scroller.scrollTop = 0;
     showInfo();
   };
   sourceSel.addEventListener('change', draw);
   draw();
   return modal(multiple ? 'Add photos from your website' : 'Choose a photo',
-    h('div', {}, h('div', { class: 'row' }, h('label', { class: 'field inline' }, h('span', {}, 'Gallery'), sourceSel), allBtn, info), grid),
+    h('div', {}, h('div', { class: 'row' }, h('label', { class: 'field inline' }, h('span', {}, 'Gallery'), sourceSel), allBtn, info), scroller),
     [{ label: 'Cancel', value: null }, { label: multiple ? 'Add' : 'Choose', primary: true, value: 'ok' }], { wide: true })
     .then((r) => (r === 'ok' && chosen.size ? [...chosen] : null));
 }

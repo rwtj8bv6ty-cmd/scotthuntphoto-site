@@ -141,8 +141,8 @@ details summary { cursor: default; color: var(--muted); }
 .card { border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: var(--field); cursor: default; }
 .card:hover { border-color: var(--muted); }
 .card.dragging { opacity: .4; }
-.card-img { aspect-ratio: 4 / 3; background: var(--side); display: flex; align-items: center; justify-content: center; }
-.card-img img { width: 100%; height: 100%; object-fit: cover; }
+.card-img { position: relative; aspect-ratio: 4 / 3; background: var(--side); display: flex; align-items: center; justify-content: center; }
+.card-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .card-text { padding: 9px 12px; display: flex; flex-direction: column; }
 .tips { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin: 22px 0; }
 .tip { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
@@ -155,8 +155,11 @@ details summary { cursor: default; color: var(--muted); }
 .photo-bar .count { margin: 0 6px; }
 .photo-bar input[type=range] { width: 120px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--tile, 150px), 1fr)); gap: 8px; }
-.tile { position: relative; aspect-ratio: 1; background: var(--side); border-radius: 6px; overflow: hidden; border: 2px solid transparent; }
-.tile img { width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
+/* Square tiles. The spacer and the absolutely placed photo keep them square in every WebKit version: a photo in the
+   normal flow made Safari size tiles in a scrolling box by the box's height, so they became tall grey columns. */
+.tile { position: relative; background: var(--side); border-radius: 6px; overflow: hidden; border: 2px solid transparent; }
+.tile::before { content: ""; display: block; padding-top: 100%; }
+.tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
 .tile.selected { border-color: var(--sel); box-shadow: 0 0 0 2px var(--sel); }
 .tile.selected::after { content: "✓"; position: absolute; top: 5px; right: 6px; width: 20px; height: 20px; border-radius: 50%; background: var(--sel); color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center; }
 .tile .num { position: absolute; left: 5px; bottom: 4px; font-size: 11px; padding: 0 5px; border-radius: 4px; background: rgba(0,0,0,.5); color: #fff; }
