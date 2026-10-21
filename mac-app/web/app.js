@@ -1616,35 +1616,95 @@ function autoScroll(e) {
 document.addEventListener('dragover', (e) => { if (DRAG) autoScroll(e); });
 
 // Pick photos already on the website, grouped by folder.
+// Photos to choose from, grouped the way the website shows them: each gallery in menu order with its sub-galleries,
+// the Rock'n H collections, then any other photo files on the website by folder.
+function photoSources() {
+  const out = [];
+  const seen = new Set();
+  for (const entry of S.schema) {
+    const pf = entry.type === 'collection' && photoListField(entry);
+    if (!pf) continue;
+    const key = imageKey(pf);
+    const group = SIDES[entry.side] || cleanLabel(entry.label);
+    const add = (d, label) => {
+      const values = [...new Set((d.data[pf.name] || []).map((it) => it && it[key]).filter((v) => repoPathOf(v)))];
+      values.forEach((v) => seen.add(repoPathOf(v)));
+      if (values.length) out.push({ id: d.path, label, group, values });
+    };
+    for (const d of sortedDocs(entry)) {
+      if (parentOf(d)) continue;
+      add(d, docTitle(d));
+      childrenOf(d).forEach((c) => add(c, `${docTitle(d)} › ${docTitle(c)}`));
+    }
+  }
+  const rest = new Map();
+  for (const p of allPhotoPaths()) {
+    if (seen.has(p)) continue;
+    if (!rest.has(dirname(p))) rest.set(dirname(p), []);
+    rest.get(dirname(p)).push(valueOf(p));
+  }
+  for (const [dir, values] of rest) out.push({ id: 'dir:' + dir, label: dir.slice(inDir().length + 1) || '(top)', group: 'Other photos on the website', values });
+  return out;
+}
+let lastPickSource = null;
+
 function pickPhotos(multiple, already = new Set()) {
-  const paths = allPhotoPaths();
-  const folders = [...new Set(paths.map(dirname))];
+  const sources = photoSources();
   const chosen = new Set();
   const grid = h('div', { class: 'grid picker' });
   grid.style.setProperty('--tile', '120px');
-  const folderSel = h('select', {}, folders.map((f) => h('option', { value: f }, f.slice(inDir().length + 1) || '(top)')));
+  const groups = [...new Set(sources.map((x) => x.group))];
+  const sourceSel = h('select', {}, groups.map((g) => h('optgroup', { label: g },
+    sources.filter((x) => x.group === g).map((x) => h('option', { value: x.id }, `${x.label} (${x.values.length})`)))));
+  if (sources.some((x) => x.id === lastPickSource)) sourceSel.value = lastPickSource;
   const info = h('span', { class: 'muted' });
+  const showInfo = () => { info.textContent = chosen.size ? `${chosen.size} chosen` : already.size ? 'Faded photos are already here.' : ''; };
+  const allBtn = multiple ? h('button', { class: 'link', onclick: () => {
+    const src = sources.find((x) => x.id === sourceSel.value);
+    (src ? src.values : []).forEach((v) => { if (!already.has(v)) chosen.add(v); });
+    grid.querySelectorAll('.tile').forEach((t) => t.classList.toggle('selected', chosen.has(t.dataset.value)));
+    showInfo();
+  } }, 'Select all in this gallery') : null;
+  // Tiles are made once per gallery; choosing a photo only changes its tick, so photos that are still loading keep loading.
   const draw = () => {
-    grid.replaceChildren(...paths.filter((p) => dirname(p) === folderSel.value).map((p) => {
-      const v = valueOf(p);
-      const t = h('div', { class: 'tile' + (chosen.has(v) ? ' selected' : '') + (already.has(v) ? ' already' : '') },
-        h('img', { src: imgSrc(v), loading: 'lazy', alt: '' }));
+    const src = sources.find((x) => x.id === sourceSel.value);
+    lastPickSource = src ? src.id : null;
+    grid.replaceChildren(...(src ? src.values : []).map((v) => {
+      const t = h('div', { class: 'tile' + (chosen.has(v) ? ' selected' : '') + (already.has(v) ? ' already' : ''), 'data-value': v },
+        h('img', { src: imgSrc(v), loading: 'lazy', decoding: 'async', alt: '' }));
       t.addEventListener('click', () => {
-        if (!multiple) chosen.clear();
+        if (!multiple) { chosen.clear(); grid.querySelectorAll('.tile.selected').forEach((x) => x.classList.remove('selected')); }
         chosen.has(v) ? chosen.delete(v) : chosen.add(v);
-        draw();
+        t.classList.toggle('selected', chosen.has(v));
+        showInfo();
       });
       return t;
     }));
-    info.textContent = chosen.size ? `${chosen.size} chosen` : already.size ? 'Faded photos are already here.' : '';
+    grid.scrollTop = 0;
+    showInfo();
   };
-  folderSel.addEventListener('change', draw);
+  sourceSel.addEventListener('change', draw);
   draw();
   return modal(multiple ? 'Add photos from your website' : 'Choose a photo',
-    h('div', {}, h('div', { class: 'row' }, h('label', { class: 'field inline' }, h('span', {}, 'Folder'), folderSel), info), grid),
+    h('div', {}, h('div', { class: 'row' }, h('label', { class: 'field inline' }, h('span', {}, 'Gallery'), sourceSel), allBtn, info), grid),
     [{ label: 'Cancel', value: null }, { label: multiple ? 'Add' : 'Choose', primary: true, value: 'ok' }], { wide: true })
     .then((r) => (r === 'ok' && chosen.size ? [...chosen] : null));
 }
+
+// A photo that fails to load (GitHub busy, the connection dropped) is tried again a couple of times.
+document.addEventListener('error', (e) => {
+  const img = e.target;
+  if (!(img instanceof HTMLImageElement) || !/^(shp|https?):/.test(img.src)) return;
+  const n = Number(img.dataset.retries || 0);
+  if (n >= 2) return;
+  img.dataset.retries = String(n + 1);
+  setTimeout(() => {
+    if (!img.isConnected) return;
+    const u = new URL(img.src);
+    u.searchParams.set('retry', String(n + 1));
+    img.src = u.href;
+  }, 2000 * (n + 1));
+}, true);
 
 // ---------- publishing ----------
 function imagesOf(doc, data) {
