@@ -246,6 +246,11 @@ function editionInfo(p) {
 const showCaptions = site.showCaptions === true; // titles and captions stay hidden from visitors unless turned on in Site settings
 const captionText = (p) => (showCaptions ? [p.title, p.caption].filter(Boolean).join(' · ') : '');
 
+const hasIntro = (g) => String(g.description || '').replace(/<[^>]*>/g, '').trim() !== '';
+// A gallery with its own photos and an Introduction opens on the introduction; the photos follow at <gallery>/photos/.
+const introFirst = (g) => hasIntro(g) && photosFor(g).length > 0 && !subGalleries(g).length;
+const introBody = (g) => `<section class="statement"><h1>${esc(g.title)}</h1><div class="statement-text">${g.description}</div><a class="statement-next" href="${url(`${galleryPath(g)}/photos/`)}">View the photographs →</a></section>`;
+
 // Gallery: one large photo with arrows and a counter, plus a "show thumbnails" grid.
 function galleryBody(g) {
   const photos = photosFor(g);
@@ -543,7 +548,11 @@ if (!galleries.some((g) => g.slug === 'pocket-pictures' && !g.parent)) write('po
 const drafts = [];
 for (const g of galleries) {
   const where = g.draft ? `drafts/${galleryPath(g)}` : galleryPath(g);
-  write(where, layout({ title: g.title, body: galleryBody(g), current: url(`${galleryPath(g)}/`), draft: !!g.draft, bodyClass: 'gallery-page' }));
+  const current = url(`${galleryPath(g)}/`);
+  if (introFirst(g)) {
+    write(where, layout({ title: g.title, body: introBody(g), current, draft: !!g.draft, bodyClass: 'gallery-page' }));
+    write(`${where}/photos`, layout({ title: g.title, body: galleryBody(g), current, draft: !!g.draft, bodyClass: 'gallery-page' }));
+  } else write(where, layout({ title: g.title, body: galleryBody(g), current, draft: !!g.draft, bodyClass: 'gallery-page' }));
   if (g.draft) drafts.push({ kind: 'Gallery', title: g.title, href: url(`${where}/`) });
 }
 for (const c of collections.filter((c) => c.draft)) drafts.push({ kind: 'Print collection', title: c.title, href: url(`drafts/collections/${c.slug}/`) });
