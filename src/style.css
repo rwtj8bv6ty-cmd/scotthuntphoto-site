@@ -342,3 +342,6 @@ html.full-lock { overflow: hidden; }
 .share-menu { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 12px; font-size: .9rem; }
 .share-menu[hidden] { display: none; }
 .share-menu button { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-decoration: underline; cursor: pointer; }
+.story-logo { float: right; width: 150px; height: auto; margin: 0 0 16px 28px; }
+@media (max-width: 600px) { .story-logo { width: 110px; margin-left: 18px; } }
+.prose h2 { clear: both; }
