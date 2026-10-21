@@ -203,7 +203,14 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
 .side-rock .has-sub ul { background: var(--bg); border-color: var(--line); }
 .side-rock .nav-switch a { opacity: .55; }
 .side-rock .menu-toggle span { background: var(--fg); }
-@media (max-width: 760px) { .side-rock nav { background: rgba(250,248,244,.98); } .side-rock .site-header { background: rgba(250,248,244,.98); } }
+@media (max-width: 760px) {
+  .side-rock .site-header { background: var(--bg); }
+  /* Full-screen menu: solid background so nothing shows through, and every item the same size. */
+  .side-rock nav { background: var(--bg); height: 100dvh; z-index: 1; }
+  .side-rock .has-sub { display: flex; flex-direction: column; align-items: center; }
+  .side-rock .has-sub ul { background: none; gap: 14px; padding-top: 14px; }
+  .side-rock .has-sub ul a { font-size: 1rem; padding: 0; color: var(--muted); }
+}
 .side-rock .site-footer { border-top: 1px solid var(--line); }
 .rk-btn { display: inline-block; padding: 14px 30px; background: var(--fg); color: var(--bg); text-decoration: none; font-size: .78rem; letter-spacing: .18em; text-transform: uppercase; border: 1px solid var(--fg); transition: background .2s, color .2s; }
 .rk-btn:hover { background: transparent; color: var(--fg); }
