@@ -388,3 +388,19 @@ document.querySelectorAll('.nav-parent > a').forEach((a) => {
     a.setAttribute('aria-expanded', String(open));
   });
 });
+
+// Share button on print pages.
+document.querySelectorAll('.share').forEach((box) => {
+  const menu = box.querySelector('.share-menu');
+  const link = new URL(box.dataset.url, location.href).href;
+  box.querySelector('.share-btn').addEventListener('click', () => {
+    if (navigator.share && matchMedia('(pointer: coarse)').matches) {
+      navigator.share({ title: box.dataset.title, url: link }).catch(() => {});
+    } else menu.hidden = !menu.hidden;
+  });
+  box.querySelector('.share-copy').addEventListener('click', (e) => {
+    const done = () => { e.target.textContent = 'Link copied'; setTimeout(() => { e.target.textContent = 'Copy link'; }, 2000); };
+    if (navigator.clipboard) navigator.clipboard.writeText(link).then(done, () => prompt('Copy this link:', link));
+    else prompt('Copy this link:', link);
+  });
+});

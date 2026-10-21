@@ -22,6 +22,9 @@ const esc = (s = '') =>
   String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const slugify = (s = '') => String(s).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const url = (p = '') => BASE + String(p).replace(/^\//, '');
+const absImg = (p = '') => (/^https?:/.test(p) ? p : absUrl(p));
+// Full web address, for links shared outside the site (falls back to a site-relative path in local builds).
+const absUrl = (p = '') => (process.env.SITE_URL ? process.env.SITE_URL.replace(/\/?$/, '/') + String(p).replace(/^\//, '') : url(p));
 const img = (p = '') => (/^https?:/.test(p) ? p : url(p));
 // Small preview image made by scripts/thumbs.py (photos/<folder>/_thumbs/<name>); falls back to the full photo.
 const thumb = (p = '') => {
@@ -90,6 +93,10 @@ function photoNav(current) {
 </aside>`;
 }
 
+// Instagram: a handle (@name) or a full link.
+const igHref = (v) => { v = String(v || '').trim(); return !v ? '' : /^https?:/.test(v) ? v : `https://www.instagram.com/${v.replace(/^@/, '')}/`; };
+const IG_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none"/></svg>';
+
 function rockNav(current) {
   const link = (href, title) => `<li${href === current ? ' class="active"' : ''}><a href="${href}">${esc(title)}</a></li>`;
   const sub = [`<li><a href="${url(`${ROCK_HOME}collections/`)}">All Prints</a></li>`, ...liveCollections.map((c) => `<li><a href="${url(`${ROCK_HOME}collections/${c.slug}/`)}">${esc(c.title)}</a></li>`)].join('');
@@ -101,12 +108,12 @@ function rockNav(current) {
   return `<header class="site-header">
   <a class="brand" href="${url(ROCK_HOME)}">${site.rockLogo ? `<img src="${img(site.rockLogo)}" alt="${esc(ROCK_NAME)}">` : esc(ROCK_NAME)}</a>
   <button class="menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
-  <nav><ul>${items}<li class="nav-cart"><a href="${url(`${ROCK_HOME}cart/`)}">Cart <span class="cart-count"></span></a></li><li class="nav-switch"><a href="${url(PHOTO_HOME)}">${esc(PHOTO_NAME)} →</a></li></ul></nav>
+  <nav><ul>${items}<li class="nav-cart"><a href="${url(`${ROCK_HOME}cart/`)}">Cart <span class="cart-count"></span></a></li><li class="nav-switch"><a href="${url(PHOTO_HOME)}">${esc(PHOTO_NAME)} →</a></li>${igHref(site.rockInstagram) ? `<li class="nav-ig"><a href="${esc(igHref(site.rockInstagram))}" target="_blank" rel="noopener" aria-label="Instagram">${IG_ICON}</a></li>` : ''}</ul></nav>
 </header>`;
 }
 
 // ---------- layout ----------
-function layout({ title, body, current, side = 'photography', draft = false, bodyClass = '', description }) {
+function layout({ title, body, current, side = 'photography', draft = false, bodyClass = '', description, share }) {
   const brand = side === 'rocknh' ? ROCK_NAME : side === 'entrance' ? site.title : PHOTO_NAME;
   const fullTitle = title ? `${title} · ${brand}` : brand;
   const chrome = side === 'photography' ? photoNav(current) : side === 'rocknh' ? rockNav(current) : '';
@@ -119,6 +126,7 @@ function layout({ title, body, current, side = 'photography', draft = false, bod
 <title>${esc(fullTitle)}</title>
 <meta name="description" content="${esc(description || site.tagline || '')}">
 ${draft ? '<meta name="robots" content="noindex, nofollow">' : ''}
+${share ? `<meta property="og:type" content="website"><meta property="og:title" content="${esc(fullTitle)}"><meta property="og:url" content="${share.url}"><meta property="og:image" content="${share.image}"><meta name="twitter:card" content="summary_large_image">` : ''}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${url('assets/style.css')}?v=${ASSET_V}">
@@ -330,7 +338,7 @@ const shipRates = (site.rockShippingRates || []).filter((r) => r && r.size && r.
   .map((r) => ({ size: String(r.size).trim(), zone: String(r.zone).trim(), price: num(r.price) }));
 // Sales tax by the state an order ships to: a percentage, optionally charged on shipping too.
 const salesTax = (site.rockSalesTax || []).filter((t) => t && t.state && num(t.rate) > 0)
-  .flatMap((t) => listOf(t.state).map((st) => ({ state: st.toUpperCase(), rate: num(t.rate), shipping: t.taxShipping !== false })));
+  .flatMap((t) => listOf(t.state).map((st) => ({ state: st.toUpperCase(), rate: num(t.rate), shipping: t.taxShipping === true })));
 const enquireHref = (p) => `${url(`${site.rockContactSlug || 'rockn-h-contact'}/`)}?about=${encodeURIComponent(p.title || p.slug)}`;
 
 function newsletter() {
@@ -363,6 +371,9 @@ function rockHomeBody() {
   const artist = site.rockArtistText
     ? `<section class="rk-artist">${site.rockArtistPhoto ? `<img src="${img(site.rockArtistPhoto)}" alt="">` : ''}<div><h2>${esc(site.rockArtistHeading || 'About the artist')}</h2>${site.rockArtistText}</div></section>`
     : '';
+  // Room photos: prints shown on walls, full width, one after another.
+  const rooms = (site.rockRoomPhotos || []).map((r) => (typeof r === 'string' ? r : r && r.image)).filter(Boolean);
+  const roomsHtml = rooms.length ? `<section class="rk-rooms">${rooms.map((r) => `<img src="${img(r)}" alt="" loading="lazy">`).join('')}</section>` : '';
   return `<section class="rk-hero"${hero ? ` style="background-image:url('${img(hero)}')"` : ''}>
   <div class="rk-hero-text">
     <h1>${esc(site.rockHeroHeading || ROCK_NAME)}</h1>
@@ -371,6 +382,7 @@ function rockHomeBody() {
   </div>
 </section>
 ${featured.length ? `<section class="rk-section"><div class="rk-head"><h2>${esc(site.rockFeaturedHeading || 'Featured prints')}</h2><a href="${url(`${ROCK_HOME}collections/`)}">View all</a></div><div class="product-grid">${featured.slice(0, 12).map(printCard).join('')}</div></section>` : ''}
+${roomsHtml}
 ${statement}
 ${liveCollections.length > 1 ? `<section class="rk-section"><div class="rk-head"><h2>Collections</h2></div><div class="cards rk-cards">${cards}</div></section>` : ''}
 ${artist}
@@ -396,6 +408,22 @@ const infoList = () =>
     .filter(([, html]) => html);
 const infoSections = () => infoList().map(([t, html]) => `<section class="print-info"><h2>${t}</h2>${html}</section>`).join('');
 const infoDropdowns = () => infoList().map(([t, html]) => `<details class="product-details"><summary>${t}</summary>${html}</details>`).join('');
+
+// Share: the phone's own share sheet where there is one, otherwise copy link, email, Facebook and Pinterest.
+function shareBox(p) {
+  const link = absUrl(`${ROCK_HOME}prints/${p.slug}/`);
+  const title = `${p.title || 'Untitled'} · ${ROCK_NAME}`;
+  const e = encodeURIComponent;
+  return `<div class="share" data-url="${esc(link)}" data-title="${esc(title)}">
+      <button type="button" class="share-btn">Share</button>
+      <div class="share-menu" hidden>
+        <button type="button" class="share-copy">Copy link</button>
+        <a href="mailto:?subject=${e(title)}&amp;body=${e(link)}">Email</a>
+        <a href="https://www.facebook.com/sharer/sharer.php?u=${e(link)}" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://pinterest.com/pin/create/button/?url=${e(link)}&amp;media=${e(absImg(p.image))}&amp;description=${e(title)}" target="_blank" rel="noopener">Pinterest</a>
+      </div>
+    </div>`;
+}
 
 function productBody(p) {
   const opts = optsOf(p);
@@ -433,6 +461,7 @@ function productBody(p) {
           : `<a class="rk-btn" href="${enquireHref(p)}">Enquire</a>`
     }
     ${p.description ? `<div class="product-desc">${p.description}</div>` : ''}
+    ${shareBox(p)}
     ${infoDropdowns()}
   </div>
 </section>`;
@@ -501,7 +530,8 @@ for (const c of collections) {
   write(where, layout({ title: c.title, side: 'rocknh', draft: !!c.draft, current: url(`${ROCK_HOME}collections/${c.slug}/`), body: collectionBody(c.title, c.prints, c.description) }));
   for (const p of c.prints) {
     const pw = c.draft ? `drafts/prints/${p.slug}` : `${ROCK_HOME}prints/${p.slug}`;
-    write(pw, layout({ title: p.title, side: 'rocknh', draft: !!c.draft, current: url(`${ROCK_HOME}prints/${p.slug}/`), body: productBody(p) }));
+    write(pw, layout({ title: p.title, side: 'rocknh', draft: !!c.draft, current: url(`${ROCK_HOME}prints/${p.slug}/`), body: productBody(p),
+      share: { url: absUrl(`${ROCK_HOME}prints/${p.slug}/`), image: absImg(p.image) } }));
   }
 }
 // Old addresses: send visitors to the right side.

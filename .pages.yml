@@ -148,6 +148,12 @@ content:
       - { name: galleriesMenuLabel, label: Menu name for galleries, type: string }
       - { name: rockLogo, label: "Rock'n H logo (optional, replaces the name in the header)", type: image }
       - { name: rockHeroImage, label: "Rock'n H home: large photo", type: image }
+      - name: rockRoomPhotos
+        label: "Rock'n H home: room photos, shown full width below the prints (drag to reorder)"
+        type: object
+        list: true
+        fields:
+          - { name: image, label: "Room photo", type: image }
       - { name: rockHeroHeading, label: "Rock'n H home: heading", type: string }
       - { name: rockHeroText, label: "Rock'n H home: tagline", type: string }
       - { name: rockHeroButton, label: "Rock'n H home: button text", type: string }
@@ -191,6 +197,7 @@ content:
           - { name: taxShipping, label: "Also charge tax on shipping", type: boolean }
       - { name: rockShipOnRequest, label: "Checkout: materials shipped on request, separated by commas (e.g. Acrylic); these show a quote button instead of Add to cart", type: string }
       - { name: rockShippingNote, label: "Checkout: note shown in the cart", type: rich-text }
+      - { name: rockInstagram, label: "Rock'n H Instagram (e.g. @rockn_h_editions_fine_art); shows an Instagram icon in the menu", type: string }
       - { name: rockNewsletter, label: Show newsletter sign-up, type: boolean }
       - { name: rockNewsletterHeading, label: Newsletter heading, type: string }
       - { name: rockContactSlug, label: "Web address of the Rock'n H contact page (used by Enquire buttons)", type: string }
