@@ -384,3 +384,11 @@ html.full-lock { overflow: hidden; }
 .statement-text p:only-child { margin-top: 0; }
 .statement-next { display: inline-block; margin-top: 28px; font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; text-decoration: none; opacity: .75; }
 .statement-next:hover { opacity: 1; }
+
+/* Intro pages: on phones, the way to the photographs is a bar fixed at the foot of the screen. */
+.statement-nav.phone-only { display: none; }
+@media (max-width: 760px) {
+  body:has(.statement-nav) { padding-bottom: 120px; }
+  .statement-nav, .statement-nav.phone-only { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); background: var(--bg); border-top: 1px solid var(--line); }
+  .statement-nav .statement-next { margin: 0; padding: 10px 14px; border: 1px solid var(--muted); opacity: 1; font-size: .72rem; }
+}

@@ -259,7 +259,7 @@ const captionText = (p) => (showCaptions ? [p.title, p.caption].filter(Boolean).
 const hasIntro = (g) => String(g.description || '').replace(/<[^>]*>/g, '').trim() !== '';
 // A gallery with its own photos and an Introduction opens on the introduction; the photos follow at <gallery>/photos/.
 const introFirst = (g) => hasIntro(g) && photosFor(g).length > 0 && !subGalleries(g).length;
-const introBody = (g) => `<section class="statement"><h1>${esc(g.title)}</h1><div class="statement-text">${g.description}</div><a class="statement-next" href="${url(`${galleryPath(g)}/photos/`)}">View the photographs →</a></section>`;
+const introBody = (g) => `<section class="statement"><h1>${esc(g.title)}</h1><div class="statement-text">${g.description}</div><div class="statement-nav"><a class="statement-next" href="${url(`${galleryPath(g)}/photos/`)}">View the photographs →</a></div></section>`;
 
 // Gallery: one large photo with arrows and a counter, plus a "show thumbnails" grid.
 function galleryBody(g) {
@@ -268,7 +268,9 @@ function galleryBody(g) {
   // A gallery with sub-galleries and no photos of its own shows its sub-galleries as a grid of covers.
   // A parent gallery with an Introduction shows it as a statement page in place of the cover grid.
   if (subs.length && !photos.length && String(g.description || '').replace(/<[^>]*>/g, '').trim()) {
-    return `<section class="statement"><h1>${esc(g.title)}</h1><div class="statement-text">${g.description}</div></section>`;
+    // On phones the sub-gallery links sit in a bar at the foot of the screen, since the menu is folded away.
+    const nav = `<div class="statement-nav phone-only">${subs.map((x) => `<a class="statement-next" href="${url(`${galleryPath(x)}/`)}">${esc(x.title)} →</a>`).join('')}</div>`;
+    return `<section class="statement"><h1>${esc(g.title)}</h1><div class="statement-text">${g.description}</div>${nav}</section>`;
   }
   if (subs.length && !photos.length) {
     return `<section class="sub-index">${subs
