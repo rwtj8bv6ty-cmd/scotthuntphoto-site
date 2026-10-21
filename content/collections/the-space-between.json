@@ -74,16 +74,17 @@
       "options": []
     },
     {
-      "image": "/photos/the-space-between/atlas-3.jpg",
-      "title": "Atlas Mountains",
+      "image": "/photos/the-space-between/iguazu-5.jpg",
+      "title": "",
+      "featured": false,
       "description": "",
       "alt": "",
-      "featured": true,
       "editionsSold": 0,
+      "sales": [],
       "options": []
     },
     {
-      "image": "/photos/the-space-between/iguazu-5.jpg",
+      "image": "/photos/the-space-between/big-sur-3.jpg",
       "title": "",
       "featured": false,
       "description": "",
