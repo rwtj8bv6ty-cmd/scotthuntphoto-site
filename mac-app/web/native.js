@@ -10,7 +10,10 @@
       http(method, url, headers, body) { return wk.postMessage({ cmd: 'http', method, url, headers, body: body ?? null }); },
       open(url) { wk.postMessage({ cmd: 'open', url }); },
       clearCache() { return wk.postMessage({ cmd: 'clearCache' }); },
-      blobURL(owner, repo, sha) { return `shp://blob/${owner}/${repo}/${sha}`; },
+      // The file's path and commit let the app fetch it from GitHub's file server instead of the (rate-limited) API.
+      blobURL(owner, repo, sha, path, ref) {
+        return `shp://blob/${owner}/${repo}/${sha}` + (path && ref ? `?path=${encodeURIComponent(path)}&ref=${ref}` : '');
+      },
     };
     return;
   }

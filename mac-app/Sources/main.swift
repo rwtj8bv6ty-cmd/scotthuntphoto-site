@@ -60,9 +60,15 @@ func mimeType(for data: Data, path: String) -> String {
 // MARK: - shp:// scheme
 
 final class SchemeHandler: NSObject, WKURLSchemeHandler {
-    // Both are only touched on the main thread.
+    private struct Photo { let owner, repo, sha: String; let path: String?; let ref: String? }
+    // Everything below is only touched on the main thread.
     private var stopped = Set<ObjectIdentifier>()
     private var waiting: [String: [WKURLSchemeTask]] = [:]  // photo sha -> requests waiting for its download
+    private var queue: [Photo] = []                           // downloads not started yet, newest last
+    private var active = 0
+    // A big gallery asks for over a hundred photos at once. GitHub refuses that many at the same time, so a few are
+    // fetched at a time, newest first, so the photos on screen now come before ones the page has already moved past.
+    private let maxActive = 6
     let webRoot = Bundle.main.resourceURL!.appendingPathComponent("web", isDirectory: true)
 
     func webView(_ webView: WKWebView, start task: WKURLSchemeTask) {
@@ -88,43 +94,75 @@ final class SchemeHandler: NSObject, WKURLSchemeHandler {
             // The same photo shown twice (or redrawn while loading) shares one download.
             if waiting[sha] != nil { waiting[sha]!.append(task); return }
             waiting[sha] = [task]
-            download(owner: owner, repo: repo, sha: sha, attempt: 0)
+            let query = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+            let item = { (name: String) in query.first(where: { $0.name == name })?.value }
+            let ref = item("ref").flatMap { $0.range(of: "^[0-9a-f]{40}$", options: .regularExpression) != nil ? $0 : nil }
+            queue.removeAll { $0.sha == sha }
+            queue.append(Photo(owner: owner, repo: repo, sha: sha, path: item("path"), ref: ref))
+            pump()
             return
         }
         finish(task, status: 404, data: Data(), type: "text/plain")
     }
 
-    private func download(owner: String, repo: String, sha: String, attempt: Int) {
-        var req = URLRequest(url: URL(string: "https://api.github.com/repos/\(owner)/\(repo)/git/blobs/\(sha)")!)
-        req.setValue("application/vnd.github.raw", forHTTPHeaderField: "Accept")
+    func webView(_ webView: WKWebView, stop task: WKURLSchemeTask) {
+        stopped.insert(ObjectIdentifier(task))
+    }
+
+    private func pump() {
+        while active < maxActive, let photo = queue.popLast() {
+            // Skip photos no page is waiting for any more (another gallery was opened meanwhile).
+            let tasks = waiting[photo.sha] ?? []
+            if tasks.allSatisfy({ stopped.contains(ObjectIdentifier($0)) }) {
+                tasks.forEach { stopped.remove(ObjectIdentifier($0)) }
+                waiting[photo.sha] = nil
+                continue
+            }
+            active += 1
+            download(photo, attempt: 0)
+        }
+    }
+
+    // First from GitHub's file server (fast, and not counted against the API), then through the API.
+    private func download(_ photo: Photo, attempt: Int) {
+        let useRaw = attempt == 0 && photo.path != nil && photo.ref != nil
+        var req: URLRequest
+        if useRaw, let path = photo.path!.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
+           let u = URL(string: "https://raw.githubusercontent.com/\(photo.owner)/\(photo.repo)/\(photo.ref!)/\(path)") {
+            req = URLRequest(url: u)
+            if let t = Store.token() { req.setValue("token \(t)", forHTTPHeaderField: "Authorization") }
+        } else {
+            req = URLRequest(url: URL(string: "https://api.github.com/repos/\(photo.owner)/\(photo.repo)/git/blobs/\(photo.sha)")!)
+            req.setValue("application/vnd.github.raw", forHTTPHeaderField: "Accept")
+            if let t = Store.token() { req.setValue("Bearer \(t)", forHTTPHeaderField: "Authorization") }
+        }
         req.timeoutInterval = 60
-        if let t = Store.token() { req.setValue("Bearer \(t)", forHTTPHeaderField: "Authorization") }
         URLSession.shared.dataTask(with: req) { data, resp, _ in
             let http = resp as? HTTPURLResponse
             let status = http?.statusCode ?? 0
             let body = data ?? Data()
-            if status == 200 { try? body.write(to: Store.cacheDir.appendingPathComponent(sha), options: .atomic) }
-            // GitHub asks apps that fetch many photos at once to slow down (403/429 with Retry-After), and a dropped
-            // connection has no status: wait a little and try again.
-            let busy = status == 429 || (status == 403 && (http?.value(forHTTPHeaderField: "Retry-After") != nil
-                || http?.value(forHTTPHeaderField: "X-RateLimit-Remaining") == "0"))
-            if (busy || status == 0 || status >= 500) && attempt < 4 {
-                let wait = Double(http?.value(forHTTPHeaderField: "Retry-After") ?? "") ?? pow(2, Double(attempt + 1))
-                DispatchQueue.main.asyncAfter(deadline: .now() + min(max(wait, 1), 30)) {
-                    self.download(owner: owner, repo: repo, sha: sha, attempt: attempt + 1)
-                }
-                return
-            }
+            if status == 200 { try? body.write(to: Store.cacheDir.appendingPathComponent(photo.sha), options: .atomic) }
             DispatchQueue.main.async {
-                for task in self.waiting.removeValue(forKey: sha) ?? [] {
+                if status != 200 {
+                    // The file server didn't have it: go straight to the API.
+                    if useRaw { return self.download(photo, attempt: 1) }
+                    // GitHub asks apps that fetch too much at once to slow down (403/429 with Retry-After), and a
+                    // dropped connection has no status: wait a little and try again.
+                    let busy = status == 429 || (status == 403 && (http?.value(forHTTPHeaderField: "Retry-After") != nil
+                        || http?.value(forHTTPHeaderField: "X-RateLimit-Remaining") == "0"))
+                    if (busy || status == 0 || status >= 500) && attempt < 5 {
+                        let wait = Double(http?.value(forHTTPHeaderField: "Retry-After") ?? "") ?? pow(2, Double(attempt))
+                        DispatchQueue.main.asyncAfter(deadline: .now() + min(max(wait, 1), 30)) { self.download(photo, attempt: attempt + 1) }
+                        return
+                    }
+                }
+                self.active -= 1
+                for task in self.waiting.removeValue(forKey: photo.sha) ?? [] {
                     self.finish(task, status: status == 0 ? 502 : status, data: body, type: mimeType(for: body, path: ""))
                 }
+                self.pump()
             }
         }.resume()
-    }
-
-    func webView(_ webView: WKWebView, stop task: WKURLSchemeTask) {
-        stopped.insert(ObjectIdentifier(task))
     }
 
     private func finish(_ task: WKURLSchemeTask, status: Int, data: Data, type: String) {

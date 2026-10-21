@@ -157,8 +157,9 @@ function imgSrc(value, full) {
   if (!p) return '';
   const up = S.uploads.get(p);
   if (up) return full ? up.url : up.thumbUrl;
-  const sha = (!full && S.snap.files.get(thumbPath(p))) || S.snap.files.get(p);
-  return sha ? Native.blobURL(S.config.owner, S.config.repo, sha) : '';
+  const path = !full && S.snap.files.has(thumbPath(p)) ? thumbPath(p) : p;
+  const sha = S.snap.files.get(path);
+  return sha ? Native.blobURL(S.config.owner, S.config.repo, sha, path, S.snap.commit) : '';
 }
 const isPhotoPath = (p) => p.startsWith(inDir() + '/') && !p.includes('/_thumbs/') && /\.(jpe?g|png|webp|gif)$/i.test(p);
 function allPhotoPaths() {
