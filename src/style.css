@@ -356,7 +356,7 @@ html.full-lock { overflow: hidden; }
    Phones show the full height of the photo (cropped at the sides); wider screens show the whole photo. */
 .rk-hero { display: block; padding: 0; }
 .rk-hero::before { background: linear-gradient(to bottom, rgba(0,0,0,0) 55%, rgba(0,0,0,.3) 70%, rgba(0,0,0,.12) 85%, rgba(0,0,0,.25)); }
-.rk-hero-text { position: absolute; left: 50%; transform: translateX(-50%); top: 63.5%; bottom: 6%; width: min(94%, 420px); max-width: none; padding: 0;
+.rk-hero-text { position: absolute; left: 50%; transform: translateX(-50%); top: 65.5%; bottom: 6%; width: min(94%, 420px); max-width: none; padding: 0;
   display: flex; flex-direction: column; align-items: center; }
 .rk-hero h1 { margin: 0 0 6px; font-size: 2.4rem; line-height: 1; }
 .rk-hero p { margin: 0; font-size: .95rem; }
