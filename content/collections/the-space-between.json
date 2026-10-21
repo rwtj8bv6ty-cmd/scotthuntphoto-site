@@ -8,9 +8,9 @@
   "prints": [
     {
       "image": "/photos/the-space-between/big-sur-3.jpg",
-      "title": "",
-      "featured": false,
-      "description": "",
+      "title": "Big Sur",
+      "featured": true,
+      "description": "<p>I accidentally found myself in Big Sur after a multi-week road trip to Baha was cut short. With time to spare, I decided to continue up the California coast and was struck by the rugged shoreline and the power of the Pacific Ocean. The contstant movement juxtaposed against immovable objects lent itself to long exposures and the notion of capturing the passage of time rather than a singular moment in time.</p>",
       "alt": "",
       "editionsSold": 0,
       "sales": [],
@@ -19,8 +19,8 @@
     {
       "image": "/photos/the-space-between/bhutan-2.jpg",
       "title": "Path to Enlightenment ",
-      "featured": false,
-      "description": "<p>The Thimphu Chhu River flows beneath a traditional Bhutanese cantilevered bridge adorned with colorful prayer flags. Those making the journey to the Cheri Monastery, perched high above, often rest here to take in the sounds of rushing water and the smell of Himalayan Blue Pine.</p>",
+      "featured": true,
+      "description": "<p>Those making the journey to the Cheri Monastery will cross the Thimphu Chhu River by way of a traditional Bhutanese cantilevered bridge draped with hundreds of colorful prayer flags. Travelers often rest here to take in the sounds of rushing water and the smell of Himalayan Blue Pine. On this day, we were invited to join a family as a loved one was sent on to the next life. The kind of beautiful experience no photograph can ever adequately convey.</p>",
       "alt": "",
       "editionsSold": 0,
       "sales": [],
@@ -28,7 +28,7 @@
         {
           "material": "Archival Paper",
           "size": "7 × 19 in (11 × 22 in overall)",
-          "price": "900",
+          "price": "750",
           "edition": 100
         },
         {
@@ -41,16 +41,7 @@
     {
       "image": "/photos/the-space-between/alabama-hills-1.jpg",
       "title": "Alabama Hills",
-      "description": "",
-      "alt": "",
-      "featured": true,
-      "editionsSold": 0,
-      "options": []
-    },
-    {
-      "image": "/photos/the-space-between/big-sur-1.jpg",
-      "title": "Big Sur",
-      "description": "",
+      "description": "<p>Alabama Hills sits between Death Valley and the western slope of Mount Whitney. Massive granite shapes have been carved into this expanse, creating a labyrinth of passages that lead to one spectacular view after another. The television backdrop for “The Lone Ranger” and dozens of big screen productions, it is an otherworldly place made more surreal by its close proximity to civilization.</p>",
       "alt": "",
       "featured": true,
       "editionsSold": 0,
@@ -59,7 +50,7 @@
     {
       "image": "/photos/the-space-between/death-valley-1.jpg",
       "title": "Death Valley",
-      "description": "",
+      "description": "<p>One of the most inhospitable places on earth. I’ve crossed Death Valley multiple times…twice on a motorcyle. One early morning I stopped at a ranger station to refill a jug of water and soak a bandanna in preparation for the long crossing. &nbsp;At 7:30 am it was already 108 degrees. Within minutes of leaving, the bandanna was bone dry, baked by the hot wind and forcing me to lower my visor to keep the oven like air away from exposed skin. Despite this, or maybe because of it, there is beauty there. Signs of life stuggling to make it against all odds.</p>",
       "alt": "",
       "featured": true,
       "editionsSold": 0,
@@ -67,9 +58,9 @@
     },
     {
       "image": "/photos/the-space-between/iguazu-5.jpg",
-      "title": "",
-      "featured": false,
-      "description": "",
+      "title": "Iguana Falls",
+      "featured": true,
+      "description": "<p>Spanning over 1.7 miles along the border between Argentina and Brazil is arguably one of the most spectacular waterfalls in the world. Iguazu can best be defined as an interplay between power and beauty. Standing on the precipice of a great cascade can be terrifying, but the majesty pulls the viewer ever closer. Standing here, I was reminded of the collective landscape painters of the Hudson River School. Painters like Albert Bierstadt whose work was deeply shaped by Romanticism and a deep reverence for the wilderness.</p>",
       "alt": "",
       "editionsSold": 0,
       "sales": [],
@@ -77,9 +68,9 @@
     },
     {
       "image": "/photos/the-space-between/sierras-1.jpg",
-      "title": "",
-      "featured": false,
-      "description": "",
+      "title": "High Sierras",
+      "featured": true,
+      "description": "<p>Yosemite National Park in the summer is an incomprehensible juxtaposition. On the valley side, thousands of tourists are packed into campgrounds, clogging the roads, and creating endless traffic jams. It is an understandable problem. It is after all, one of the most spectacular national parks our country has to offer. But there is another side to Yosemite. Entering the park from the east, visitors are welcomed with high alpine meadows, amazing vistas and a peace that only comes from being alone in nature.</p>",
       "alt": "",
       "editionsSold": 0,
       "sales": [],
@@ -87,9 +78,19 @@
     },
     {
       "image": "/photos/the-space-between/sahara.jpg",
-      "title": "",
+      "title": "Sahara",
+      "featured": true,
+      "description": "<p>Dusk in the dunes of the Sahara is an otherworldly experience. As the light fades, the landscape’s abstract shapes and patterns are ever evolving, as if watching an abstract expressionist’s painting move and flow across the canvas.</p>",
+      "alt": "",
+      "editionsSold": 0,
+      "sales": [],
+      "options": []
+    },
+    {
+      "image": "/photos/the-space-between/canyon-de-chelley-4.jpg",
+      "title": "Canyon de Chelly",
       "featured": false,
-      "description": "",
+      "description": "<p>Time travel. As one descends deeper into the canyon, eons pass. Cliff dwellings high up the canyon walls once sat by the river’s edge. Petroglyphs indicating the arrival of Spanish explorers sit well above the reach of today’s adventurers as the canyon continues its downward push into the sculpted sandstone. And on the canyon floor, wild horses take up the tiniest of space in the canyon’s evolution.</p>",
       "alt": "",
       "editionsSold": 0,
       "sales": [],
