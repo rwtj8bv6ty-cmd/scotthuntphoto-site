@@ -23,7 +23,7 @@
       "title": ""
     }
   ],
-  "homeSlideSeconds": 4,
+  "homeSlideSeconds": 5,
   "currencySymbol": "$",
   "contactPageSlug": "contact",
   "formEndpoint": "https://api.web3forms.com/submit",
