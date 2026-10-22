@@ -384,7 +384,8 @@ function printCard(p) {
 // of the U.S.). Materials listed as "shipped on request" can't go through checkout; buyers ask for a quote instead.
 const listOf = (v) => String(v || '').split(/[,;\n]/).map((x) => x.trim()).filter(Boolean);
 const quoteMaterials = listOf(site.rockShipOnRequest).map((m) => m.toLowerCase());
-const onRequest = (material) => quoteMaterials.includes(String(material || '').trim().toLowerCase());
+// "Acrylic" also covers renamed variants such as "Acrylic (Floated)".
+const onRequest = (material) => { const m = String(material || '').trim().toLowerCase(); return quoteMaterials.some((q) => q && m.startsWith(q)); };
 const shipZones = (site.rockShippingZones || []).filter((z) => z && z.name).map((z) => ({ name: String(z.name).trim(), states: listOf(z.states).map((x) => x.toUpperCase()) }));
 const shipRates = (site.rockShippingRates || []).filter((r) => r && r.size && r.zone && String(r.price ?? '').trim() !== '')
   .map((r) => ({ size: String(r.size).trim(), zone: String(r.zone).trim(), price: num(r.price) }));

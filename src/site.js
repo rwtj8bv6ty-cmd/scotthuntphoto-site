@@ -274,15 +274,15 @@ if (cartEl) {
         <label class="qty">Qty <input type="number" min="0" max="10" value="${l.qty}"></label> <button class="cl-remove">Remove</button></div>
         <span class="cl-price">${money(l.price * l.qty)}</span></div>`)
       .join('');
-    const t = totals(ls);
-    cartEl.querySelector('.subtotal').textContent = money(t.sub);
+    const tt = totals(ls);
+    cartEl.querySelector('.subtotal').textContent = money(tt.sub);
     cartEl.querySelector('.shipping').textContent =
-      t.need === 'state' ? 'Choose a state' : t.need === 'rate' ? 'Quoted on request' : t.ship ? money(t.ship) : byRegion ? 'Free' : 'Included';
+      tt.need === 'state' ? 'Choose a state' : tt.need === 'rate' ? 'Quoted on request' : tt.ship ? money(tt.ship) : byRegion ? 'Free' : 'Included';
     const taxRow = cartEl.querySelector('.tax-row');
-    if (taxRow) { taxRow.hidden = !t.tax; taxRow.querySelector('span').textContent = `Sales tax (${t.rate}%)`; taxRow.querySelector('.tax').textContent = money(t.tax); }
-    cartEl.querySelector('.grand').textContent = money(t.total);
-    cartEl.querySelector('.ship-missing').hidden = t.need !== 'rate';
-    if (payBox) payBox.hidden = !t.ready;
+    if (taxRow) { taxRow.hidden = !tt.tax; taxRow.querySelector('span').textContent = `Sales tax (${tt.rate}%)`; taxRow.querySelector('.tax').textContent = money(tt.tax); }
+    cartEl.querySelector('.grand').textContent = money(tt.total);
+    cartEl.querySelector('.ship-missing').hidden = tt.need !== 'rate';
+    if (payBox) payBox.hidden = !tt.ready;
     summary.hidden = false;
   };
   cartEl.addEventListener('change', (e) => {
