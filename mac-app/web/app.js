@@ -117,7 +117,12 @@ const kindName = (entry) => entry.name === 'galleries' ? 'gallery' : entry.name 
   : cleanLabel(entry.label).replace(/^rock'?n'? ?h\s*/i, '').replace(/ies$/, 'y').replace(/s$/, '').toLowerCase() || 'item';
 const isImageList = (f) => f && f.type === 'object' && f.list && (f.fields || []).some((s) => s.type === 'image');
 const imageKey = (f) => f.fields.find((s) => s.type === 'image').name;
-const photoListField = (entry) => entry.fields.find(isImageList);
+// A doc's main photo list: "photos" or "prints" by name, else the richest image list. Extra image lists
+// (a collection's room photos) are shown as ordinary fields.
+const photoListField = (entry) => {
+  const lists = entry.fields.filter(isImageList);
+  return lists.find((f) => /^(photos|prints)$/.test(f.name)) || lists.sort((a, b) => b.fields.length - a.fields.length)[0];
+};
 const liveDocs = (entry) => [...S.docs.values()].filter((d) => d.entry === entry && !d.deleted);
 function sortedDocs(entry, side) {
   return liveDocs(entry).filter((d) => !side || entry.side !== 'split' || docSide(d) === side)
