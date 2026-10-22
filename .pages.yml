@@ -96,6 +96,12 @@ content:
           - { name: size, label: "Size (e.g. 20 × 54 in)", type: string }
           - { name: price, label: "Price (number only)", type: string }
           - { name: edition, label: "Limited edition size for this size (e.g. 100; leave empty if none)", type: number }
+      - name: roomPhotos
+        label: "Room photos shown under this collection's prints on the Rock'n H home page (two or three sit side by side)"
+        type: object
+        list: true
+        fields:
+          - { name: image, label: Photo, type: image }
       - name: prints
         label: "Prints (drag to reorder)"
         type: object

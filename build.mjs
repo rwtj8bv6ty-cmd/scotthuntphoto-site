@@ -379,7 +379,10 @@ function rockHomeBody() {
   const featuredOf = (c) => (c.prints.some((p) => p.featured) ? c.prints.filter((p) => p.featured) : c.prints);
   const printRow = (c, heading) => {
     const list = featuredOf(c).slice(0, 12);
-    return list.length ? `<section class="rk-section"><div class="rk-head"><h2>${esc(heading)}</h2><a href="${url(`${ROCK_HOME}collections/${c.slug}/`)}">View all</a></div><div class="product-grid">${list.map(printCard).join('')}</div></section>` : '';
+    // A collection's own room photos follow its prints; two or three sit side by side, cropped to one shape.
+    const rooms = (c.roomPhotos || []).map((r) => (typeof r === 'string' ? r : r && r.image)).filter(Boolean);
+    const roomRow = rooms.length ? `<section class="rk-rooms rk-rooms-row" style="--n:${Math.min(rooms.length, 3)}">${rooms.map((r) => `<img src="${img(r)}" alt="" loading="lazy">`).join('')}</section>` : '';
+    return list.length ? `<section class="rk-section"><div class="rk-head"><h2>${esc(heading)}</h2><a href="${url(`${ROCK_HOME}collections/${c.slug}/`)}">View all</a></div><div class="product-grid">${list.map(printCard).join('')}</div></section>${roomRow}` : '';
   };
   const [firstCollection, ...moreCollections] = liveCollections;
   const hero = site.rockHeroImage || allPrints[0]?.image;

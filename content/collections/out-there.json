@@ -65,5 +65,13 @@
       "sales": [],
       "options": []
     }
+  ],
+  "roomPhotos": [
+    {
+      "image": "/photos/rockn-h/room-out-there-kitchen.jpg"
+    },
+    {
+      "image": "/photos/rockn-h/room-out-there-blue.jpg"
+    }
   ]
 }

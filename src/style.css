@@ -381,6 +381,9 @@ html.full-lock { overflow: hidden; }
 .rk-rooms { display: grid; gap: 32px; max-width: 1280px; margin: 0 auto; padding: 40px 32px 64px; }
 @media (max-width: 760px) { .rk-rooms { gap: 16px; padding: 24px 16px 40px; } }
 .rk-rooms img { display: block; width: 100%; height: auto; }
+.rk-rooms-row { grid-template-columns: repeat(var(--n, 2), 1fr); }
+.rk-rooms-row img { aspect-ratio: 4 / 5; object-fit: cover; }
+@media (max-width: 560px) { .rk-rooms-row { grid-template-columns: 1fr; } }
 .statement-text p:only-child { margin-top: 0; }
 .statement-next { display: inline-block; margin-top: 28px; font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; text-decoration: none; opacity: .75; }
 .statement-next:hover { opacity: 1; }
