@@ -206,7 +206,9 @@ final class Bridge: NSObject, WKScriptMessageHandlerWithReply {
             guard let s = msg["url"] as? String, let u = URL(string: s), u.host == "api.github.com" else {
                 return replyHandler(nil, "blocked url")
             }
-            var req = URLRequest(url: u, timeoutInterval: 120)
+            // GitHub lets API reads be cached for a minute; the branch's latest commit must always be fresh,
+            // or publishing builds on an old commit and GitHub refuses it ("not a fast forward").
+            var req = URLRequest(url: u, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 120)
             req.httpMethod = msg["method"] as? String ?? "GET"
             for (k, v) in msg["headers"] as? [String: String] ?? [:] { req.setValue(v, forHTTPHeaderField: k) }
             if let t = Store.token() { req.setValue("Bearer \(t)", forHTTPHeaderField: "Authorization") }

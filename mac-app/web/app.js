@@ -286,12 +286,12 @@ async function start() {
   await loadAll();
 }
 
-async function loadAll(keepView) {
+async function loadAll(keepView, commit) {
   const app = $('#app');
   app.replaceChildren(h('div', { class: 'center' }, h('div', { class: 'spinner' }), h('p', {}, 'Loading your website…')));
   try {
     S.repo = new GitHub.Repo(S.config);
-    S.snap = await S.repo.snapshot();
+    S.snap = await S.repo.snapshot(commit);
     const ymlSha = S.snap.files.get('.pages.yml');
     if (!ymlSha) throw new Error('This repository has no .pages.yml, so the app does not know how the content is laid out.');
     const y = YAML.parse(await S.repo.readText(ymlSha)) || {};
@@ -1955,7 +1955,7 @@ async function publishDialog() {
 }
 
 async function publish(lines, say) {
-  for (let attempt = 0; attempt < 2; attempt++) {
+  for (let attempt = 0; ; attempt++) {
     say('Checking the website for changes made elsewhere…');
     const head = await S.repo.head();
     let files = S.snap.files, baseTree = S.snap.treeSha;
@@ -1988,15 +1988,17 @@ async function publish(lines, say) {
     const n = [...S.uploads.keys()].filter((p) => refs.has(p)).length;
     const message = (lines.length === 1 ? lines[0] : `Update website: ${lines.length ? plural(lines.length, 'change') : ''}${n ? `${lines.length ? ', ' : ''}${plural(n, 'new photo')}` : ''}`) +
       (lines.length > 1 ? '\n\n' + lines.map((l) => '- ' + l).join('\n') : '') + '\n\nPublished with Scott Hunt Site Manager.';
+    let published;
     try {
-      await S.repo.commit(head, baseTree, changes, message, (i, total) => say(`Uploading photos: ${i} of ${total}…`));
+      published = await S.repo.commit(head, baseTree, changes, message, (i, total) => say(`Uploading photos: ${i} of ${total}…`));
     } catch (e) {
-      // Someone published in the moment between our check and our save: start over once.
-      if (e.status === 422 && attempt === 0) continue;
+      // The website changed between our check and our save (someone else published, or GitHub was still
+      // catching up with the last publish): wait a moment and start over, a few times.
+      if (e.status === 422 && attempt < 3) { await new Promise((r) => setTimeout(r, 1500 * (attempt + 1))); continue; }
       throw e;
     }
     say('Published.');
-    await loadAll(true);
+    await loadAll(true, published);
     toast('Published. The website updates in about a minute.', { label: 'View site', run: () => Native.open(siteURL()) });
     return;
   }

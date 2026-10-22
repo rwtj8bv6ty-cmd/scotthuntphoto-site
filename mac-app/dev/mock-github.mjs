@@ -32,8 +32,9 @@ commits.set(head, { tree: t0, parents: [], message: 'initial' });
 export const log = [];
 
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png' };
+// Like GitHub, successful API reads may be cached for 60 seconds, the branch's latest commit included.
 function send(res, status, body, type = 'application/json') {
-  res.writeHead(status, { 'Content-Type': type, 'Access-Control-Allow-Origin': '*' });
+  res.writeHead(status, { 'Content-Type': type, 'Access-Control-Allow-Origin': '*', ...(status === 200 ? { 'Cache-Control': 'private, max-age=60' } : {}) });
   res.end(typeof body === 'string' || Buffer.isBuffer(body) ? body : JSON.stringify(body));
 }
 

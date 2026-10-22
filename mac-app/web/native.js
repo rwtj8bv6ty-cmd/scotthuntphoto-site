@@ -27,7 +27,7 @@
       const token = read().token;
       const target = url.replace('https://api.github.com', location.origin + '/gh');
       try {
-        const r = await fetch(target, { method, headers: { ...headers, ...(token ? { Authorization: 'Bearer ' + token } : {}) }, body: body ?? undefined });
+        const r = await fetch(target, { method, cache: 'no-store', headers: { ...headers, ...(token ? { Authorization: 'Bearer ' + token } : {}) }, body: body ?? undefined });
         return { status: r.status, body: await r.text() };
       } catch (e) {
         return { status: 0, body: String(e) };
