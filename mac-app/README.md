@@ -19,7 +19,12 @@ A Mac app for editing everything on the website, on both sides: Scott Hunt Photo
   or delete galleries, and edit each gallery's Introduction.
 - **Sub-galleries:** put a gallery under a main one (*Place in the menu*), reorder them on the main gallery's page or
   in the sidebar, and turn folders from Finder into sub-galleries with their photos.
-- **Pages** on either side, including About me: text with simple formatting, side photo, contact form on/off.
+- **Home page** for each side, first in the sidebar. The Rock'n H one follows the page from top to bottom: the large
+  photo and its words, each published collection's featured prints (click a print to show or hide it) with that
+  collection's room photos under it, the full-width room photos, the optional artist sections, the newsletter
+  sign-up, and the header and menu.
+- **Pages** on either side, including About me: text with simple formatting, side photo, contact form on/off. The
+  About the Prints page also shows the four print information sections, so they can be edited there.
 - **Rock'n H:** print collections, each with a price list of materials, sizes, prices and edition sizes that every
   print uses unless it has its own; featured prints; **Prints sold**, a page listing every print with how many of
   each size have sold against its edition (with + and − buttons, and room for sizes sold before the website), also
@@ -27,8 +32,8 @@ A Mac app for editing everything on the website, on both sides: Scott Hunt Photo
   (About the Prints, Limited Editions, Dimensions and Borders, Shipping and Production Times); PayPal checkout
   settings; shipping regions (by state) and a shipping price for each size and region, with a button that adds a
   row for every size in the price lists and a warning for any size or region still missing a price; materials
-  shipped on request; the Rock'n H home page, artist statement and biography.
-- **Home page** photos, site settings and drafts.
+  shipped on request.
+- **Site settings**, and a **Words on the site** page for any site wording the schema labels "Wording: …".
 - Nothing changes on the website until you press **Publish**. Undo steps back; Discard throws away
   everything not yet published. The website updates about a minute after publishing.
 
@@ -39,8 +44,8 @@ A photo file is deleted from the website only when nothing uses it any more.
 - `web/` is the editor (plain HTML/JS, no dependencies). It reads the site's `.pages.yml` to know every content
   type and field, so new content types added to the site appear here without changing the app. Collections whose
   label starts with "Rock'n H" go under the Rock'n H side; pages are split by their `side` field; in
-  `content/site.json`, fields starting with `rock` belong to Rock'n H (split into Home page & artist, Print pages
-  and Checkout). Plain values found in the content files but missing from `.pages.yml` (such as a page's
+  `content/site.json`, fields starting with `rock` belong to Rock'n H (split into Home page, Print pages
+  and Checkout; labels starting "Print pages:", "Checkout:" or "Wording:" choose the page). Plain values found in the content files but missing from `.pages.yml` (such as a page's
   `menuTitle`) are offered as fields too.
 - `Sources/main.swift` is the native window (WebKit). It stores the access key in
   `~/Library/Application Support/Scott Hunt Site Manager/config.json` (readable only by the user), makes the

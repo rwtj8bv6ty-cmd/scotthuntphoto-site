@@ -25,7 +25,7 @@ const dirname = (p) => p.slice(0, Math.max(0, p.lastIndexOf('/')));
 const serialize = (data) => JSON.stringify(data, null, 2);
 const cleanLabel = (s) => String(s || '').replace(/\s*\((drag to reorder|e\.g\.[^)]*)\)\s*/gi, ' ').replace(/\s+([.,;:])/g, '$1').trim();
 // Labels inside a group view don't need the group's name in front ("Checkout: currency code" -> "Currency code").
-const shortLabel = (s) => { const t = cleanLabel(s).replace(/^(print pages|checkout):\s*/i, ''); return t.charAt(0).toUpperCase() + t.slice(1); };
+const shortLabel = (s) => { const t = cleanLabel(s).replace(/^(print pages|checkout|wording|rock'?n'? ?h (home|menu)):\s*/i, ''); return t.charAt(0).toUpperCase() + t.slice(1); };
 const columnLabel = (s) => cleanLabel(s).replace(/\s*\([^)]*\)\s*/g, ' ').trim();
 
 let toastTimer;
@@ -92,15 +92,18 @@ function entrySide(entry) {
   return 'photography';
 }
 // Groups of site.json fields, each its own page in the sidebar.
+// `home` groups are each side's home page and sit first under the side's heading.
 const GROUPS = {
-  photography: { side: 'photography', title: 'Home page' },
-  rocknh: { side: 'rocknh', title: 'Home page & artist' },
+  photography: { side: 'photography', title: 'Home page', home: true },
+  rocknh: { side: 'rocknh', title: 'Home page', home: true },
   'rocknh-print': { side: 'rocknh', title: 'Print pages' },
   'rocknh-checkout': { side: 'rocknh', title: 'Checkout' },
   settings: { side: 'settings', title: 'Site settings' },
+  wording: { side: 'settings', title: 'Words on the site' },
 };
 function fieldGroup(entry, f) {
   if (entry.side !== 'fields') return entry.side;
+  if (/^wording:/i.test(f.label || '')) return 'wording';
   if (/^checkout:/i.test(f.label || '') || /^rock(Paypal|Currency|ShippingCost|ShippingNote|Checkout)/.test(f.name)) return 'rocknh-checkout';
   if (/^print pages:/i.test(f.label || '') || /^rock(PrintDetails|LimitedEditions|Dimensions|ShippingDetails)/.test(f.name)) return 'rocknh-print';
   if (/^rock/i.test(f.name)) return 'rocknh';
@@ -143,7 +146,10 @@ function parentOf(d) {
 const childrenOf = (d) => (hasParents(d.entry) ? sortedDocs(d.entry).filter((x) => parentOf(x) === d) : []);
 const siblingsOf = (d, side) => sortedDocs(d.entry, side).filter((x) => parentOf(x) === parentOf(d));
 const fullTitle = (d) => (parentOf(d) ? `${docTitle(parentOf(d))} › ${docTitle(d)}` : docTitle(d));
-const isDirty = (d) => (d.deleted ? !d.isNew : d.isNew || serialize(d.data) !== d.canon);
+// Empty lists count as missing, so a list the editor sets up just by showing it is not a change.
+const comparable = (data) => JSON.stringify(data, (k, v) => (Array.isArray(v) && !v.length ? undefined : v));
+const canonComparable = (d) => (d.cmpOf === d.canon ? d.cmp : (d.cmpOf = d.canon, d.cmp = d.canon ? comparable(JSON.parse(d.canon)) : ''));
+const isDirty = (d) => (d.deleted ? !d.isNew : d.isNew || (serialize(d.data) !== d.canon && comparable(d.data) !== canonComparable(d)));
 
 // ---------- photos ----------
 const inDir = () => S.media.input.replace(/\/$/, '');
@@ -458,6 +464,13 @@ function renderSidebar() {
   for (const side of ['photography', 'rocknh']) {
     nav.append(h('div', { class: 'side-head' }, side === 'photography' ? site.photographyTitle || SIDES.photography : site.rocknhTitle || SIDES.rocknh));
     for (const entry of S.schema) {
+      if (entry.type !== 'file' || entry.side !== 'fields') continue;
+      const groups = new Set(entry.fields.map((f) => fieldGroup(entry, f)));
+      for (const [key, g] of Object.entries(GROUPS)) {
+        if (g.home && g.side === side && groups.has(key)) nav.append(item(g.title, { type: 'file', path: entry.path, group: key }, { cls: 'group-head' }));
+      }
+    }
+    for (const entry of S.schema) {
       if (entry.type === 'collection' && (entry.side === side || entry.side === 'split')) {
         const label = cleanLabel(entry.label).replace(/^rock'?n'? ?h\s*/i, '');
         const cview = { type: 'collection', entry, side };
@@ -485,7 +498,7 @@ function renderSidebar() {
           if (groups.has(side)) nav.append(item(cleanLabel(entry.label).replace(/^rock'?n'? ?h\s*/i, ''), { type: 'file', path: entry.path, group: side }, { cls: 'group-head' }));
         } else {
           for (const [key, g] of Object.entries(GROUPS)) {
-            if (g.side === side && groups.has(key)) nav.append(item(g.title, { type: 'file', path: entry.path, group: key }, { cls: 'group-head' }));
+            if (g.side === side && !g.home && groups.has(key)) nav.append(item(g.title, { type: 'file', path: entry.path, group: key }, { cls: 'group-head' }));
           }
         }
       }
@@ -493,8 +506,11 @@ function renderSidebar() {
   }
   nav.append(h('div', { class: 'side-head' }, 'Settings'));
   for (const entry of S.schema) {
-    if (entry.type === 'file' && entry.fields.some((f) => fieldGroup(entry, f) === 'settings')) {
-      nav.append(item(cleanLabel(entry.label), { type: 'file', path: entry.path, group: 'settings' }, { cls: 'group-head' }));
+    if (entry.type !== 'file') continue;
+    const groups = new Set(entry.fields.map((f) => fieldGroup(entry, f)));
+    if (groups.has('settings')) nav.append(item(cleanLabel(entry.label), { type: 'file', path: entry.path, group: 'settings' }, { cls: 'group-head' }));
+    for (const [key, g] of Object.entries(GROUPS)) {
+      if (g.side === 'settings' && key !== 'settings' && groups.has(key)) nav.append(item(g.title, { type: 'file', path: entry.path, group: key }, { cls: 'group-head' }));
     }
   }
   nav.append(item('Account', { type: 'account' }, { cls: 'group-head' }));
@@ -562,6 +578,7 @@ function renderView() {
   const wrap = h('section', { class: 'main-scroll' });
   if (v.type === 'collection') wrap.append(collectionView(v.entry, v.side));
   else if (v.type === 'doc' && S.docs.get(v.path)) wrap.append(docView(S.docs.get(v.path)));
+  else if (v.type === 'file' && S.docs.get(v.path) && v.group === 'rocknh') wrap.append(rockHomeView(S.docs.get(v.path)));
   else if (v.type === 'file' && S.docs.get(v.path)) wrap.append(fileView(S.docs.get(v.path), v.group));
   else if (v.type === 'account') wrap.append(accountView());
   else if (v.type === 'sales') wrap.append(salesView());
@@ -724,7 +741,21 @@ function docView(doc) {
       ? h('details', { class: 'more' }, h('summary', {}, 'Photos of its own (optional; visitors see the sub-galleries instead while this is empty)'), photoGrid(doc, pf))
       : photoGrid(doc, pf)) : null,
     main.length ? h('div', { class: 'form' }, main) : null,
+    printInfoBlock(doc),
     more.length ? h('details', { class: 'more' }, h('summary', {}, 'More options'), h('div', { class: 'form' }, more)) : null);
+}
+
+// The About the Prints page shows the print information sections after its own text (PRINT_INFO_SLUG in
+// build.mjs), so they are edited here as well as under Print pages.
+const PRINT_INFO_SLUG = 'about-the-prints';
+function printInfoBlock(doc) {
+  const site = siteDoc();
+  if (!site || doc.entry.type !== 'collection' || doc.entry.fields.every((f) => f.name !== 'body') || docSlug(doc) !== PRINT_INFO_SLUG) return null;
+  const fields = site.entry.fields.filter((f) => fieldGroup(site.entry, f) === 'rocknh-print' && !f.hidden);
+  return h('section', { class: 'home-section' },
+    h('h2', {}, 'Print information'),
+    h('p', { class: 'muted' }, 'Shown on this page after the text above, and as drop-downs on every print page. A section left empty is not shown.'),
+    h('div', { class: 'form' }, fields.map((f) => fieldRow(site.data, f, site))));
 }
 
 function fileView(doc, group) {
@@ -736,10 +767,108 @@ function fileView(doc, group) {
   return h('div', { class: 'page' },
     h('div', { class: 'page-head' }, h('div', {}, h('div', { class: 'eyebrow' }, SIDES[g ? g.side : group] || 'Settings'),
       h('h1', {}, title))),
-    group === 'rocknh-print' ? h('p', { class: 'muted' }, 'These are the drop-down sections on every print page.') : null,
+    group === 'photography' ? h('p', { class: 'muted' }, 'The photography home page shows the featured photos one after another. The side name is also the title under the left coin on the intro page.') : null,
+    group === 'rocknh-print' ? h('p', { class: 'muted' }, 'These are the drop-down sections on every print page. The About the Prints page shows them all, one after another.') : null,
     group === 'rocknh-checkout' ? checkoutHelp(doc.data) : null,
     lists.map((f) => h('div', { class: 'block' }, h('h3', {}, cleanLabel(f.label)), photoGrid(doc, f))),
     h('div', { class: 'form' }, fields.filter((f) => !isImageList(f)).map((f) => fieldRow(doc.data, f, doc))));
+}
+
+// The Rock'n H home page, laid out in the order the website shows it (see rockHomeBody in build.mjs):
+// the large photo and its words, each published collection's featured prints followed by that collection's
+// room photos, the full-width room photos after the first collection, then the optional sections.
+function rockHomeView(doc) {
+  const site = doc.data;
+  const fields = doc.entry.fields.filter((f) => fieldGroup(doc.entry, f) === 'rocknh' && !f.hidden);
+  const placed = new Set();
+  const take = (...names) => names.map((n) => fields.find((f) => f.name === n)).filter((f) => f && !placed.has(f) && placed.add(f));
+  const form = (list, holder = site, d = doc) => list.length
+    ? h('div', { class: 'form' }, list.map((f) => (isImageList(f) ? h('div', { class: 'field wide' }, photoGrid(d, f, holder)) : fieldRow(holder, f, d)))) : null;
+  const section = (title, note, ...body) => h('section', { class: 'home-section' }, h('h2', {}, title), note ? h('p', { class: 'muted' }, note) : null, ...body);
+
+  const top = take('rockHeroImage', 'rockHeroHeading', 'rockHeroText', 'rockHeroButton');
+  const featuredHeading = take('rockFeaturedHeading');
+  const rooms = take('rockRoomPhotos');
+  const statement = take('rockStatementHeading', 'rockStatementText');
+  const artist = take('rockArtistHeading', 'rockArtistPhoto', 'rockArtistText');
+  const news = take('rockNewsletter', 'rockNewsletterHeading');
+  const header = take('rocknhTitle', 'rockLogo', 'rockPrintsMenuLabel', 'rockInstagram');
+  const moreHome = fields.filter((f) => !placed.has(f) && /^rock'?n'? ?h home:/i.test(f.label || ''));
+  moreHome.forEach((f) => placed.add(f));
+  const rest = fields.filter((f) => !placed.has(f));
+
+  const collEntry = S.schema.find((e) => e.type === 'collection' && entrySide(e) === 'rocknh' && photoListField(e));
+  const pf = collEntry && photoListField(collEntry);
+  const roomField = collEntry && collEntry.fields.find((f) => isImageList(f) && f !== pf);
+  const headingField = collEntry && collEntry.fields.find((f) => f.name === 'homeHeading');
+  const colls = collEntry ? sortedDocs(collEntry, 'rocknh') : [];
+  const live = colls.filter((c) => !c.data.draft && (c.data[pf.name] || []).some((p) => p && p[imageKey(pf)]));
+  const drafts = colls.filter((c) => c.data.draft);
+
+  const collSection = (c, i) => {
+    const title = i === 0 ? String(site.rockFeaturedHeading || '').trim() || `Featured Prints from ${docTitle(c)}`
+      : String((headingField && c.data.homeHeading) || '').trim() || `Featured Prints from ${docTitle(c)}`;
+    return section(title, null,
+      i === 0 ? form(featuredHeading) : headingField ? form([headingField], c.data, c) : null,
+      featuredPicker(c, pf),
+      roomField ? h('div', { class: 'block' }, h('h3', {}, 'Room photos under these prints'),
+        h('p', { class: 'muted' }, 'Two or three sit side by side, trimmed to the same shape. Drag to change the order.'),
+        photoGrid(c, roomField)) : null,
+      h('div', { class: 'row' }, h('button', { class: 'link', onclick: () => go({ type: 'doc', path: c.path }) }, `Open the ${docTitle(c)} collection →`)));
+  };
+  const roomsSection = rooms.length ? section('Room photos', 'Each one is shown full width, one after another.', form(rooms)) : null;
+  // As on the website, an optional section shows only when its text (not just its heading) is filled in.
+  const filled = (list) => list.some((f) => f.type === 'rich-text' && String(site[f.name] || '').replace(/<[^>]*>/g, '').trim());
+  const optional = (title, list) => (list.length ? h('details', { class: 'more home-optional', open: filled(list) || undefined },
+    h('summary', {}, title, filled(list) ? '' : ' (empty, so not shown on the website)'), form(list)) : null);
+
+  return h('div', { class: 'page home-page' },
+    h('div', { class: 'page-head' }, h('div', {}, h('div', { class: 'eyebrow' }, SIDES.rocknh), h('h1', {}, 'Home page'))),
+    h('p', { class: 'muted' }, 'Everything on the Rock’n H home page, top to bottom, in the order visitors see it.'),
+    section('Top of the page', 'The large photo fills the top of the page, with the heading, tagline and button over it. They are placed to sit inside the buffet doors of the current room photo, so a different photo may need them moved.', form(top)),
+    live.length ? collSection(live[0], 0) : section('Featured prints', 'Publish a print collection to show its prints here.', form(featuredHeading)),
+    roomsSection,
+    live.slice(1).map((c, i) => collSection(c, i + 1)),
+    drafts.length ? h('p', { class: 'muted' }, `Not shown until published: ${drafts.map(docTitle).join(', ')}.`) : null,
+    moreHome.length ? section('More on the home page', null, form(moreHome)) : null,
+    statement.length || artist.length ? section('Optional sections', 'These appear on the home page only when their text is filled in.',
+      optional('Artist statement', statement), optional('About the artist', artist)) : null,
+    news.length ? section('Newsletter sign-up', 'Shown at the bottom of the home page and the print collection pages.', form(news)) : null,
+    header.length ? section('Header and menu', 'Shown at the top of every Rock’n H page.', form(header)) : null,
+    rest.length ? section('Other settings', null, form(rest)) : null);
+}
+
+// A collection's prints as tiles; the highlighted ones are on the home page. With none chosen the website
+// shows every print, so the first click then hides that one print instead of showing it alone. Up to 12 show.
+function featuredPicker(c, pf) {
+  const key = imageKey(pf);
+  const prints = () => (c.data[pf.name] || []).filter((p) => p && p[key]);
+  const wrap = h('div', { class: 'feature-pick' });
+  const note = h('p', { class: 'muted' });
+  function draw() {
+    const all = prints();
+    const chosen = all.filter((p) => p.featured);
+    const shown = new Set((chosen.length ? chosen : all).slice(0, 12));
+    note.textContent = chosen.length
+      ? `Showing ${plural(shown.size, 'print')}${chosen.length > 12 ? ' (the first 12 chosen)' : ''}. Click a print to show or hide it.`
+      : `No prints are chosen, so all of them show${all.length > 12 ? ' (the first 12)' : ''}. Click a print to hide it.`;
+    wrap.replaceChildren(...all.map((p) => {
+      const t = h('div', { class: 'tile' + (shown.has(p) ? ' on' : ' off'), title: `${p.title || 'Untitled'}: click to ${shown.has(p) ? 'hide it from' : 'show it on'} the home page` },
+        h('img', { src: imgSrc(p[key]), loading: 'lazy', alt: '', draggable: 'false' }),
+        h('span', { class: 'cap' }, p.title || 'Untitled'));
+      t.addEventListener('click', () => {
+        checkpoint();
+        if (!all.some((x) => x.featured)) all.forEach((x) => { if (x !== p) x.featured = true; });
+        else p.featured = !p.featured;
+        changed();
+        draw();
+      });
+      return t;
+    }));
+    if (!all.length) wrap.append(h('div', { class: 'empty' }, 'This collection has no prints yet.'));
+  }
+  draw();
+  return h('div', {}, note, wrap);
 }
 
 function checkoutHelp(site) {

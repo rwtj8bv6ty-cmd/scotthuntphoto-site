@@ -236,3 +236,19 @@ input.bad { outline: 2px solid var(--danger); outline-offset: -1px; }
 .sale-print h3 { margin: 0 0 6px; }
 .block > .row h2 { margin: 0; }
 .grid-table input[type=checkbox] { min-width: 0; width: auto; margin-left: 8px; }
+
+/* Home pages laid out like the website, section by section */
+.home-section { border-top: 1px solid var(--line); padding-top: 18px; margin-top: 22px; }
+.home-section > h2 { margin-bottom: 4px; }
+.home-section > p.muted { margin: 0 0 8px; }
+.home-section .form { margin: 12px 0; }
+.home-section .block { margin: 14px 0; }
+.home-section .block h3 { margin: 0 0 2px; font-size: 14px; }
+.home-section .block > p.muted { margin: 0 0 8px; }
+.home-optional > summary { cursor: pointer; font-weight: 500; }
+.feature-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin: 6px 0 4px; }
+.feature-pick .tile { cursor: pointer; }
+.feature-pick .tile.on { border-color: var(--sel); }
+.feature-pick .tile.off img { opacity: 0.3; }
+.feature-pick .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 3px 6px; font-size: 11px; color: #fff; background: rgba(0, 0, 0, 0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.feature-pick .tile.off .cap { background: rgba(0, 0, 0, 0.25); }
