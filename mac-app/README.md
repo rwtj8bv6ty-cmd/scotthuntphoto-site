@@ -33,7 +33,7 @@ A Mac app for editing everything on the website, on both sides: Scott Hunt Photo
   settings; shipping regions (by state) and a shipping price for each size and region, with a button that adds a
   row for every size in the price lists and a warning for any size or region still missing a price; materials
   shipped on request.
-- **Site settings**, and a **Words on the site** page for any site wording the schema labels "Wording: …".
+- **Site settings**, and a **Wording** page for any site wording the schema labels "Wording: …".
 - Nothing changes on the website until you press **Publish**. Undo steps back; Discard throws away
   everything not yet published. The website updates about a minute after publishing.
 

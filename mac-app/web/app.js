@@ -99,7 +99,7 @@ const GROUPS = {
   'rocknh-print': { side: 'rocknh', title: 'Print pages' },
   'rocknh-checkout': { side: 'rocknh', title: 'Checkout' },
   settings: { side: 'settings', title: 'Site settings' },
-  wording: { side: 'settings', title: 'Words on the site' },
+  wording: { side: 'settings', title: 'Wording' },
 };
 function fieldGroup(entry, f) {
   if (entry.side !== 'fields') return entry.side;
@@ -796,6 +796,8 @@ function rockHomeView(doc) {
   const moreHome = fields.filter((f) => !placed.has(f) && /^rock'?n'? ?h home:/i.test(f.label || ''));
   moreHome.forEach((f) => placed.add(f));
   const rest = fields.filter((f) => !placed.has(f));
+  // Fixed words on this page live on the Wording page; the home page's ones are repeated here.
+  const words = doc.entry.fields.filter((f) => fieldGroup(doc.entry, f) === 'wording' && /^wording:\s*rock'?n'? ?h home:/i.test(f.label || ''));
 
   const collEntry = S.schema.find((e) => e.type === 'collection' && entrySide(e) === 'rocknh' && photoListField(e));
   const pf = collEntry && photoListField(collEntry);
@@ -806,8 +808,9 @@ function rockHomeView(doc) {
   const drafts = colls.filter((c) => c.data.draft);
 
   const collSection = (c, i) => {
-    const title = i === 0 ? String(site.rockFeaturedHeading || '').trim() || `Featured Prints from ${docTitle(c)}`
-      : String((headingField && c.data.homeHeading) || '').trim() || `Featured Prints from ${docTitle(c)}`;
+    const from = `${String(site.wordFeaturedFrom || '').trim() || 'Featured Prints from'} ${docTitle(c)}`;
+    const title = i === 0 ? String(site.rockFeaturedHeading || '').trim() || from
+      : String((headingField && c.data.homeHeading) || '').trim() || from;
     return section(title, null,
       i === 0 ? form(featuredHeading) : headingField ? form([headingField], c.data, c) : null,
       featuredPicker(c, pf),
@@ -835,6 +838,7 @@ function rockHomeView(doc) {
       optional('Artist statement', statement), optional('About the artist', artist)) : null,
     news.length ? section('Newsletter sign-up', 'Shown at the bottom of the home page and the print collection pages.', form(news)) : null,
     header.length ? section('Header and menu', 'Shown at the top of every Rock’n H page.', form(header)) : null,
+    words.length ? section('Wording on this page', 'Also on the Wording page under Settings. Leave a box empty to use the standard words.', form(words)) : null,
     rest.length ? section('Other settings', null, form(rest)) : null);
 }
 
