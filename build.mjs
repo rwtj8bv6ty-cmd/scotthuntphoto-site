@@ -38,6 +38,40 @@ const byOrder = (a, b) => (a.order ?? 999) - (b.order ?? 999) || String(a.title)
 const site = readJson(path.join(ROOT, 'content/site.json'));
 const PHOTO_NAME = site.photographyTitle || 'Scott Hunt Photography';
 const ROCK_NAME = site.rocknhTitle || "Rock'n H";
+// Fixed wording on the site. Each can be changed under Wording in the app; an empty field uses the default here.
+const WORD_DEFAULTS = {
+  wordHome: "Home",
+  wordAllPrints: "All Prints",
+  wordViewAll: "View all",
+  wordFeaturedFrom: "Featured Prints from",
+  wordViewPhotographs: "View the photographs →",
+  wordComingSoon: "Photographs coming soon.",
+  wordFooter: "All photographs are protected by copyright.",
+  wordPricesFrom: "Prices from",
+  wordPriceOnRequest: "Price on request",
+  wordSoldOut: "Sold out",
+  wordRemaining: "remaining",
+  wordLimitedEdition: "Limited edition of",
+  wordAddToCart: "Add to cart",
+  wordAddedToCart: "Added to your cart.",
+  wordViewCart: "View cart",
+  wordEnquire: "Enquire",
+  wordShipQuoteNote: "Shipping for this material is quoted on request.",
+  wordShipQuote: "Request a shipping quote",
+  wordSubscribe: "Subscribe",
+  wordSendMessage: "Send message",
+  wordCartTitle: "Your cart",
+  wordCartEmpty: "Your cart is empty.",
+  wordBrowsePrints: "Browse the prints",
+  wordNoShipRate: "We don't have a shipping price for one of these sizes yet.",
+  wordCheckoutOff: "Online checkout is being set up. To order now,",
+  wordThanksTitle: "Thank you for your order",
+  wordThanksText: "A receipt is on its way to your email. We'll be in touch about production and shipping.",
+  wordNotFound: "Page not found",
+  wordBackHome: "Back to the home page",
+};
+const word = (k) => esc(String(site[k] ?? '').trim() || WORD_DEFAULTS[k]);
+const wordsJson = () => JSON.stringify(Object.fromEntries(Object.keys(WORD_DEFAULTS).map((k) => [k, String(site[k] ?? '').trim() || WORD_DEFAULTS[k]]))).replace(/</g, '\\u003c');
 const PHOTO_HOME = 'photography/';
 const ROCK_HOME = 'rockn-h/';
 
@@ -99,9 +133,9 @@ const IG_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="tr
 
 function rockNav(current) {
   const link = (href, title) => `<li${href === current ? ' class="active"' : ''}><a href="${href}">${esc(title)}</a></li>`;
-  const sub = [`<li><a href="${url(`${ROCK_HOME}collections/`)}">All Prints</a></li>`, ...liveCollections.map((c) => `<li><a href="${url(`${ROCK_HOME}collections/${c.slug}/`)}">${esc(c.title)}</a></li>`)].join('');
+  const sub = [`<li><a href="${url(`${ROCK_HOME}collections/`)}">${word('wordAllPrints')}</a></li>`, ...liveCollections.map((c) => `<li><a href="${url(`${ROCK_HOME}collections/${c.slug}/`)}">${esc(c.title)}</a></li>`)].join('');
   const items = [
-    link(url(ROCK_HOME), 'Home'),
+    link(url(ROCK_HOME), String(site.wordHome || '').trim() || WORD_DEFAULTS.wordHome),
     ...(liveCollections.length ? [`<li class="has-sub${String(current).includes('/collections/') || String(current).includes('/prints/') ? ' active' : ''}"><a href="${url(`${ROCK_HOME}collections/`)}">${esc(site.rockPrintsMenuLabel || 'The Prints')}</a><ul>${sub}</ul></li>`] : []),
     ...menuPages('rocknh').map((p) => link(url(`${p.slug}/`), p.menuTitle || p.title)),
   ].join('');
@@ -143,7 +177,8 @@ ${statsTag(draft)}
 ${draft ? '<div class="draft-banner">Draft preview · not published · only people with this link can see it</div>' : ''}
 ${chrome}
 <main>${body}</main>
-${side === 'entrance' ? '' : `<footer class="site-footer"><p>© ${new Date().getFullYear()} ${esc(site.title)}. All photographs are protected by copyright.</p></footer>`}
+${side === 'entrance' ? '' : `<footer class="site-footer"><p>© ${new Date().getFullYear()} ${esc(site.title)}. ${word('wordFooter')}</p></footer>`}
+<script id="site-words" type="application/json">${wordsJson()}</script>
 <script src="${url('assets/site.js')}?v=${ASSET_V}" defer></script>
 </body>
 </html>`;
@@ -247,9 +282,9 @@ function editionInfo(p) {
   const bits = [];
   if (size) bits.push(`Limited edition of ${size}`);
   if (p.printSize) bits.push(esc(p.printSize));
-  if (left !== null) bits.push(soldOut ? 'Sold out' : `${left} remaining`);
+  if (left !== null) bits.push(soldOut ? word('wordSoldOut') : `${left} ${word('wordRemaining')}`);
   if (p.price) bits.push(`${esc(site.currencySymbol || '$')}${esc(p.price)}`);
-  const buy = !soldOut && p.buyLink ? `<a class="buy" href="${esc(p.buyLink)}" target="_blank" rel="noopener">Buy this print</a>` : soldOut ? '' : site.contactPageSlug ? `<a class="buy" href="${url(`${site.contactPageSlug}/`)}?about=${encodeURIComponent(p.title || p.image)}">Enquire</a>` : '';
+  const buy = !soldOut && p.buyLink ? `<a class="buy" href="${esc(p.buyLink)}" target="_blank" rel="noopener">Buy this print</a>` : soldOut ? '' : site.contactPageSlug ? `<a class="buy" href="${url(`${site.contactPageSlug}/`)}?about=${encodeURIComponent(p.title || p.image)}">${word('wordEnquire')}</a>` : '';
   return `<div class="edition${soldOut ? ' sold-out' : ''}"><span>${bits.join(' · ')}</span>${buy}</div>`;
 }
 
@@ -259,7 +294,7 @@ const captionText = (p) => (showCaptions ? [p.title, p.caption].filter(Boolean).
 const hasIntro = (g) => String(g.description || '').replace(/<[^>]*>/g, '').trim() !== '';
 // A gallery with its own photos and an Introduction opens on the introduction; the photos follow at <gallery>/photos/.
 const introFirst = (g) => hasIntro(g) && photosFor(g).length > 0 && !subGalleries(g).length;
-const introBody = (g) => `<section class="statement"><h1>${esc(g.title)}</h1><div class="statement-text">${g.description}</div><div class="statement-nav"><a class="statement-next" href="${url(`${galleryPath(g)}/photos/`)}">View the photographs →</a></div></section>`;
+const introBody = (g) => `<section class="statement"><h1>${esc(g.title)}</h1><div class="statement-text">${g.description}</div><div class="statement-nav"><a class="statement-next" href="${url(`${galleryPath(g)}/photos/`)}">${word('wordViewPhotographs')}</a></div></section>`;
 
 // Gallery: one large photo with arrows and a counter, plus a "show thumbnails" grid.
 function galleryBody(g) {
@@ -280,7 +315,7 @@ function galleryBody(g) {
       })
       .join('')}</section>`;
   }
-  if (!photos.length) return `<section class="slideshow" aria-label="${esc(g.title)}"><p class="note">Photographs coming soon.</p></section>`;
+  if (!photos.length) return `<section class="slideshow" aria-label="${esc(g.title)}"><p class="note">${word('wordComingSoon')}</p></section>`;
   const data = photos.map((p) => ({ src: img(p.image), caption: captionText(p), edition: editionInfo(p), alt: p.alt || '' }));
   const first = data[0];
   return `<section class="slideshow" aria-label="${esc(g.title)}">
@@ -307,7 +342,7 @@ function pageBody(p) {
   <label>Name<input name="name" required autocomplete="name"></label>
   <label>Email<input name="email" type="email" required autocomplete="email"></label>
   <label>Message<textarea name="message" rows="6" required></textarea></label>
-  <button type="submit">Send message</button>
+  <button type="submit">${word('wordSendMessage')}</button>
   <p class="form-status" aria-live="polite"></p>
 </form>`
       : p.contactForm
@@ -334,15 +369,15 @@ const optsOf = (p) =>
     .filter((o) => !o.edition || o.sold < o.edition);
 function fromPrice(p) {
   const prices = optsOf(p).map((o) => o.price);
-  return prices.length ? `Prices from ${money(Math.min(...prices))}` : 'Price on request';
+  return prices.length ? `${word('wordPricesFrom')} ${money(Math.min(...prices))}` : word('wordPriceOnRequest');
 }
 const soldOut = (p) =>
   (Number(p.editionSize) > 0 && (Number(p.editionsSold) || 0) >= Number(p.editionSize)) || (p.options.length > 0 && optsOf(p).length === 0);
 function printCard(p) {
   return `<a class="product-card" href="${url(`${ROCK_HOME}prints/${p.slug}/`)}">
-  <span class="pc-img"><img src="${thumb(p.image)}" alt="${esc(p.alt || '')}" loading="lazy">${soldOut(p) ? '<span class="badge">Sold out</span>' : ''}</span>
+  <span class="pc-img"><img src="${thumb(p.image)}" alt="${esc(p.alt || '')}" loading="lazy">${soldOut(p) ? `<span class="badge">${word('wordSoldOut')}</span>` : ''}</span>
   <span class="pc-title">${esc(p.title || 'Untitled')}</span>
-  <span class="pc-price">${soldOut(p) ? 'Sold out' : fromPrice(p)}</span>
+  <span class="pc-price">${soldOut(p) ? word('wordSoldOut') : fromPrice(p)}</span>
 </a>`;
 }
 // Shipping: a price per size for each region (regions are lists of state codes; a region with no states covers the rest
@@ -367,7 +402,7 @@ function newsletter() {
     <input type="hidden" name="subject" value="Newsletter sign-up from ${esc(ROCK_NAME)}">
     <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off">
     <label class="sr">Email<input name="email" type="email" required placeholder="Email" autocomplete="email"></label>
-    <button type="submit">Subscribe</button>
+    <button type="submit">${word('wordSubscribe')}</button>
     <p class="form-status" aria-live="polite"></p>
   </form>
 </section>`;
@@ -382,7 +417,7 @@ function rockHomeBody() {
     // A collection's own room photos follow its prints; two or three sit side by side, cropped to one shape.
     const rooms = (c.roomPhotos || []).map((r) => (typeof r === 'string' ? r : r && r.image)).filter(Boolean);
     const roomRow = rooms.length ? `<section class="rk-rooms rk-rooms-row" style="--n:${Math.min(rooms.length, 3)}">${rooms.map((r) => `<img src="${img(r)}" alt="" loading="lazy">`).join('')}</section>` : '';
-    return list.length ? `<section class="rk-section"><div class="rk-head"><h2>${esc(heading)}</h2><a href="${url(`${ROCK_HOME}collections/${c.slug}/`)}">View all</a></div><div class="product-grid">${list.map(printCard).join('')}</div></section>${roomRow}` : '';
+    return list.length ? `<section class="rk-section"><div class="rk-head"><h2>${esc(heading)}</h2><a href="${url(`${ROCK_HOME}collections/${c.slug}/`)}">${word('wordViewAll')}</a></div><div class="product-grid">${list.map(printCard).join('')}</div></section>${roomRow}` : '';
   };
   const [firstCollection, ...moreCollections] = liveCollections;
   const hero = site.rockHeroImage || allPrints[0]?.image;
@@ -402,9 +437,9 @@ function rockHomeBody() {
     ${allPrints.length ? `<a class="rk-btn light" href="${url(`${ROCK_HOME}collections/`)}">${esc(site.rockHeroButton || 'Explore the collection')}</a>` : ''}
   </div>
 </section>
-${firstCollection ? printRow(firstCollection, site.rockFeaturedHeading || `Featured Prints from ${firstCollection.title}`) : ''}
+${firstCollection ? printRow(firstCollection, site.rockFeaturedHeading || `${String(site.wordFeaturedFrom || '').trim() || WORD_DEFAULTS.wordFeaturedFrom} ${firstCollection.title}`) : ''}
 ${roomsHtml}
-${moreCollections.map((c) => printRow(c, `Featured Prints from ${c.title}`)).join('\n')}
+${moreCollections.map((c) => printRow(c, `${String(site.wordFeaturedFrom || '').trim() || WORD_DEFAULTS.wordFeaturedFrom} ${c.title}`)).join('\n')}
 ${statement}
 ${artist}
 ${newsletter()}`;
@@ -464,7 +499,7 @@ function productBody(p) {
   <div class="product-info">
     <p class="crumb"><a href="${url(`${ROCK_HOME}collections/${p.collection.slug}/`)}">${esc(p.collection.title)}</a></p>
     <h1>${esc(p.title || 'Untitled')}</h1>
-    <p class="price">${out ? 'Sold out' : fromPrice(p)}</p>
+    <p class="price">${out ? word('wordSoldOut') : fromPrice(p)}</p>
     ${
       canBuy
         ? `<form class="buy-form">
@@ -472,14 +507,14 @@ function productBody(p) {
       <fieldset class="choice" data-name="size"><legend>Size</legend><div class="size-list"></div></fieldset>
       <p class="edition-note"></p>
       <label class="qty">Quantity <input type="number" name="qty" min="1" max="10" value="1"></label>
-      <button type="submit" class="rk-btn add-to-cart">Add to cart</button>
-      <p class="ship-request" hidden>Shipping for this material is quoted on request. <a class="rk-btn" href="${enquireHref(p)}">Request a shipping quote</a></p>
+      <button type="submit" class="rk-btn add-to-cart">${word('wordAddToCart')}</button>
+      <p class="ship-request" hidden>${word('wordShipQuoteNote')} <a class="rk-btn" href="${enquireHref(p)}">${word('wordShipQuote')}</a></p>
       <p class="added" aria-live="polite"></p>
     </form>
     <script type="application/json" class="print-data">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>`
         : out
           ? ''
-          : `<a class="rk-btn" href="${enquireHref(p)}">Enquire</a>`
+          : `<a class="rk-btn" href="${enquireHref(p)}">${word('wordEnquire')}</a>`
     }
     ${p.description ? `<div class="product-desc">${p.description}</div>` : ''}
     ${shareBox(p)}
@@ -506,20 +541,20 @@ function cartBody() {
     contact: url(`${site.rockContactSlug || 'rockn-h-contact'}/`),
   };
   return `<section class="rk-section cart">
-  <div class="rk-head"><h1>Your cart</h1></div>
+  <div class="rk-head"><h1>${word('wordCartTitle')}</h1></div>
   <div class="cart-items"></div>
   <div class="cart-summary" hidden>
     <p class="row"><span>Subtotal</span><span class="subtotal"></span></p>
     <label class="ship-to" hidden>Ship to <select><option value="">Choose a state</option>${US_STATES.map(([c, n]) => `<option value="${c}">${n}</option>`).join('')}</select></label>
     <p class="row"><span>Shipping</span><span class="shipping"></span></p>
     <p class="row tax-row" hidden><span>Sales tax</span><span class="tax"></span></p>
-    <p class="ship-missing" hidden>We don't have a shipping price for one of these sizes yet. <a href="${cfg.contact}?about=shipping">Send us a message</a> and we'll quote it.</p>
+    <p class="ship-missing" hidden>${word('wordNoShipRate')} <a href="${cfg.contact}?about=shipping">Send us a message</a> and we'll quote it.</p>
     <p class="row total"><span>Total</span><span class="grand"></span></p>
     ${site.rockShippingNote ? `<div class="cart-note">${site.rockShippingNote}</div>` : ''}
     <div id="paypal-buttons"></div>
-    <p class="checkout-off" hidden>Online checkout is being set up. To order now, <a href="${cfg.contact}?about=my%20cart">send us a message</a>.</p>
+    <p class="checkout-off" hidden>${word('wordCheckoutOff')} <a href="${cfg.contact}?about=my%20cart">send us a message</a>.</p>
   </div>
-  <div class="cart-done" hidden><h2>Thank you for your order</h2><p>A receipt is on its way to your email. We'll be in touch about production and shipping.</p></div>
+  <div class="cart-done" hidden><h2>${word('wordThanksTitle')}</h2><p>${word('wordThanksText')}</p></div>
 </section>
 <script type="application/json" class="cart-catalog">${JSON.stringify(catalog).replace(/</g, '\\u003c')}</script>
 <script type="application/json" class="cart-config">${JSON.stringify(cfg).replace(/</g, '\\u003c')}</script>`;
@@ -586,7 +621,7 @@ write(
 <article class="prose"><div>${drafts.length ? `<ul>${drafts.map((d) => `<li>${d.kind}: <a href="${d.href}">${esc(d.title)}</a></li>`).join('')}</ul>` : '<p>No drafts right now.</p>'}</div></article>`,
   }),
 );
-fs.writeFileSync(path.join(OUT, '404.html'), layout({ title: 'Not found', body: `<section class="page-head"><h1>Page not found</h1><div class="intro"><p><a href="${url()}">Back to the home page</a></p></div></section>` }));
+fs.writeFileSync(path.join(OUT, '404.html'), layout({ title: 'Not found', body: `<section class="page-head"><h1>${word('wordNotFound')}</h1><div class="intro"><p><a href="${url()}">${word('wordBackHome')}</a></p></div></section>` }));
 fs.writeFileSync(path.join(OUT, 'robots.txt'), 'User-agent: *\nDisallow: /drafts/\n');
 fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
 if (site.customDomain) fs.writeFileSync(path.join(OUT, 'CNAME'), site.customDomain + '\n');

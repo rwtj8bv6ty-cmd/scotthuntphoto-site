@@ -212,4 +212,33 @@ content:
       - { name: formEndpoint, label: "Contact form address (Web3Forms or Formspree)", type: string }
       - { name: formAccessKey, label: "Web3Forms access key", type: string }
       - { name: goatcounterCode, label: "Visitor counts: your GoatCounter code (the name before .goatcounter.com); leave empty to switch off", type: string }
+      - { name: wordHome, label: "Wording: Rock'n H menu: first item (default: Home)", type: string }
+      - { name: wordAllPrints, label: "Wording: Rock'n H menu: first item under The Prints (default: All Prints)", type: string }
+      - { name: wordViewAll, label: "Wording: Rock'n H home: link beside each prints heading (default: View all)", type: string }
+      - { name: wordFeaturedFrom, label: "Wording: Rock'n H home: heading before a collection name (second and later collections) (default: Featured Prints from)", type: string }
+      - { name: wordViewPhotographs, label: "Wording: Gallery introduction pages: link to the photos (default: View the photographs →)", type: string }
+      - { name: wordComingSoon, label: "Wording: Galleries with no photos yet (default: Photographs coming soon.)", type: string }
+      - { name: wordFooter, label: "Wording: Footer line after the copyright year and name (default: All photographs are protected by copyright.)", type: string }
+      - { name: wordPricesFrom, label: "Wording: Print price before the lowest price (default: Prices from)", type: string }
+      - { name: wordPriceOnRequest, label: "Wording: Print with no price (default: Price on request)", type: string }
+      - { name: wordSoldOut, label: "Wording: Sold-out label (default: Sold out)", type: string }
+      - { name: wordRemaining, label: "Wording: After the number left in an edition (default: remaining)", type: string }
+      - { name: wordLimitedEdition, label: "Wording: Before the edition size on a print page (default: Limited edition of)", type: string }
+      - { name: wordAddToCart, label: "Wording: Print page: buy button (default: Add to cart)", type: string }
+      - { name: wordAddedToCart, label: "Wording: Print page: message after adding (default: Added to your cart.)", type: string }
+      - { name: wordViewCart, label: "Wording: Print page: link after adding (default: View cart)", type: string }
+      - { name: wordEnquire, label: "Wording: Button when a print has no price (default: Enquire)", type: string }
+      - { name: wordShipQuoteNote, label: "Wording: Print page: note for materials shipped on request (default: Shipping for this material is quoted on request.)", type: string }
+      - { name: wordShipQuote, label: "Wording: Print page: shipping quote button (default: Request a shipping quote)", type: string }
+      - { name: wordSubscribe, label: "Wording: Newsletter button (default: Subscribe)", type: string }
+      - { name: wordSendMessage, label: "Wording: Contact form button (default: Send message)", type: string }
+      - { name: wordCartTitle, label: "Wording: Cart page heading (default: Your cart)", type: string }
+      - { name: wordCartEmpty, label: "Wording: Cart page when empty (default: Your cart is empty.)", type: string }
+      - { name: wordBrowsePrints, label: "Wording: Cart page: link when empty (default: Browse the prints)", type: string }
+      - { name: wordNoShipRate, label: "Wording: Cart: when a size has no shipping price (default: We don't have a shipping price for one of these sizes yet.)", type: string }
+      - { name: wordCheckoutOff, label: "Wording: Cart: when checkout is switched off (a "send us a message" link follows) (default: Online checkout is being set up. To order now,)", type: string }
+      - { name: wordThanksTitle, label: "Wording: Cart: heading after payment (default: Thank you for your order)", type: string }
+      - { name: wordThanksText, label: "Wording: Cart: message after payment (default: A receipt is on its way to your email. We'll be in touch about production and shipping.)", type: string }
+      - { name: wordNotFound, label: "Wording: Missing-page heading (default: Page not found)", type: string }
+      - { name: wordBackHome, label: "Wording: Missing-page link (default: Back to the home page)", type: string }
       - { name: customDomain, label: "Custom domain (e.g. www.scotthuntphoto.com)", type: string }

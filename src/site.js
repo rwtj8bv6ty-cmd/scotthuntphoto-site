@@ -1,3 +1,8 @@
+// Site wording (editable under Wording in the app), written into each page by the build.
+const W = (() => { try { return JSON.parse(document.getElementById('site-words')?.textContent || '{}'); } catch (e) { return {}; } })();
+const t = (k, d) => W[k] || d;
+const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
 // Visitor counts (GoatCounter, when switched on): records an event such as an add to cart.
 const count = (path, title) => { try { window.goatcounter?.count?.({ path, title, event: true }); } catch (e) {} };
 
@@ -168,10 +173,10 @@ if (buyForm && printData) {
     button.hidden = ask;
     buyForm.querySelector('.qty').hidden = ask;
     if (quote) quote.hidden = !ask;
-    button.textContent = o ? `Add to cart · ${fmt(o.price)}` : 'Add to cart';
+    button.textContent = o ? `${t('wordAddToCart', 'Add to cart')} · ${fmt(o.price)}` : t('wordAddToCart', 'Add to cart');
     const note = buyForm.querySelector('.edition-note');
-    if (note) note.textContent = o && o.edition ? `Limited edition of ${o.edition}${o.sold ? ` · ${o.edition - o.sold} remaining` : ''}` : '';
-    if (ask && quote) quote.querySelector('a').textContent = `Request a shipping quote · print ${fmt(o.price)}`;
+    if (note) note.textContent = o && o.edition ? `${t('wordLimitedEdition', 'Limited edition of')} ${o.edition}${o.sold ? ` · ${o.edition - o.sold} ${t('wordRemaining', 'remaining')}` : ''}` : '';
+    if (ask && quote) quote.querySelector('a').textContent = `${t('wordShipQuote', 'Request a shipping quote')} · print ${fmt(o.price)}`;
   };
   buyForm.addEventListener('change', (e) => { if (e.target.name === 'material') renderSizes(); else renderPrice(); });
   buyForm.addEventListener('submit', (e) => {
@@ -186,7 +191,7 @@ if (buyForm && printData) {
     else items.push({ key, slug: print.slug, material: o.material, size: o.size, qty });
     writeCart(items);
     count(`event/add-to-cart/${print.slug}`, `Added to cart: ${print.slug}`);
-    buyForm.querySelector('.added').innerHTML = `Added to your cart. <a href="${document.querySelector('.nav-cart a').getAttribute('href')}">View cart</a>`;
+    buyForm.querySelector('.added').innerHTML = `${esc(t('wordAddedToCart', 'Added to your cart.'))} <a href="${document.querySelector('.nav-cart a').getAttribute('href')}">${esc(t('wordViewCart', 'View cart'))}</a>`;
   });
   renderSizes();
 }
@@ -258,7 +263,7 @@ if (cartEl) {
     const box = cartEl.querySelector('.cart-items');
     const summary = cartEl.querySelector('.cart-summary');
     if (!ls.length) {
-      box.innerHTML = `<p class="note">Your cart is empty. <a href="${cfg.shop}">Browse the prints</a>.</p>`;
+      box.innerHTML = `<p class="note">${esc(t('wordCartEmpty', 'Your cart is empty.'))} <a href="${cfg.shop}">${esc(t('wordBrowsePrints', 'Browse the prints'))}</a>.</p>`;
       summary.hidden = true;
       return;
     }
