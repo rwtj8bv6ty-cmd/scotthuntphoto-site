@@ -439,7 +439,7 @@ function rockHomeBody() {
 </section>
 ${firstCollection ? printRow(firstCollection, site.rockFeaturedHeading || `${String(site.wordFeaturedFrom || '').trim() || WORD_DEFAULTS.wordFeaturedFrom} ${firstCollection.title}`) : ''}
 ${roomsHtml}
-${moreCollections.map((c) => printRow(c, `${String(site.wordFeaturedFrom || '').trim() || WORD_DEFAULTS.wordFeaturedFrom} ${c.title}`)).join('\n')}
+${moreCollections.map((c) => printRow(c, String(c.homeHeading || '').trim() || `${String(site.wordFeaturedFrom || '').trim() || WORD_DEFAULTS.wordFeaturedFrom} ${c.title}`)).join('\n')}
 ${statement}
 ${artist}
 ${newsletter()}`;

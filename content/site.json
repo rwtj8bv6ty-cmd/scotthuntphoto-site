@@ -32,8 +32,6 @@
     }
   ],
   "homeSlideSeconds": 6,
-  "homeButtonLabel": "View the work",
-  "galleriesMenuLabel": "Galleries",
   "currencySymbol": "$",
   "contactPageSlug": "contact",
   "formEndpoint": "https://api.web3forms.com/submit",
@@ -55,7 +53,6 @@
   "rockArtistHeading": "About Scott Hunt",
   "rockArtistPhoto": "",
   "rockArtistText": "",
-  "rockPrintDetails": "",
   "rockMaterials": "<p>All of our images are printed on the finest art media.</p><p>Our smaller archival prints are made on Red River Palo Duro Soft Gloss Rag. The paper has a very fine texture, with a warm luminosity and depth like platinum prints of the past. It is a true conservation-grade paper: 100% cotton rag, acid free and lignin free, with no optical brighteners. It is FOGRA certified to ISO 9706, the standard for paper aging. At 315 gsm and 16.5 mil thick, it provides the viewer a tactile experience.</p><p>Our larger archival prints are made on Canson Platine Fibre Rag. It shares the same archival qualities as our smaller paper, and its fine surface texture gives it a delicate feel and an artistic character.</p><p>Combined with pigment-based printing, these papers will provide a life measured in centuries.</p><p>Reverse printed acrylic prints include hanging hardware that allows you to float the image 1\" off the wall for a very clean and contemporary aesthetic.</p>",
   "rockShippingDetails": "<p>Each piece is custom printed to order. Production and shipping time is usually about two weeks, but may vary due to Scott's availability. If you need a piece by a particular date, please contact us to confirm shipping times. Production times for large scale acrylic prints averages three weeks, with additional time for packaging and freight arrangements.</p><p>Each print comes carefully rolled in a tube, and shipped via USPS.</p><p>Each print is insured during shipping, and in the unlikely event that a piece arrives with any damage it will be replaced immediately.</p><p>Our Website only accepts domestic shipping to the USA. Please contact us directly to place an international order.</p>",
   "rockNewsletter": true,
