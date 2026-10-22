@@ -351,7 +351,20 @@ if (cartEl) {
           return actions.order.capture();
         }).then((captured) => {
           if (!captured) return;
+          // PayPal can answer a capture with a declined or pending payment; only a real payment gets the thank-you.
+          const cap = captured.purchase_units && captured.purchase_units[0].payments && (captured.purchase_units[0].payments.captures || [])[0];
+          if (cap && (cap.status === 'DECLINED' || cap.status === 'FAILED')) {
+            const off = cartEl.querySelector('.checkout-off');
+            off.hidden = false;
+            off.textContent = 'Sorry, the payment was declined. You have not been charged. Please try another card, or send us a message.';
+            return;
+          }
           count('event/purchase', 'Purchase completed');
+          const done = cartEl.querySelector('.cart-done');
+          const ref = document.createElement('p');
+          ref.className = 'order-ref';
+          ref.textContent = `PayPal transaction ID: ${cap ? cap.id : captured.id}${cap && cap.status === 'PENDING' ? ' (payment pending)' : ''}`;
+          done.appendChild(ref);
           writeCart([]);
           cartEl.querySelector('.cart-items').innerHTML = '';
           cartEl.querySelector('.cart-summary').hidden = true;
