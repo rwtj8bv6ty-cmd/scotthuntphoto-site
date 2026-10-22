@@ -215,10 +215,12 @@ if (cartEl) {
   // Prints ship together, so an order pays once, at the rate of its most expensive (largest) print.
   const SHIP_KEY = 'rockn-h-ship-state';
   const byRegion = cfg.zones.length > 0;
+  // The state is also needed with one flat rate when sales tax applies somewhere.
+  const askState = byRegion || (cfg.tax || []).length > 0;
   const shipSelect = cartEl.querySelector('.ship-to select');
   let shipState = '';
   try { shipState = localStorage.getItem(SHIP_KEY) || ''; } catch {}
-  if (byRegion && shipSelect) {
+  if (askState && shipSelect) {
     shipSelect.closest('.ship-to').hidden = false;
     shipSelect.value = shipState;
     shipSelect.addEventListener('change', () => {
@@ -244,6 +246,7 @@ if (cartEl) {
     const sub = ls.reduce((a, l) => a + l.price * l.qty, 0);
     if (!byRegion) {
       const ship = ls.length ? cfg.shipping : 0;
+      if (askState && !shipState) return { sub, ship, total: sub + ship, ready: false, need: 'state' };
       return { sub, ship, total: sub + ship, ready: true };
     }
     const zone = zoneOf(shipState);
@@ -277,7 +280,7 @@ if (cartEl) {
     const tt = totals(ls);
     cartEl.querySelector('.subtotal').textContent = money(tt.sub);
     cartEl.querySelector('.shipping').textContent =
-      tt.need === 'state' ? 'Choose a state' : tt.need === 'rate' ? 'Quoted on request' : tt.ship ? money(tt.ship) : byRegion ? 'Free' : 'Included';
+      tt.need === 'state' && byRegion ? 'Choose a state' : tt.need === 'rate' ? 'Quoted on request' : tt.ship ? money(tt.ship) : byRegion ? 'Free' : 'Included';
     const taxRow = cartEl.querySelector('.tax-row');
     if (taxRow) { taxRow.hidden = !tt.tax; taxRow.querySelector('span').textContent = `Sales tax (${tt.rate}%)`; taxRow.querySelector('.tax').textContent = money(tt.tax); }
     cartEl.querySelector('.grand').textContent = money(tt.total);
@@ -328,14 +331,14 @@ if (cartEl) {
           });
         },
         // Before taking payment, make sure PayPal's shipping address is in the U.S. and in the region that was priced.
-        onApprove: (data, actions) => (byRegion ? actions.order.get() : Promise.resolve(null)).then((order) => {
+        onApprove: (data, actions) => (askState ? actions.order.get() : Promise.resolve(null)).then((order) => {
           const addr = order && order.purchase_units && order.purchase_units[0].shipping && order.purchase_units[0].shipping.address;
           if (addr) {
             const t = totals(lines());
-            const there = addr.country_code === 'US' && zoneOf(String(addr.admin_area_1 || '').toUpperCase());
+            const there = addr.country_code === 'US' && (byRegion ? zoneOf(String(addr.admin_area_1 || '').toUpperCase()) : true);
             const st = String(addr.admin_area_1 || '').toUpperCase();
             const taxDiffers = (taxFor(st) || {}).rate !== (taxFor(shipState) || {}).rate;
-            if (!there || there.name !== t.zone.name || taxDiffers) {
+            if (!there || (byRegion && there.name !== t.zone.name) || taxDiffers) {
               const off = cartEl.querySelector('.checkout-off');
               off.hidden = false;
               off.textContent = addr.country_code !== 'US'
