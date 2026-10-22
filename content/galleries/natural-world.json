@@ -10,6 +10,13 @@
   "cover": "/photos/the-space-between/alabama-hills-1.jpg",
   "photos": [
     {
+      "image": "/photos/the-space-between/baja-2.jpg",
+      "title": "Baja",
+      "caption": "",
+      "alt": "",
+      "forSale": false
+    },
+    {
       "image": "/photos/the-space-between/arg-andes-road.jpg",
       "title": "Argentina, Andes Road",
       "caption": "",
@@ -215,13 +222,6 @@
     {
       "image": "/photos/the-space-between/atlas.jpg",
       "title": "Atlas",
-      "caption": "",
-      "alt": "",
-      "forSale": false
-    },
-    {
-      "image": "/photos/the-space-between/baja-2.jpg",
-      "title": "Baja",
       "caption": "",
       "alt": "",
       "forSale": false
