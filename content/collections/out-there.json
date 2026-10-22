@@ -28,7 +28,7 @@
     {
       "image": "/photos/out-there/road.jpg",
       "title": "Road",
-      "featured": false,
+      "featured": true,
       "description": "",
       "alt": "",
       "editionsSold": 0,
@@ -38,7 +38,7 @@
     {
       "image": "/photos/out-there/grocery.jpg",
       "title": "Grocery",
-      "featured": false,
+      "featured": true,
       "description": "",
       "alt": "",
       "editionsSold": 0,
@@ -48,7 +48,7 @@
     {
       "image": "/photos/out-there/yucca.jpg",
       "title": "Yucca",
-      "featured": false,
+      "featured": true,
       "description": "",
       "alt": "",
       "editionsSold": 0,
@@ -58,7 +58,7 @@
     {
       "image": "/photos/out-there/texas.jpg",
       "title": "Texas",
-      "featured": false,
+      "featured": true,
       "description": "",
       "alt": "",
       "editionsSold": 0,
