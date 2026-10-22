@@ -14,7 +14,14 @@
       "alt": "",
       "editionsSold": 0,
       "sales": [],
-      "options": []
+      "options": [
+        {
+          "material": "Archival Paper",
+          "size": "7 × 19 in (11 × 22 in overall)",
+          "price": "350",
+          "edition": 25
+        }
+      ]
     },
     {
       "image": "/photos/the-space-between/bhutan-2.jpg",
@@ -24,19 +31,7 @@
       "alt": "",
       "editionsSold": 0,
       "sales": [],
-      "options": [
-        {
-          "material": "Archival Paper",
-          "size": "7 × 19 in (11 × 22 in overall)",
-          "price": "750",
-          "edition": 100
-        },
-        {
-          "material": "Archival Paper",
-          "size": "",
-          "price": ""
-        }
-      ]
+      "options": []
     },
     {
       "image": "/photos/the-space-between/alabama-hills-1.jpg",
@@ -73,7 +68,12 @@
       "description": "<p>Yosemite National Park in the summer is an incomprehensible juxtaposition. On the valley side, thousands of tourists are packed into campgrounds, clogging the roads, and creating endless traffic jams. It is an understandable problem. It is after all, one of the most spectacular national parks our country has to offer. But there is another side to Yosemite. Entering the park from the east, visitors are welcomed with high alpine meadows, amazing vistas and a peace that only comes from being alone in nature.</p>",
       "alt": "",
       "editionsSold": 0,
-      "sales": [],
+      "sales": [
+        {
+          "size": "10x 20",
+          "sold": 1
+        }
+      ],
       "options": []
     },
     {
@@ -101,8 +101,19 @@
     {
       "material": "Archival Paper",
       "size": "7 × 19 in (11 × 22 in overall)",
-      "price": "300",
+      "price": "350",
       "edition": 100
+    },
+    {
+      "material": "Archival Paper",
+      "size": "17.75 x 48 in (24.75 x 54 in overall)",
+      "price": "1500",
+      "edition": 25
+    },
+    {
+      "material": "Acrylic (Floated)",
+      "size": "28 x 76 in",
+      "price": "2700"
     }
   ]
 }
