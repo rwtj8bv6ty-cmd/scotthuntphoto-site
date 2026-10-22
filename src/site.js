@@ -214,7 +214,8 @@ if (cartEl) {
   // Shipping: with a rate table, the price depends on the size and the region of the state it ships to.
   // Prints ship together, so an order pays once, at the rate of its most expensive (largest) print.
   const SHIP_KEY = 'rockn-h-ship-state';
-  const byRegion = cfg.zones.length > 0;
+  // Regional pricing needs both regions and rates; otherwise the flat shipping charge applies.
+  const byRegion = cfg.zones.length > 0 && cfg.rates.length > 0;
   // The state is also needed with one flat rate when sales tax applies somewhere.
   const askState = byRegion || (cfg.tax || []).length > 0;
   const shipSelect = cartEl.querySelector('.ship-to select');
