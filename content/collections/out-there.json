@@ -8,8 +8,20 @@
   "options": [
     {
       "material": "Archival Paper",
-      "size": "14x17.5",
-      "price": "225"
+      "size": "14 x 17.5 (17 x 19 overall)",
+      "price": "250",
+      "edition": 100
+    },
+    {
+      "material": "Archival Paper",
+      "size": "20 x 25 (26 x 31 overall)",
+      "price": "700",
+      "edition": 25
+    },
+    {
+      "material": "Acrylic (Floated)",
+      "size": "20 x 25",
+      "price": "950"
     }
   ],
   "prints": [
