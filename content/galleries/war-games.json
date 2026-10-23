@@ -6,9 +6,39 @@
   "order": 6,
   "featured": true,
   "layout": "masonry",
-  "cover": "/photos/anthologies/war-games/1917a1.jpg",
+  "cover": "/photos/anthologies/war-games/pistol-charge.jpg",
   "description": "",
   "photos": [
+    {
+      "image": "/photos/anthologies/war-games/formation.jpg",
+      "title": "Formation",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/war-games/stacked-rifles.jpg",
+      "title": "Stacked Rifles",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/war-games/dog.jpg",
+      "title": "Dog",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/war-games/stream-crossing.jpg",
+      "title": "Stream Crossing",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/war-games/halt.jpg",
+      "title": "Halt",
+      "caption": "",
+      "alt": ""
+    },
     {
       "image": "/photos/anthologies/war-games/1917a1.jpg",
       "title": "1917A1",
@@ -16,8 +46,20 @@
       "alt": ""
     },
     {
+      "image": "/photos/anthologies/war-games/running.jpg",
+      "title": "Running",
+      "caption": "",
+      "alt": ""
+    },
+    {
       "image": "/photos/anthologies/war-games/bayonet-fog.jpg",
       "title": "Bayonet Fog",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/war-games/zero.jpg",
+      "title": "Zero",
       "caption": "",
       "alt": ""
     },
@@ -34,26 +76,8 @@
       "alt": ""
     },
     {
-      "image": "/photos/anthologies/war-games/dog.jpg",
-      "title": "Dog",
-      "caption": "",
-      "alt": ""
-    },
-    {
-      "image": "/photos/anthologies/war-games/formation.jpg",
-      "title": "Formation",
-      "caption": "",
-      "alt": ""
-    },
-    {
-      "image": "/photos/anthologies/war-games/halt.jpg",
-      "title": "Halt",
-      "caption": "",
-      "alt": ""
-    },
-    {
-      "image": "/photos/anthologies/war-games/hand.jpg",
-      "title": "Hand",
+      "image": "/photos/anthologies/war-games/scream.jpg",
+      "title": "Scream",
       "caption": "",
       "alt": ""
     },
@@ -64,38 +88,14 @@
       "alt": ""
     },
     {
-      "image": "/photos/anthologies/war-games/running.jpg",
-      "title": "Running",
-      "caption": "",
-      "alt": ""
-    },
-    {
-      "image": "/photos/anthologies/war-games/scream.jpg",
-      "title": "Scream",
-      "caption": "",
-      "alt": ""
-    },
-    {
-      "image": "/photos/anthologies/war-games/stacked-rifles.jpg",
-      "title": "Stacked Rifles",
-      "caption": "",
-      "alt": ""
-    },
-    {
-      "image": "/photos/anthologies/war-games/stream-crossing.jpg",
-      "title": "Stream Crossing",
-      "caption": "",
-      "alt": ""
-    },
-    {
       "image": "/photos/anthologies/war-games/tank.jpg",
       "title": "Tank",
       "caption": "",
       "alt": ""
     },
     {
-      "image": "/photos/anthologies/war-games/zero.jpg",
-      "title": "Zero",
+      "image": "/photos/anthologies/war-games/hand.jpg",
+      "title": "Hand",
       "caption": "",
       "alt": ""
     }
