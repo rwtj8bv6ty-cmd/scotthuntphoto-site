@@ -6,18 +6,18 @@
   "order": 1,
   "featured": true,
   "layout": "masonry",
-  "cover": "/photos/anthologies/finding-love/boardwalk.jpg",
+  "cover": "/photos/anthologies/finding-love/boat.jpg",
   "description": "",
   "photos": [
     {
-      "image": "/photos/anthologies/finding-love/boardwalk.jpg",
-      "title": "Boardwalk",
+      "image": "/photos/anthologies/finding-love/boat.jpg",
+      "title": "Boat",
       "caption": "",
       "alt": ""
     },
     {
-      "image": "/photos/anthologies/finding-love/boat.jpg",
-      "title": "Boat",
+      "image": "/photos/anthologies/finding-love/boardwalk.jpg",
+      "title": "Boardwalk",
       "caption": "",
       "alt": ""
     },
@@ -88,12 +88,6 @@
       "alt": ""
     },
     {
-      "image": "/photos/anthologies/finding-love/pine-cone.jpg",
-      "title": "Pine Cone",
-      "caption": "",
-      "alt": ""
-    },
-    {
       "image": "/photos/anthologies/finding-love/plants.jpg",
       "title": "Plants",
       "caption": "",
@@ -156,6 +150,12 @@
     {
       "image": "/photos/anthologies/finding-love/wood.jpg",
       "title": "Wood",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/anthologies/finding-love/pine-cone.jpg",
+      "title": "Pine Cone",
       "caption": "",
       "alt": ""
     }

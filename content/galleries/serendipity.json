@@ -6,9 +6,15 @@
   "order": 3,
   "featured": true,
   "layout": "masonry",
-  "cover": "/photos/anthologies/serendipity/arg-alter.jpg",
+  "cover": "/photos/anthologies/serendipity/arg-goal.jpg",
   "description": "",
   "photos": [
+    {
+      "image": "/photos/anthologies/serendipity/arg-goal.jpg",
+      "title": "ARG_goal",
+      "caption": "",
+      "alt": ""
+    },
     {
       "image": "/photos/anthologies/serendipity/arg-alter.jpg",
       "title": "ARG_alter",
@@ -42,12 +48,6 @@
     {
       "image": "/photos/anthologies/serendipity/arg-gaucho.jpg",
       "title": "ARG_gaucho",
-      "caption": "",
-      "alt": ""
-    },
-    {
-      "image": "/photos/anthologies/serendipity/arg-goal.jpg",
-      "title": "ARG_goal",
       "caption": "",
       "alt": ""
     },
