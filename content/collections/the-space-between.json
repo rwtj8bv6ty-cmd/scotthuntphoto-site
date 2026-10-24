@@ -14,14 +14,7 @@
       "alt": "",
       "editionsSold": 0,
       "sales": [],
-      "options": [
-        {
-          "material": "Archival Paper",
-          "size": "7 × 19 in (11 × 22 in overall)",
-          "price": "350",
-          "edition": 25
-        }
-      ]
+      "options": []
     },
     {
       "image": "/photos/the-space-between/bhutan-2.jpg",
@@ -100,7 +93,7 @@
   "options": [
     {
       "material": "Archival Paper",
-      "size": "7 × 19 in (11 × 22 in overall)",
+      "size": "7.75 × 21 in (12.75 x 25 in overall)",
       "price": "350",
       "edition": 100
     },
@@ -115,5 +108,6 @@
       "size": "28 x 76 in",
       "price": "2700"
     }
-  ]
+  ],
+  "roomPhotos": []
 }
