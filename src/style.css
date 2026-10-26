@@ -16,7 +16,7 @@ img { max-width: 100%; display: block; }
 /* header + menu */
 .site-header { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; padding: 18px 32px; background: rgba(14,14,14,.86); backdrop-filter: blur(8px); }
 .home .site-header { position: fixed; inset: 0 0 auto 0; background: linear-gradient(rgba(0,0,0,.55), transparent); backdrop-filter: none; }
-.brand { font: 400 1.5rem/1 var(--serif); letter-spacing: .08em; text-decoration: none; text-transform: uppercase; }
+.brand { white-space: nowrap; font: 400 1.5rem/1 var(--serif); letter-spacing: .08em; text-decoration: none; text-transform: uppercase; }
 nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 28px; }
 nav a { text-decoration: none; font-size: .78rem; letter-spacing: .18em; text-transform: uppercase; opacity: .8; transition: opacity .2s; }
 nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
@@ -29,7 +29,8 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
 .menu-toggle span:first-child { top: 8px; } .menu-toggle span:last-child { top: 15px; }
 .menu-open .menu-toggle span:first-child { transform: translateY(3.5px) rotate(45deg); }
 .menu-open .menu-toggle span:last-child { transform: translateY(-3.5px) rotate(-45deg); }
-@media (max-width: 760px) {
+/* The full menu needs about 1,200px; narrower screens (tablets included) get the menu button. */
+@media (max-width: 1199px) {
   .site-header { padding: 14px 16px; backdrop-filter: none; background: rgba(14,14,14,.95); }
   .home .site-header { background: linear-gradient(rgba(0,0,0,.55), transparent); }
   .menu-toggle { display: block; z-index: 2; }
@@ -212,7 +213,7 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
 .side-rock .has-sub ul { background: var(--bg); border-color: var(--line); }
 .side-rock .nav-switch a { opacity: .55; }
 .side-rock .menu-toggle span { background: var(--fg); }
-@media (max-width: 760px) {
+@media (max-width: 1199px) {
   .side-rock .site-header { background: var(--bg); }
   /* Full-screen menu: solid background so nothing shows through, and every item the same size. */
   .side-rock nav { background: var(--bg); height: 100dvh; z-index: 1; }
@@ -378,11 +379,20 @@ html.full-lock { overflow: hidden; }
   .rk-hero p { font-size: clamp(.9rem, 1.15vw, 1.4rem); }
   .rk-hero .rk-btn { padding: clamp(10px, .95vw, 18px) clamp(22px, 2.1vw, 40px); font-size: clamp(.7rem, .78vw, .95rem); }
 }
+/* Tablets held upright: a taller hero (the room cropped at the sides, like on phones) so the title, line and button
+   have room on the buffet instead of squeezing into a short strip. */
+@media (min-width: 700px) and (max-width: 1199px) and (orientation: portrait) {
+  .rk-hero { aspect-ratio: 4 / 3; }
+  .rk-hero-text { top: 64%; bottom: 5%; width: 54%; }
+  .rk-hero h1 { margin-bottom: 8px; font-size: clamp(2.6rem, 6vw, 4rem); }
+  .rk-hero p { max-width: 17em; font-size: clamp(.95rem, 1.9vw, 1.2rem); line-height: 1.35; text-wrap: balance; }
+  .rk-hero .rk-btn { padding: 12px 28px; font-size: .74rem; }
+}
 .nav-ig { display: flex; align-items: center; }
 .nav-ig a { display: inline-flex; align-items: center; margin-top: -2px; }
 .side-rock nav > ul { align-items: center; }
 .nav-ig svg { display: block; }
-@media (max-width: 760px) {
+@media (max-width: 1199px) {
   /* Phone menu: Instagram icon in the lower right corner. */
   .nav-ig { position: absolute; right: 24px; bottom: 28px; }
   .nav-ig svg { width: 26px; height: 26px; }
