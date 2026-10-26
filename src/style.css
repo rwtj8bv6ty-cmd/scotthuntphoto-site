@@ -372,7 +372,7 @@ html.full-lock { overflow: hidden; }
 .rk-hero h1 { margin: 0 0 6px; font-size: 2.4rem; line-height: 1; }
 .rk-hero p { margin: 0; font-size: .95rem; }
 .rk-hero .rk-btn { margin-top: auto; }
-@media (max-width: 699px) { .rk-hero-text { top: 64%; } }
+@media (max-width: 699px) { .rk-hero-text { top: 64%; } .rk-hero p .by { display: block; } }
 @media (min-width: 700px) {
   .rk-hero { min-height: 0; aspect-ratio: 16 / 9; }
   .rk-hero-text { width: 46%; }

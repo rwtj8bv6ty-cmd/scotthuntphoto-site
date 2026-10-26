@@ -431,10 +431,12 @@ function rockHomeBody() {
   // Room photos: prints shown on walls, full width, one after another.
   const rooms = (site.rockRoomPhotos || []).map((r) => (typeof r === 'string' ? r : r && r.image)).filter(Boolean);
   const roomsHtml = rooms.length ? `<section class="rk-rooms">${rooms.map((r) => `<img src="${img(r)}" alt="" loading="lazy">`).join('')}</section>` : '';
+  // On phones the closing "by …" of the hero line goes on a line of its own.
+  const heroLine = (t) => { const i = String(t).lastIndexOf(' by '); return i > 0 ? `${esc(t.slice(0, i))} <span class="by">${esc(t.slice(i + 1))}</span>` : esc(t); };
   return `<section class="rk-hero"${hero ? ` style="background-image:url('${img(hero)}')"` : ''}>
   <div class="rk-hero-text">
     <h1>${esc(site.rockHeroHeading || ROCK_NAME)}</h1>
-    ${site.rockHeroText ? `<p>${esc(site.rockHeroText)}</p>` : ''}
+    ${site.rockHeroText ? `<p>${heroLine(site.rockHeroText)}</p>` : ''}
     ${allPrints.length ? `<a class="rk-btn light" href="${url(`${ROCK_HOME}collections/`)}">${esc(site.rockHeroButton || 'Explore the collection')}</a>` : ''}
   </div>
 </section>
