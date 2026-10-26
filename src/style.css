@@ -260,6 +260,8 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
 .newsletter label { flex: 1 1 240px; }
 .newsletter .form-status { flex-basis: 100%; margin: 0; color: var(--muted); font-size: .85rem; }
 .sr { position: relative; } .sr { font-size: 0 !important; }
+/* The hidden "Email" label wraps the box; give the box its own size so typed text and the placeholder show. */
+.newsletter .sr input { width: 100%; box-sizing: border-box; font-size: 1rem; }
 .side-rock .contact input, .side-rock .contact textarea { background: #fff; color: var(--fg); }
 .side-rock .contact button { background: var(--fg); color: var(--bg); }
 .product { max-width: 1280px; margin: 0 auto; padding: 48px 32px 80px; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr); gap: 56px; align-items: start; }
