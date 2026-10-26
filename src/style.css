@@ -161,10 +161,12 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
 .ss-controls button:hover, .ss-thumbs:hover { color: var(--fg); }
 .ss-prev, .ss-next { font-size: 1.1rem !important; line-height: 1; }
 .ss-edition .edition { justify-content: flex-start; }
-.thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; padding-bottom: 60px; }
+.thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); min-width: 0; gap: 12px; padding-bottom: 60px; }
 .thumbs .ss-thumbs { grid-column: 1 / -1; justify-self: end; font-size: .78rem; }
-.thumb { all: unset; cursor: pointer; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: #f6f6f6; }
-.thumb img { max-width: 100%; max-height: 100%; object-fit: contain; transition: opacity .2s; }
+/* Square tiles with the photo fitted inside. The photo is positioned absolutely so a tall photo can't stretch
+   its tile (and the page) on iPhone and iPad, where percentage heights inside aspect-ratio boxes don't resolve. */
+.thumb { all: unset; cursor: pointer; position: relative; min-width: 0; aspect-ratio: 1; background: #f6f6f6; }
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transition: opacity .2s; }
 .thumb:hover img, .thumb:focus-visible img { opacity: .75; }
 
 @media (max-width: 860px) {
@@ -180,7 +182,7 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
   .stage { height: auto; max-height: 75vh; }
   .feature { height: 70vh; }
   .feature-img { object-position: center top; }
-  .thumbs { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .thumbs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 }
 
 /* ===== Rock'n H side ===== */
@@ -191,6 +193,13 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
 .stage { height: auto; min-height: 0; }
 /* Every photo fills the same display area, so small files show at the same size as large ones. */
 .stage img { height: calc(100vh - 150px); width: auto; max-width: 100%; max-height: none; object-fit: contain; object-position: left center; }
+.stage img { height: calc(100dvh - 150px); }
+/* Phones held sideways: fit the photo and its controls into the part of the screen the browser actually shows
+   (dvh shrinks when the tab bar or toolbar is showing; vh doesn't). */
+@media (orientation: landscape) and (max-height: 500px) {
+  .stage img { height: calc(100vh - 110px); height: calc(100dvh - 110px); }
+  .side-photo main { padding-top: 12px; }
+}
 @media (max-width: 760px) { .stage img { width: 100%; height: auto; max-height: 75vh; object-position: center; } }
 
 /* ===== Rock'n H: light fine-art print shop ===== */
