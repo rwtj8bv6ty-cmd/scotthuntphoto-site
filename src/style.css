@@ -131,7 +131,7 @@ nav a:hover, nav .active > a { opacity: 1; color: var(--accent); }
 /* ===== Photography side: white, quiet, sidebar of galleries ===== */
 .side-photo { --bg: #fff; --fg: #222; --muted: #8a8a8a; --line: #e6e6e6; --accent: #000; background: var(--bg); color: var(--fg); }
 .side-photo .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 240px; padding: 48px 32px; overflow-y: auto; }
-.side-photo .sidebar .brand { display: block; font: 400 1.35rem/1.25 var(--serif); letter-spacing: .02em; text-transform: none; text-decoration: none; margin-bottom: 40px; }
+.side-photo .sidebar .brand { display: block; white-space: normal; font: 400 1.35rem/1.25 var(--serif); letter-spacing: .02em; text-transform: none; text-decoration: none; margin-bottom: 40px; }
 .side-photo .sidebar nav ul { display: block; margin: 0 0 28px; }
 .side-photo .sidebar nav a { display: block; padding: 3px 0; font-size: .82rem; letter-spacing: .02em; text-transform: none; color: var(--muted); opacity: 1; }
 .side-photo .sidebar nav a:hover, .side-photo .sidebar nav .active > a { color: var(--fg); }
