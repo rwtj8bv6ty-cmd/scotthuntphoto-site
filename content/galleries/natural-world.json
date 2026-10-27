@@ -724,13 +724,6 @@
       "forSale": false
     },
     {
-      "image": "/photos/the-space-between/waterton-2.jpg",
-      "title": "Waterton",
-      "caption": "",
-      "alt": "",
-      "forSale": false
-    },
-    {
       "image": "/photos/the-space-between/waterton.jpg",
       "title": "Waterton",
       "caption": "",
@@ -782,13 +775,6 @@
     {
       "image": "/photos/the-space-between/banff-02.jpg",
       "title": "Banff",
-      "caption": "",
-      "alt": "",
-      "forSale": false
-    },
-    {
-      "image": "/photos/the-space-between/falls-glacier.jpg",
-      "title": "Falls Glacier",
       "caption": "",
       "alt": "",
       "forSale": false
