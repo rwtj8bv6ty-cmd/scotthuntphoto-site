@@ -9,14 +9,14 @@
   "description": "<p>In many ways, it is the story of my childhood, framed by the window of a moving car — places worn, tired, and abandoned, yet still speaking to a time of optimism and celebration, of ingenious design and unique character. These are the places and things that defined the journey, but rarely the destination. Still, they call to me. Whether born of an escape from suburban sameness or the sad irony of what we’ve let them become, Out There celebrates a time I never knew and places I only passed through.</p>",
   "photos": [
     {
-      "image": "/photos/out-there/road.jpg",
-      "title": "Road",
+      "image": "/photos/out-there/bike.jpg",
+      "title": "Bike",
       "caption": "",
       "alt": ""
     },
     {
-      "image": "/photos/out-there/airstream.jpg",
-      "title": "Airstream",
+      "image": "/photos/out-there/road.jpg",
+      "title": "Road",
       "caption": "",
       "alt": ""
     },
@@ -51,6 +51,12 @@
       "alt": ""
     },
     {
+      "image": "/photos/out-there/revolver.jpg",
+      "title": "Revolver",
+      "caption": "",
+      "alt": ""
+    },
+    {
       "image": "/photos/out-there/plateau-marfa.jpg",
       "title": "Plateau",
       "caption": "",
@@ -65,6 +71,12 @@
     {
       "image": "/photos/out-there/reflection.jpg",
       "title": "Reflection",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/tail.jpg",
+      "title": "Tail",
       "caption": "",
       "alt": ""
     },
@@ -93,14 +105,14 @@
       "alt": ""
     },
     {
-      "image": "/photos/out-there/yucca.jpg",
-      "title": "Yucca",
+      "image": "/photos/out-there/barstools.jpg",
+      "title": "Barstools",
       "caption": "",
       "alt": ""
     },
     {
-      "image": "/photos/out-there/barstools.jpg",
-      "title": "Barstools",
+      "image": "/photos/out-there/airstream.jpg",
+      "title": "Airstream",
       "caption": "",
       "alt": ""
     },
@@ -131,6 +143,12 @@
     {
       "image": "/photos/out-there/burger-2.jpg",
       "title": "Burger 2",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/out-there/yucca.jpg",
+      "title": "Yucca",
       "caption": "",
       "alt": ""
     },
@@ -171,12 +189,6 @@
       "alt": ""
     },
     {
-      "image": "/photos/out-there/revolver.jpg",
-      "title": "Revolver",
-      "caption": "",
-      "alt": ""
-    },
-    {
       "image": "/photos/out-there/signs.jpg",
       "title": "Signs",
       "caption": "",
@@ -185,12 +197,6 @@
     {
       "image": "/photos/out-there/skate.jpg",
       "title": "Skate",
-      "caption": "",
-      "alt": ""
-    },
-    {
-      "image": "/photos/out-there/tail.jpg",
-      "title": "Tail",
       "caption": "",
       "alt": ""
     },
@@ -221,12 +227,6 @@
     {
       "image": "/photos/out-there/m113.jpg",
       "title": "M113",
-      "caption": "",
-      "alt": ""
-    },
-    {
-      "image": "/photos/out-there/bike.jpg",
-      "title": "Bike",
       "caption": "",
       "alt": ""
     },
