@@ -332,13 +332,6 @@
       "forSale": false
     },
     {
-      "image": "/photos/the-space-between/wagon.jpg",
-      "title": "Wagon",
-      "caption": "",
-      "alt": "",
-      "forSale": false
-    },
-    {
       "image": "/photos/the-space-between/windmill.jpg",
       "title": "Windmill",
       "caption": "",
@@ -382,6 +375,12 @@
     {
       "image": "/photos/the-space-between/clyde-warren-1.jpg",
       "title": "Clyde Warren 1",
+      "caption": "",
+      "alt": ""
+    },
+    {
+      "image": "/photos/the-space-between/our-world/wagon.jpg",
+      "title": "",
       "caption": "",
       "alt": ""
     },
