@@ -270,7 +270,15 @@ function photoHomeBody() {
   const slides = (site.homeSlides || []).filter((s) => s && s.image);
   return `<section class="feature" data-interval="${Number(site.homeSlideSeconds) || 6}">${slides
     .map((s, i) => `<img class="feature-img${i === 0 ? ' on' : ''}" src="${img(s.image)}" alt=""${i ? ' loading="lazy"' : ''}>`)
-    .join('')}</section>`;
+    .join('')}</section>
+${photoHomeMenu()}`;
+}
+
+// Phones: the galleries listed under the slideshow, so the home page shows where to go next.
+function photoHomeMenu() {
+  const gal = galleries.filter((g) => live(g) && !g.parent).map((g) => `<a href="${url(`${g.slug}/`)}">${esc(g.title)}</a>`).join('');
+  const pg = menuPages('photography').map((p) => `<a class="small" href="${url(`${p.slug}/`)}">${esc(p.menuTitle || p.title)}</a>`).join('');
+  return `<div class="home-menu">${gal}<span class="hm-rule"></span>${pg}<a class="small" href="${url(ROCK_HOME)}">${esc(ROCK_NAME)} →</a></div>`;
 }
 
 function editionInfo(p) {
