@@ -204,6 +204,7 @@ function entranceHtml() {
 <meta name="description" content="${esc(site.tagline || '')}">
 ${site.googleVerification ? `<meta name="google-site-verification" content="${esc(site.googleVerification)}">` : ''}
 ${iconLinks('photo')}
+${site.customDomain ? `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'WebSite', name: PHOTO_NAME, url: `https://${site.customDomain}/` })}</script>` : ''}
 ${statsTag()}
 <style>
   :root { color-scheme: light; }
