@@ -153,6 +153,14 @@ const statsTag = (draft = false) => site.goatcounterCode && !draft ? `<script da
 // Browser-tab icons: the Scott Hunt Photography coin, or the Rock'n H coin on that side.
 const iconLinks = (which) => `<link rel="icon" type="image/png" sizes="32x32" href="${url(`assets/icons/${which}-32.png`)}"><link rel="icon" type="image/png" sizes="512x512" href="${url(`assets/icons/${which}-512.png`)}"><link rel="apple-touch-icon" href="${url(`assets/icons/${which}-180.png`)}">`;
 
+// Search-engine description: the page's first real paragraph (a statement, bio or print story), trimmed to about 160 characters.
+function pageSummary(html) {
+  for (const m of String(html).replace(/<details[\s\S]*?<\/details>/g, '').matchAll(/<p>([\s\S]*?)<\/p>/g)) {
+    const t = m[1].replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&#39;|&rsquo;/g, "'").replace(/\s+/g, ' ').trim();
+    if (t.length >= 40) return t.length > 160 ? t.slice(0, 157).replace(/\s+\S*$/, '') + '…' : t;
+  }
+  return '';
+}
 function layout({ title, body, current, side = 'photography', draft = false, bodyClass = '', description, share }) {
   const brand = side === 'rocknh' ? ROCK_NAME : side === 'entrance' ? site.title : PHOTO_NAME;
   const fullTitle = title ? `${title} · ${brand}` : brand;
@@ -164,7 +172,7 @@ function layout({ title, body, current, side = 'photography', draft = false, bod
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(fullTitle)}</title>
-<meta name="description" content="${esc(description || site.tagline || '')}">
+<meta name="description" content="${esc(description || pageSummary(body) || (side === 'rocknh' && site.rockHeroText) || site.tagline || '')}">
 ${draft ? '<meta name="robots" content="noindex, nofollow">' : ''}
 ${site.googleVerification && !draft ? `<meta name="google-site-verification" content="${esc(site.googleVerification)}">` : ''}
 ${share ? `<meta property="og:type" content="website"><meta property="og:title" content="${esc(fullTitle)}"><meta property="og:url" content="${share.url}"><meta property="og:image" content="${share.image}"><meta name="twitter:card" content="summary_large_image">` : ''}
