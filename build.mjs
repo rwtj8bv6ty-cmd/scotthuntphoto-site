@@ -166,6 +166,7 @@ function layout({ title, body, current, side = 'photography', draft = false, bod
 <title>${esc(fullTitle)}</title>
 <meta name="description" content="${esc(description || site.tagline || '')}">
 ${draft ? '<meta name="robots" content="noindex, nofollow">' : ''}
+${site.googleVerification && !draft ? `<meta name="google-site-verification" content="${esc(site.googleVerification)}">` : ''}
 ${share ? `<meta property="og:type" content="website"><meta property="og:title" content="${esc(fullTitle)}"><meta property="og:url" content="${share.url}"><meta property="og:image" content="${share.image}"><meta name="twitter:card" content="summary_large_image">` : ''}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
