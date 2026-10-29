@@ -1102,10 +1102,37 @@ function imageInput(obj, f, doc) {
   return box;
 }
 
+// Photos inside formatted text keep the website's own address (e.g. ../photos/rockn-h/mark.png). In the
+// editor they show from GitHub, and the stored address is put back whenever the text is saved, so a
+// preview-only address never reaches the website.
+function richToEditor(html) {
+  const t = document.createElement('template');
+  t.innerHTML = html;
+  for (const img of t.content.querySelectorAll('img')) {
+    const stored = img.getAttribute('src') || '';
+    if (/^(https?|data|shp|blob):/i.test(stored)) continue;
+    const preview = imgSrc('/' + stored.replace(/^(\.\.?\/)+/, '').replace(/^\/+/, ''));
+    if (preview) { img.setAttribute('data-stored', stored); img.setAttribute('src', preview); }
+  }
+  return t.innerHTML;
+}
+function richFromEditor(ed) {
+  const c = ed.cloneNode(true);
+  for (const img of c.querySelectorAll('img')) {
+    const stored = img.getAttribute('data-stored');
+    const m = (img.getAttribute('src') || '').match(/^shp:\/\/app\/([^?#]*)/);
+    if (stored != null) img.setAttribute('src', stored);
+    else if (m) img.setAttribute('src', '../' + m[1]);
+    img.removeAttribute('data-stored');
+    img.removeAttribute('data-retries');
+  }
+  return c.innerHTML;
+}
+
 function richText(obj, f) {
-  const ed = h('div', { class: 'rich', contenteditable: 'true', innerHTML: obj[f.name] || '' });
+  const ed = h('div', { class: 'rich', contenteditable: 'true', innerHTML: richToEditor(obj[f.name] || '') });
   const save = () => {
-    let html = ed.innerHTML.replace(/<div>/g, '<p>').replace(/<\/div>/g, '</p>').replace(/ style="[^"]*"/g, '');
+    let html = richFromEditor(ed).replace(/<div>/g, '<p>').replace(/<\/div>/g, '</p>').replace(/ style="[^"]*"/g, '');
     if (!ed.textContent.trim() && !ed.querySelector('img')) html = '';
     else if (!/^\s*</.test(html)) html = `<p>${html}</p>`;
     obj[f.name] = html;
