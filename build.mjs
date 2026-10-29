@@ -194,6 +194,7 @@ function entranceHtml() {
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(site.title)}</title>
 <meta name="description" content="${esc(site.tagline || '')}">
+${site.googleVerification ? `<meta name="google-site-verification" content="${esc(site.googleVerification)}">` : ''}
 ${iconLinks('photo')}
 ${statsTag()}
 <style>
