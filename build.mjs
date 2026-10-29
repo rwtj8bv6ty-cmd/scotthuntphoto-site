@@ -572,8 +572,10 @@ function cartBody() {
 }
 
 // ---------- write ----------
+const sitemap = [];
 function write(rel, html) {
   const file = path.join(OUT, rel, 'index.html');
+  if (!html.includes('name="robots"') && !html.includes('http-equiv="refresh"') && !/(^|\/)cart$/.test(rel)) sitemap.push(rel.replace(/\/+$/, ""));
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, html);
 }
@@ -633,7 +635,10 @@ write(
   }),
 );
 fs.writeFileSync(path.join(OUT, '404.html'), layout({ title: 'Not found', body: `<section class="page-head"><h1>${word('wordNotFound')}</h1><div class="intro"><p><a href="${url()}">${word('wordBackHome')}</a></p></div></section>` }));
-fs.writeFileSync(path.join(OUT, 'robots.txt'), 'User-agent: *\nDisallow: /drafts/\n');
+// Sitemap: tells search engines which pages exist now, so they drop the old Squarespace links sooner.
+const origin = site.customDomain ? `https://${site.customDomain}` : '';
+if (origin) fs.writeFileSync(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemap.map((r) => `<url><loc>${origin}${url(r ? `${r}/` : '')}</loc></url>`).join('\n')}\n</urlset>\n`);
+fs.writeFileSync(path.join(OUT, 'robots.txt'), `User-agent: *\nDisallow: /drafts/\n${origin ? `Sitemap: ${origin}/sitemap.xml\n` : ''}`);
 fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
 if (site.customDomain) fs.writeFileSync(path.join(OUT, 'CNAME'), site.customDomain + '\n');
 
