@@ -607,7 +607,8 @@ for (const c of collections) {
 const redirect = (to) => `<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=${to}"><link rel="canonical" href="${to}">`;
 write('galleries', redirect(url(PHOTO_HOME)));
 // Old Squarespace addresses that search engines still list, forwarded to their new homes (2026-10-29).
-const oldAddresses = { home: '', photographs: PHOTO_HOME, portfolios: PHOTO_HOME, blog: PHOTO_HOME, purchase: ROCK_HOME, shop: ROCK_HOME, 'road-trip': 'out-there/', 'arboretum-dallas-texas': 'the-space-between/natural-world/' };
+const NW = 'the-space-between/natural-world/';
+const oldAddresses = { home: '', photographs: PHOTO_HOME, portfolios: PHOTO_HOME, blog: PHOTO_HOME, 'new-blog': PHOTO_HOME, purchase: ROCK_HOME, shop: ROCK_HOME, typical: ROCK_HOME, follow: ROCK_HOME, 'road-trip': NW, 'out-west': NW, desert: NW, 'arboretum-dallas-texas': NW, 'open-road': 'out-there/', woods: 'the-space-between/ancient-world/', urban: 'anthologies/shangri-la/', chaos: 'anthologies/' };
 for (const [from, to] of Object.entries(oldAddresses)) if (!fs.existsSync(path.join(OUT, from))) write(from, redirect(url(to)));
 write('prints', redirect(url(`${ROCK_HOME}collections/`)));
 if (!galleries.some((g) => g.slug === 'pocket-pictures' && !g.parent)) write('pocket-pictures', redirect(url(galleries.some((g) => g.slug === 'pocket-pictures' && g.parent === 'anthologies') ? 'anthologies/pocket-pictures/' : 'anthologies/'))); // renamed 2026-10-15
@@ -637,7 +638,12 @@ write(
 <article class="prose"><div>${drafts.length ? `<ul>${drafts.map((d) => `<li>${d.kind}: <a href="${d.href}">${esc(d.title)}</a></li>`).join('')}</ul>` : '<p>No drafts right now.</p>'}</div></article>`,
   }),
 );
-fs.writeFileSync(path.join(OUT, '404.html'), layout({ title: 'Not found', body: `<section class="page-head"><h1>${word('wordNotFound')}</h1><div class="intro"><p><a href="${url()}">${word('wordBackHome')}</a></p></div></section>` }));
+fs.writeFileSync(path.join(OUT, '404.html'), layout({ title: 'Not found', body: `<section class="page-head"><h1>${word('wordNotFound')}</h1><div class="intro"><p><a href="${url()}">${word('wordBackHome')}</a></p></div></section>
+<script>(() => { // Old Squarespace addresses (and pages inside them, like product pages) go to the nearest new page; anything else unknown goes to the photography home.
+  const map = ${JSON.stringify(Object.fromEntries(Object.entries(oldAddresses).map(([k, v]) => [k, url(v)])))};
+  const first = location.pathname.slice(${JSON.stringify(url())}.length).split('/')[0].toLowerCase();
+  location.replace(map[first] || ${JSON.stringify(url(PHOTO_HOME))});
+})();</script>` }));
 // Sitemap: tells search engines which pages exist now, so they drop the old Squarespace links sooner.
 const origin = site.customDomain ? `https://${site.customDomain}` : '';
 if (origin) fs.writeFileSync(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemap.map((r) => `<url><loc>${origin}${url(r ? `${r}/` : '')}</loc></url>`).join('\n')}\n</urlset>\n`);
