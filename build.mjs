@@ -637,7 +637,9 @@ for (const g of galleries) {
 for (const c of collections.filter((c) => c.draft)) drafts.push({ kind: 'Print collection', title: c.title, href: url(`drafts/collections/${c.slug}/`) });
 for (const p of pages) {
   const where = p.draft ? `drafts/${p.slug}` : p.slug;
-  write(where, layout({ title: p.title, side: p.side, body: pageBody(p), current: url(`${p.slug}/`), draft: !!p.draft }));
+  // The photography About page also describes Scott himself to search engines (used for Google's summaries of who he is).
+  const person = p.slug === 'about' && site.customDomain ? `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'Person', name: 'Scott Hunt', jobTitle: 'Photographer', description: pageSummary(pageBody(p)), url: `https://${site.customDomain}${url('about/')}`, worksFor: { '@type': 'Organization', name: PHOTO_NAME, url: `https://${site.customDomain}/` } }).replace(/</g, '\\u003c')}</script>` : '';
+  write(where, layout({ title: p.title, side: p.side, body: pageBody(p) + person, current: url(`${p.slug}/`), draft: !!p.draft }));
   if (p.draft) drafts.push({ kind: 'Page', title: p.title, href: url(`${where}/`) });
 }
 write(
