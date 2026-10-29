@@ -585,6 +585,8 @@ function cartBody() {
 // ---------- write ----------
 const sitemap = [];
 function write(rel, html) {
+  // The Mac app's editor previews images at shp://app/…; if one is ever saved that way, point it back at the real photo.
+  html = html.replace(/shp:\/\/app\/([^"'?\s]*)(\?[^"'\s]*)?/g, (_, p) => url(p)).replace(/ data-retries="\d+"/g, '');
   const file = path.join(OUT, rel, 'index.html');
   if (!html.includes('name="robots"') && !html.includes('http-equiv="refresh"') && !/(^|\/)cart$/.test(rel)) sitemap.push(rel.replace(/\/+$/, ""));
   fs.mkdirSync(path.dirname(file), { recursive: true });
