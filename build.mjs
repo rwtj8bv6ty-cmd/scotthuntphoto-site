@@ -312,7 +312,7 @@ function galleryBody(g) {
   // A parent gallery with an Introduction shows it as a statement page in place of the cover grid.
   if (subs.length && !photos.length && String(g.description || '').replace(/<[^>]*>/g, '').trim()) {
     // On phones the sub-gallery links sit in a bar at the foot of the screen, since the menu is folded away.
-    const nav = `<div class="statement-nav phone-only">${subs.map((x) => `<a class="statement-next" href="${url(`${galleryPath(x)}/`)}">${esc(x.title)} →</a>`).join('')}</div>`;
+    const nav = `<div class="statement-nav phone-only">${subs.map((x) => `<a class="statement-next" href="${url(`${galleryPath(x)}/`)}">${esc(x.title)}<span class="arr"> →</span></a>`).join('')}</div>`;
     return `<section class="statement"><h1>${esc(g.title)}</h1><div class="statement-text">${g.description}</div>${nav}</section>`;
   }
   if (subs.length && !photos.length) {

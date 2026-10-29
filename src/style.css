@@ -422,12 +422,12 @@ html.full-lock { overflow: hidden; }
 .statement-next { display: inline-block; margin-top: 28px; font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; text-decoration: none; opacity: .75; }
 .statement-next:hover { opacity: 1; }
 
-/* Intro pages: on phones, the way to the photographs is a bar fixed at the foot of the screen. */
+/* Intro pages: on phones, the ways to the photographs are listed under the statement, like the photography home menu. */
 .statement-nav.phone-only { display: none; }
 @media (max-width: 760px) {
-  body:has(.statement-nav) { padding-bottom: 100px; }
-  .statement-nav, .statement-nav.phone-only { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; padding: 9px 12px calc(9px + env(safe-area-inset-bottom, 0px)); background: var(--bg); border-top: 1px solid var(--line); }
-  .statement-nav .statement-next { margin: 0; padding: 7px 10px; border: 1px solid var(--muted); opacity: 1; font-size: .64rem; letter-spacing: .12em; }
+  .statement-nav, .statement-nav.phone-only { display: flex; flex-direction: column; align-items: center; gap: 18px; margin-top: 36px; padding-top: 30px; border-top: 1px solid var(--line); width: 40px; margin-left: auto; margin-right: auto; overflow: visible; white-space: nowrap; }
+  .statement-nav .statement-next { margin: 0; font: 400 1.7rem/1.1 var(--serif); letter-spacing: 0; text-transform: none; color: var(--fg); opacity: 1; }
+  .statement-nav .statement-next .arr { display: none; }
 }
 
 /* Photography home on phones: the slideshow and the gallery list below it, centred together on the screen. */
