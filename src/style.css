@@ -441,3 +441,16 @@ html.full-lock { overflow: hidden; }
   .home-menu .small { font: 400 .78rem/1 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
   .hm-rule { width: 40px; border-top: 1px solid var(--line); margin: 6px 0; }
 }
+
+/* Essay-style pages (e.g. The Space Between: Artist Statement): the gallery-introduction serif, for long reading. */
+.prose.essay > div { max-width: 660px; }
+.prose.essay p { font: 400 1.22rem/1.75 var(--serif); margin: 0 0 1.3em; }
+.prose.essay p.ma-glyph { margin: .9em 0 0; text-align: center; font: 300 4.2rem/1 var(--serif); }
+.prose.essay p.ma-caption { margin: .5em 0 2.4em; text-align: center; color: var(--muted); font-size: 1rem; line-height: 1.6; }
+.prose.essay p.statement-back { margin-top: 3em; }
+.prose.essay p.statement-back a, .statement-text p:last-child > a:only-child { font: 300 .8rem/1.7 var(--sans); letter-spacing: .16em; text-transform: uppercase; text-decoration: none; opacity: .75; }
+.prose.essay p.statement-back a:hover, .statement-text p:last-child > a:only-child:hover { opacity: 1; color: var(--accent); }
+@media (max-width: 760px) { .prose.essay p { font-size: 1.1rem; } }
+/* A "Full Artist Statement" link at the end of a gallery introduction: the closing line keeps its extra space above. */
+.statement-text p:has(+ p:last-child > a:only-child) { margin-top: 2em; }
+.statement-text p:last-child:has(> a:only-child) { margin-top: 1.6em; }

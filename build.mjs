@@ -368,7 +368,7 @@ function pageBody(p) {
         ? `<p class="note">The contact form will appear here once a form address is set in Site settings.</p>`
         : '';
   return `<section class="page-head"><h1>${esc(p.title)}</h1></section>
-<article class="prose${p.image ? ' with-image' : ''}">${p.image ? `<img class="page-image" src="${img(p.image)}" alt="">` : ''}<div>${p.body || ''}${p.slug === PRINT_INFO_SLUG ? infoSections() : ''}${form}</div></article>`;
+<article class="prose${p.image ? ' with-image' : ''}${p.essay ? ' essay' : ''}">${p.image ? `<img class="page-image" src="${img(p.image)}" alt="">` : ''}<div>${p.body || ''}${p.slug === PRINT_INFO_SLUG ? infoSections() : ''}${form}</div></article>`;
 }
 
 

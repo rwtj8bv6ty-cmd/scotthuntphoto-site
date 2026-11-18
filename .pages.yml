@@ -69,6 +69,7 @@ content:
       - { name: order, label: "Menu order (1 = first)", type: number, default: 10 }
       - { name: image, label: Side photo, type: image }
       - { name: body, label: Text, type: rich-text }
+      - { name: essay, label: "Essay style: larger serif text, like a gallery introduction (for artist statements)", type: boolean, default: false }
       - { name: contactForm, label: Show the contact form on this page, type: boolean, default: false }
 
   - name: collections
